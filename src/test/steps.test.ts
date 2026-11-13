@@ -1,0 +1,79 @@
+import { describe, expect, it } from "vitest";
+import { newSave } from "../core/save";
+import { applyHealthImport, creditLiveSteps, parseHealthText, parseImport, setTrackingWithoutImport } from "../core/steps";
+import { StepDetector } from "../core/motion";
+
+const now = new Date(2026, 10, 13, 18, 0);
+
+describe("parseImport", () => {
+  it("reads a valid link", () => {
+    expect(parseImport("#importar?pasos=8.421&fecha=2026-11-13&accion=activar", now)).toEqual({ steps: 8421, day: "2026-11-13", action: "activar" });
+  });
+  it("defaults the day to today and ignores unknown actions", () => {
+    expect(parseImport("#importar?pasos=10&accion=borrar", now)).toEqual({ steps: 10, day: "2026-11-13", action: undefined });
+  });
+  it("rejects bad values", () => {
+    for (const h of ["", "#otra", "#importar?pasos=-5", "#importar?pasos=abc", "#importar?pasos=999999", "#importar?pasos=5&fecha=2026-11-14", "#importar?pasos=5&fecha=2026-10-01", "#importar?pasos=5&fecha=ayer"]) {
+      expect(parseImport(h, now)).toBeUndefined();
+    }
+  });
+});
+
+describe("step crediting", () => {
+  const imp = (steps: number, action?: "activar" | "desactivar") => ({ steps, day: "2026-11-13", action });
+
+  it("ignores steps while off and starts counting from the reading that turns it on", () => {
+    const s = newSave();
+    expect(applyHealthImport(s, imp(3000, "activar"), now)).toMatchObject({ credited: 0, skipped: 3000 });
+    expect(s.steps.tracking).toBe(true);
+    expect(applyHealthImport(s, imp(5000), now).credited).toBe(2000);
+    expect(applyHealthImport(s, imp(5000), now).credited).toBe(0);
+    expect(applyHealthImport(s, imp(6000, "desactivar"), now).credited).toBe(1000);
+    expect(applyHealthImport(s, imp(9000), now)).toMatchObject({ credited: 0, skipped: 3000 });
+  });
+
+  it("never counts motion-sensor steps twice", () => {
+    const s = newSave();
+    applyHealthImport(s, imp(1000, "activar"), now);
+    expect(creditLiveSteps(s, 400, now)).toBe(400);
+    expect(applyHealthImport(s, imp(1500), now)).toMatchObject({ credited: 100, matched: 400 });
+    expect(s.steps.days["2026-11-13"].credited).toBe(500);
+  });
+
+  it("uses the first reading as the start after switching on without one", () => {
+    const s = newSave();
+    setTrackingWithoutImport(s, true, now);
+    expect(applyHealthImport(s, imp(4000), now).credited).toBe(0);
+    expect(applyHealthImport(s, imp(4500), now).credited).toBe(500);
+  });
+
+  it("credits nothing from the sensor while off", () => {
+    const s = newSave();
+    expect(creditLiveSteps(s, 50, now)).toBe(0);
+  });
+});
+
+describe("StepDetector", () => {
+  it("counts a steady walk and ignores a single jolt", () => {
+    let total = 0;
+    const d = new StepDetector((n) => (total += n));
+    for (let t = 0; t < 10_000; t += 20) d.sample(9.81 + 3 * Math.sin((2 * Math.PI * t) / 550), t);
+    expect(total).toBeGreaterThan(15);
+    expect(total).toBeLessThan(20);
+    let jolts = 0;
+    const j = new StepDetector((n) => (jolts += n));
+    for (let t = 0; t < 3000; t += 20) j.sample(t > 1000 && t < 1100 ? 16 : 9.81, t);
+    expect(jolts).toBe(0);
+  });
+});
+
+describe("parseHealthText", () => {
+  it("reads what the Shortcut copies, a bare number or an import link", () => {
+    expect(parseHealthText("enlace pasos=8421 fecha=2026-11-13", now)).toMatchObject({ steps: 8421, day: "2026-11-13" });
+    expect(parseHealthText(" 8.421 ", now)).toMatchObject({ steps: 8421, day: "2026-11-13" });
+    expect(parseHealthText("https://x.io/#importar?pasos=12&fecha=2026-11-12", now)).toMatchObject({ steps: 12, day: "2026-11-12" });
+  });
+  it("rejects anything else", () => {
+    for (const t of ["", "hola", "pasos=", "enlace pasos=9999999", "pasos=5 fecha=2027-01-01"]) expect(parseHealthText(t, now)).toBeUndefined();
+  });
+});

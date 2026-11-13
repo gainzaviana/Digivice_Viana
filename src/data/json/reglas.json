@@ -1,0 +1,289 @@
+{
+  "levelCap": 70,
+  "xpBase": 12,
+  "xpExponent": 1.75,
+  "statGrowthPerLevel": 0.045,
+  "maxBond": 100,
+  "stepsPerBond": 600,
+  "encounterEveryMinSteps": 80,
+  "encounterEveryMaxSteps": 220,
+  "events": {
+    "battle": 45,
+    "recruit": 10,
+    "item": 18,
+    "egg": 6,
+    "merchant": 6,
+    "shrine": 5,
+    "nothing": 10
+  },
+  "brillanteChance": 1.0,
+  "infectadoChance": 4.0,
+  "defeatPenaltyFraction": 0.15,
+  "defeatPenaltyMin": 100,
+  "deckSize": 6,
+  "startingLevel": 3,
+  "startingBits": 100,
+  "startingItems": {
+    "disco-vida-s": 3,
+    "disco-energia": 1
+  },
+  "startingCards": [
+    "parche-fuerza",
+    "parche-cura",
+    "parche-coraza"
+  ],
+  "stepsPerDP": 8,
+  "stepsPerHealPercent": 15,
+  "maxPendingEvents": 5,
+  "maxEggs": 3,
+  "squadCap": 30,
+  "bossBitsPerOrder": 60,
+  "foundBitsMin": 3,
+  "foundBitsMax": 15,
+  "merchantOffers": 3,
+  "shrineBaseCost": 120,
+  "shrineCostPerOrder": 25,
+  "shrineEpicChance": 20,
+  "itemDrops": [
+    {
+      "item": "disco-vida-s",
+      "weight": 30,
+      "minRegion": 1
+    },
+    {
+      "item": "disco-energia",
+      "weight": 20,
+      "minRegion": 1
+    },
+    {
+      "item": "disco-vida-m",
+      "weight": 15,
+      "minRegion": 4
+    },
+    {
+      "item": "disco-vida-l",
+      "weight": 6,
+      "minRegion": 9
+    },
+    {
+      "item": "disco-total",
+      "weight": 2,
+      "minRegion": 12
+    },
+    {
+      "item": "fruta-fuerza",
+      "weight": 4,
+      "minRegion": 2
+    },
+    {
+      "item": "fruta-coraza",
+      "weight": 4,
+      "minRegion": 2
+    },
+    {
+      "item": "fruta-viento",
+      "weight": 4,
+      "minRegion": 2
+    },
+    {
+      "item": "fruta-vida",
+      "weight": 4,
+      "minRegion": 2
+    },
+    {
+      "item": "fruta-dulce",
+      "weight": 5,
+      "minRegion": 1
+    },
+    {
+      "item": "sobre-parches",
+      "weight": 5,
+      "minRegion": 2
+    },
+    {
+      "item": "radar",
+      "weight": 3,
+      "minRegion": 3
+    },
+    {
+      "item": "antivirus",
+      "weight": 4,
+      "minRegion": 3
+    },
+    {
+      "item": "amuleto-suerte",
+      "weight": 2,
+      "minRegion": 5
+    },
+    {
+      "item": "pesas-entrenamiento",
+      "weight": 3,
+      "minRegion": 2
+    },
+    {
+      "item": "cristal-forja",
+      "weight": 1,
+      "minRegion": 10
+    },
+    {
+      "item": "cristal-eco",
+      "weight": 1,
+      "minRegion": 10
+    },
+    {
+      "item": "cristal-pliegue",
+      "weight": 1,
+      "minRegion": 10
+    },
+    {
+      "item": "cristal-glitch",
+      "weight": 1,
+      "minRegion": 10
+    },
+    {
+      "item": "cristal-quitina",
+      "weight": 1,
+      "minRegion": 10
+    },
+    {
+      "item": "cristal-telurico",
+      "weight": 1,
+      "minRegion": 10
+    },
+    {
+      "item": "cristal-engranaje",
+      "weight": 1,
+      "minRegion": 10
+    },
+    {
+      "item": "cristal-abisal",
+      "weight": 1,
+      "minRegion": 10
+    }
+  ],
+  "eggDrops": [
+    {
+      "egg": "huevo-comun",
+      "weight": 70,
+      "minRegion": 1
+    },
+    {
+      "egg": "huevo-raro",
+      "weight": 25,
+      "minRegion": 3
+    },
+    {
+      "egg": "huevo-ancestral",
+      "weight": 5,
+      "minRegion": 8
+    }
+  ],
+  "battle": {
+    "damageScale": 0.45,
+    "basicReferencePower": 35,
+    "statRatioExponent": 0.25,
+    "affinityAdvantage": 1.2,
+    "affinityDisadvantage": 0.85,
+    "critChance": 6,
+    "critMultiplier": 1.5,
+    "randomSpread": 0.1,
+    "clashTieMargin": 0.16,
+    "strongClashWinnerDamage": 1.0,
+    "basicClashWinnerDamage": 0.8,
+    "basicClashTieDamage": 0.4,
+    "dodgeBase": 6,
+    "dodgeSpeedFactor": 30,
+    "strongDodgeBonus": 5,
+    "dodgeMin": 3,
+    "dodgeMax": 25,
+    "disobeyAtZeroBond": 15,
+    "disobeyAtMaxBond": 5,
+    "infectedDisobeyBonus": 5,
+    "disobeyLoafShare": 40,
+    "fleeBase": 55,
+    "fleeSpeedFactor": 60,
+    "fleeMin": 25,
+    "fleeMax": 90,
+    "doubleStrikeSecondHit": 0.6,
+    "wildTurnLimit": 25,
+    "bossHP": 1.3,
+    "bossAtk": 1.0,
+    "bossDef": 1.0,
+    "bossSpd": 1.0,
+    "bossDP": 1.0,
+    "enrageThreshold": 0.4,
+    "enrageAtk": 1.2,
+    "infectedEnemyAtk": 1.1,
+    "xpPerLevel": 10,
+    "xpLevelExponent": 1.0,
+    "xpStageMultiplier": {
+      "brote": 0.6,
+      "novato": 1.0,
+      "avanzado": 1.5,
+      "elite": 2.0,
+      "supremo": 3.0,
+      "despertar": 3.5,
+      "fusion": 4.0
+    },
+    "xpBossMultiplier": 4,
+    "xpBrillanteMultiplier": 2,
+    "bitsPerLevel": 1,
+    "winsPerBond": 3,
+    "bossWinBond": 3,
+    "lossBond": 1,
+    "evolutionCost": {
+      "avanzado": 15,
+      "elite": 25,
+      "supremo": 40
+    },
+    "evolutionUnlockBoss": {
+      "elite": "sabana-engranaje",
+      "supremo": "ruinas-legado"
+    },
+    "evolutionFailAtZeroBond": 15,
+    "evolutionFailFreeBond": 60,
+    "evolutionFailCostShare": 0.5,
+    "aiTierZones": [
+      4,
+      9
+    ],
+    "aiRandomness": [
+      0.35,
+      0.2,
+      0.12,
+      0.08
+    ],
+    "aiTemperature": [
+      2.0,
+      1.0,
+      0.5,
+      0.3
+    ],
+    "clashExponent": 2,
+    "bossWeakenPerDefeat": 5,
+    "bossWeakenMax": 25
+  },
+  "bossDefeatPenaltyFraction": 0.35,
+  "training": {
+    "sessionsPerDay": 5,
+    "statGainByTier": [
+      0,
+      1,
+      1,
+      2
+    ],
+    "tierScores": [
+      40,
+      70,
+      90
+    ],
+    "bondGain": 1,
+    "xpByTier": [
+      5,
+      20,
+      40,
+      70
+    ]
+  },
+  "dailyChallenges": 3
+}

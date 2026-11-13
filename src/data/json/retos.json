@@ -1,0 +1,529 @@
+[
+  {
+    "id": "d-pasos-2000",
+    "name": "Paseo diario",
+    "description": "Camina 2.000 pasos con el contador activado.",
+    "metric": "steps",
+    "target": 2000,
+    "daily": true,
+    "reward": {
+      "bits": 40,
+      "item": "disco-vida-s"
+    }
+  },
+  {
+    "id": "d-pasos-5000",
+    "name": "Gran caminata",
+    "description": "Camina 5.000 pasos con el contador activado.",
+    "metric": "steps",
+    "target": 5000,
+    "daily": true,
+    "reward": {
+      "bits": 90,
+      "item": "disco-energia"
+    }
+  },
+  {
+    "id": "d-pasos-8000",
+    "name": "Maratón de datos",
+    "description": "Camina 8.000 pasos con el contador activado.",
+    "metric": "steps",
+    "target": 8000,
+    "daily": true,
+    "reward": {
+      "bits": 150,
+      "item": "fruta-dulce"
+    }
+  },
+  {
+    "id": "d-victorias-3",
+    "name": "Tres victorias",
+    "description": "Gana 3 combates.",
+    "metric": "wins",
+    "target": 3,
+    "daily": true,
+    "reward": {
+      "bits": 60,
+      "item": "disco-vida-m"
+    }
+  },
+  {
+    "id": "d-victorias-6",
+    "name": "Racha de combates",
+    "description": "Gana 6 combates.",
+    "metric": "wins",
+    "target": 6,
+    "daily": true,
+    "reward": {
+      "bits": 120,
+      "item": "sobre-parches"
+    }
+  },
+  {
+    "id": "d-parches-2",
+    "name": "Lector de Parches",
+    "description": "Usa 2 Parches en combate.",
+    "metric": "cardsUsed",
+    "target": 2,
+    "daily": true,
+    "reward": {
+      "bits": 50,
+      "item": "disco-energia"
+    }
+  },
+  {
+    "id": "d-parches-5",
+    "name": "Maestro del Parche",
+    "description": "Usa 5 Parches en combate.",
+    "metric": "cardsUsed",
+    "target": 5,
+    "daily": true,
+    "reward": {
+      "bits": 110,
+      "item": "sobre-parches"
+    }
+  },
+  {
+    "id": "d-reclutar-1",
+    "name": "Nuevo amigo",
+    "description": "Recluta a un Eco.",
+    "metric": "recruits",
+    "target": 1,
+    "daily": true,
+    "reward": {
+      "bits": 60,
+      "item": "fruta-dulce"
+    }
+  },
+  {
+    "id": "d-entrenar-2",
+    "name": "Rutina de entrenamiento",
+    "description": "Entrena 2 veces en la Terminal.",
+    "metric": "training",
+    "target": 2,
+    "daily": true,
+    "reward": {
+      "bits": 50,
+      "item": "fruta-fuerza"
+    }
+  },
+  {
+    "id": "d-entrenar-4",
+    "name": "Sesión intensa",
+    "description": "Entrena 4 veces en la Terminal.",
+    "metric": "training",
+    "target": 4,
+    "daily": true,
+    "reward": {
+      "bits": 100,
+      "item": "pesas-entrenamiento"
+    }
+  },
+  {
+    "id": "d-infectado-1",
+    "name": "Limpieza",
+    "description": "Vence a un Eco infectado.",
+    "metric": "infectedWins",
+    "target": 1,
+    "daily": true,
+    "reward": {
+      "bits": 80,
+      "item": "antivirus"
+    }
+  },
+  {
+    "id": "d-mercader-1",
+    "name": "Buen cliente",
+    "description": "Compra algo a un mercader ambulante.",
+    "metric": "merchantBuys",
+    "target": 1,
+    "daily": true,
+    "reward": {
+      "bits": 40
+    }
+  },
+  {
+    "id": "d-santuario-1",
+    "name": "Peregrino",
+    "description": "Visita un santuario misterioso.",
+    "metric": "shrineVisits",
+    "target": 1,
+    "daily": true,
+    "reward": {
+      "bits": 40,
+      "item": "amuleto-suerte"
+    }
+  },
+  {
+    "id": "d-eclosion-1",
+    "name": "Nueva vida",
+    "description": "Haz que se abra un huevo.",
+    "metric": "hatches",
+    "target": 1,
+    "daily": true,
+    "reward": {
+      "bits": 70,
+      "item": "fruta-vida"
+    }
+  },
+  {
+    "id": "l-pasos-10k",
+    "name": "Primeros kilómetros",
+    "description": "Camina 10.000 pasos en total.",
+    "metric": "steps",
+    "target": 10000,
+    "daily": false,
+    "reward": {
+      "bits": 100,
+      "item": "fruta-dulce"
+    }
+  },
+  {
+    "id": "l-pasos-50k",
+    "name": "Explorador",
+    "description": "Camina 50.000 pasos en total.",
+    "metric": "steps",
+    "target": 50000,
+    "daily": false,
+    "reward": {
+      "bits": 300,
+      "item": "amuleto-suerte"
+    }
+  },
+  {
+    "id": "l-pasos-100k",
+    "name": "Trotamundos",
+    "description": "Camina 100.000 pasos en total.",
+    "metric": "steps",
+    "target": 100000,
+    "daily": false,
+    "reward": {
+      "bits": 600,
+      "item": "disco-total"
+    }
+  },
+  {
+    "id": "l-pasos-250k",
+    "name": "Leyenda andante",
+    "description": "Camina 250.000 pasos en total.",
+    "metric": "steps",
+    "target": 250000,
+    "daily": false,
+    "reward": {
+      "bits": 1200,
+      "parche": "parche-reinicio"
+    }
+  },
+  {
+    "id": "l-victorias-10",
+    "name": "Aprendiz de Enlazador",
+    "description": "Gana 10 combates.",
+    "metric": "wins",
+    "target": 10,
+    "daily": false,
+    "reward": {
+      "bits": 80,
+      "item": "disco-vida-m"
+    }
+  },
+  {
+    "id": "l-victorias-100",
+    "name": "Enlazador veterano",
+    "description": "Gana 100 combates.",
+    "metric": "wins",
+    "target": 100,
+    "daily": false,
+    "reward": {
+      "bits": 400,
+      "item": "sobre-parches"
+    }
+  },
+  {
+    "id": "l-victorias-500",
+    "name": "Imparable",
+    "description": "Gana 500 combates.",
+    "metric": "wins",
+    "target": 500,
+    "daily": false,
+    "reward": {
+      "bits": 1000,
+      "parche": "parche-doble"
+    }
+  },
+  {
+    "id": "l-jefes-1",
+    "name": "Primer jefe",
+    "description": "Vence a tu primer jefe.",
+    "metric": "bossWins",
+    "target": 1,
+    "daily": false,
+    "reward": {
+      "bits": 100,
+      "item": "fruta-fuerza"
+    }
+  },
+  {
+    "id": "l-zonas-5",
+    "name": "Media Red",
+    "description": "Supera 5 zonas.",
+    "metric": "zonesCleared",
+    "target": 5,
+    "daily": false,
+    "reward": {
+      "bits": 250,
+      "item": "sobre-parches"
+    }
+  },
+  {
+    "id": "l-zonas-10",
+    "name": "Corazón de la Red",
+    "description": "Supera 10 zonas.",
+    "metric": "zonesCleared",
+    "target": 10,
+    "daily": false,
+    "reward": {
+      "bits": 500,
+      "item": "disco-total"
+    }
+  },
+  {
+    "id": "l-zonas-16",
+    "name": "Salvador de la Red",
+    "description": "Supera las 16 zonas de la ruta principal.",
+    "metric": "zonesCleared",
+    "target": 16,
+    "daily": false,
+    "reward": {
+      "bits": 1500,
+      "parche": "parche-evolucion"
+    }
+  },
+  {
+    "id": "l-guia-25",
+    "name": "Curioso",
+    "description": "Ve 25 Ecos distintos.",
+    "metric": "guideSeen",
+    "target": 25,
+    "daily": false,
+    "reward": {
+      "bits": 120,
+      "item": "radar"
+    }
+  },
+  {
+    "id": "l-guia-50",
+    "name": "Investigador",
+    "description": "Ve 50 Ecos distintos.",
+    "metric": "guideSeen",
+    "target": 50,
+    "daily": false,
+    "reward": {
+      "bits": 300,
+      "item": "amuleto-suerte"
+    }
+  },
+  {
+    "id": "l-guia-96",
+    "name": "Guía completa",
+    "description": "Ve los 96 Ecos.",
+    "metric": "guideSeen",
+    "target": 96,
+    "daily": false,
+    "reward": {
+      "bits": 2000,
+      "parche": "parche-despertar"
+    }
+  },
+  {
+    "id": "l-equipo-10",
+    "name": "Gran familia",
+    "description": "Ten 10 Ecos distintos.",
+    "metric": "guideOwned",
+    "target": 10,
+    "daily": false,
+    "reward": {
+      "bits": 150,
+      "item": "fruta-dulce"
+    }
+  },
+  {
+    "id": "l-equipo-30",
+    "name": "Coleccionista",
+    "description": "Ten 30 Ecos distintos.",
+    "metric": "guideOwned",
+    "target": 30,
+    "daily": false,
+    "reward": {
+      "bits": 500,
+      "item": "sobre-parches"
+    }
+  },
+  {
+    "id": "l-brillante-1",
+    "name": "Algo brilla",
+    "description": "Consigue un Eco Brillante.",
+    "metric": "brillanteOwned",
+    "target": 1,
+    "daily": false,
+    "reward": {
+      "bits": 300,
+      "item": "amuleto-suerte"
+    }
+  },
+  {
+    "id": "l-evolucion-1",
+    "name": "Primera evolución",
+    "description": "Haz evolucionar a un Eco.",
+    "metric": "evolutions",
+    "target": 1,
+    "daily": false,
+    "reward": {
+      "bits": 100,
+      "item": "disco-energia"
+    }
+  },
+  {
+    "id": "l-evolucion-10",
+    "name": "Evolución constante",
+    "description": "Haz evolucionar Ecos 10 veces.",
+    "metric": "evolutions",
+    "target": 10,
+    "daily": false,
+    "reward": {
+      "bits": 400,
+      "item": "fruta-vida"
+    }
+  },
+  {
+    "id": "l-fusion-1",
+    "name": "Dos en uno",
+    "description": "Fusiona a dos Supremos.",
+    "metric": "fusions",
+    "target": 1,
+    "daily": false,
+    "reward": {
+      "bits": 1000,
+      "parche": "parche-drenaje"
+    }
+  },
+  {
+    "id": "l-parches-25",
+    "name": "Lector experto",
+    "description": "Usa 25 Parches en combate.",
+    "metric": "cardsUsed",
+    "target": 25,
+    "daily": false,
+    "reward": {
+      "bits": 200,
+      "item": "sobre-parches"
+    }
+  },
+  {
+    "id": "l-parches-100",
+    "name": "Rey del Parche",
+    "description": "Usa 100 Parches en combate.",
+    "metric": "cardsUsed",
+    "target": 100,
+    "daily": false,
+    "reward": {
+      "bits": 600,
+      "parche": "parche-critico"
+    }
+  },
+  {
+    "id": "l-reclutas-10",
+    "name": "Líder nato",
+    "description": "Recluta a 10 Ecos.",
+    "metric": "recruits",
+    "target": 10,
+    "daily": false,
+    "reward": {
+      "bits": 250,
+      "item": "radar"
+    }
+  },
+  {
+    "id": "l-entrenar-20",
+    "name": "Disciplina",
+    "description": "Entrena 20 veces.",
+    "metric": "training",
+    "target": 20,
+    "daily": false,
+    "reward": {
+      "bits": 250,
+      "item": "pesas-entrenamiento"
+    }
+  },
+  {
+    "id": "l-entrenar-100",
+    "name": "Atleta de datos",
+    "description": "Entrena 100 veces.",
+    "metric": "training",
+    "target": 100,
+    "daily": false,
+    "reward": {
+      "bits": 800,
+      "item": "fruta-fuerza"
+    }
+  },
+  {
+    "id": "l-huevos-5",
+    "name": "Incubadora",
+    "description": "Haz que se abran 5 huevos.",
+    "metric": "hatches",
+    "target": 5,
+    "daily": false,
+    "reward": {
+      "bits": 250,
+      "item": "amuleto-suerte"
+    }
+  },
+  {
+    "id": "l-infectados-10",
+    "name": "Antivirus andante",
+    "description": "Vence a 10 Ecos infectados.",
+    "metric": "infectedWins",
+    "target": 10,
+    "daily": false,
+    "reward": {
+      "bits": 300,
+      "item": "antivirus"
+    }
+  },
+  {
+    "id": "l-mercader-10",
+    "name": "Cliente fiel",
+    "description": "Compra 10 veces a mercaderes.",
+    "metric": "merchantBuys",
+    "target": 10,
+    "daily": false,
+    "reward": {
+      "bits": 200,
+      "item": "sobre-parches"
+    }
+  },
+  {
+    "id": "l-santuario-10",
+    "name": "Devoto",
+    "description": "Visita 10 santuarios.",
+    "metric": "shrineVisits",
+    "target": 10,
+    "daily": false,
+    "reward": {
+      "bits": 200,
+      "item": "fruta-dulce"
+    }
+  },
+  {
+    "id": "l-jefes-20",
+    "name": "Cazajefes",
+    "description": "Vence a 20 jefes.",
+    "metric": "bossWins",
+    "target": 20,
+    "daily": false,
+    "reward": {
+      "bits": 800,
+      "parche": "parche-aturdir"
+    }
+  }
+]

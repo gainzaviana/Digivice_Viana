@@ -1,0 +1,3289 @@
+[
+  {
+    "id": "chispin",
+    "name": "Chispín",
+    "stage": "brote",
+    "affinity": "pulso",
+    "archetype": "atacante",
+    "recruitable": true,
+    "stats": {
+      "hp": 30,
+      "atk": 13,
+      "def": 9,
+      "spd": 10,
+      "dp": 20
+    },
+    "basic": {
+      "name": "Chispazo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Chisporroteo",
+      "power": 50,
+      "dpCost": 10,
+      "accuracy": 80
+    },
+    "description": "Una brasa con ojos que salta de cable en cable buscando calor.",
+    "evolutions": [
+      {
+        "to": "brasko",
+        "conditions": {
+          "minSteps": 300
+        }
+      }
+    ],
+    "line": "forja"
+  },
+  {
+    "id": "brasko",
+    "name": "Brasko",
+    "stage": "novato",
+    "affinity": "pulso",
+    "archetype": "atacante",
+    "recruitable": true,
+    "stats": {
+      "hp": 51,
+      "atk": 23,
+      "def": 16,
+      "spd": 17,
+      "dp": 40
+    },
+    "basic": {
+      "name": "Chispazo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Aliento Brasa",
+      "power": 70,
+      "dpCost": 15,
+      "accuracy": 80
+    },
+    "description": "Salamandra ámbar con venas de circuito que brillan cuando se emociona.",
+    "evolutions": [
+      {
+        "to": "fraguadrako",
+        "conditions": {
+          "minLevel": 8,
+          "minSteps": 3000
+        }
+      }
+    ],
+    "line": "forja",
+    "starter": true
+  },
+  {
+    "id": "fraguadrako",
+    "name": "Fraguadrako",
+    "stage": "avanzado",
+    "affinity": "pulso",
+    "archetype": "atacante",
+    "recruitable": true,
+    "stats": {
+      "hp": 80,
+      "atk": 36,
+      "def": 23,
+      "spd": 28,
+      "dp": 60
+    },
+    "basic": {
+      "name": "Chispazo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Martillo de Forja",
+      "power": 90,
+      "dpCost": 20,
+      "accuracy": 80
+    },
+    "description": "Dragón de forja con escamas de yunque. Templa su cola en cada combate.",
+    "evolutions": [
+      {
+        "to": "calderon",
+        "conditions": {
+          "minLevel": 18,
+          "minBond": 50,
+          "defeatedBoss": "sabana-engranaje"
+        }
+      },
+      {
+        "to": "escoria",
+        "conditions": {
+          "minLevel": 18,
+          "maxBond": 30,
+          "minLosses": 8
+        }
+      }
+    ],
+    "line": "forja"
+  },
+  {
+    "id": "calderon",
+    "name": "Calderón",
+    "stage": "elite",
+    "affinity": "pulso",
+    "archetype": "atacante",
+    "recruitable": true,
+    "stats": {
+      "hp": 106,
+      "atk": 50,
+      "def": 33,
+      "spd": 39,
+      "dp": 80
+    },
+    "basic": {
+      "name": "Chispazo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Colada Volcánica",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 80
+    },
+    "description": "Dragón volcánico con un horno en el pecho que nunca se apaga.",
+    "evolutions": [
+      {
+        "to": "solforja",
+        "conditions": {
+          "minLevel": 30,
+          "minBond": 80,
+          "item": "cristal-forja"
+        }
+      }
+    ],
+    "line": "forja"
+  },
+  {
+    "id": "solforja",
+    "name": "Solforja",
+    "stage": "supremo",
+    "affinity": "pulso",
+    "archetype": "atacante",
+    "recruitable": true,
+    "stats": {
+      "hp": 142,
+      "atk": 70,
+      "def": 41,
+      "spd": 50,
+      "dp": 100
+    },
+    "basic": {
+      "name": "Chispazo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Corona Solar",
+      "power": 130,
+      "dpCost": 30,
+      "accuracy": 80
+    },
+    "description": "Dragón sol rodeado de anillos de metal fundido. Su ascua del pecho es un pequeño sol.",
+    "evolutions": [
+      {
+        "to": "solforja-nucleo-blanco",
+        "conditions": {
+          "minBond": 100,
+          "card": "parche-despertar",
+          "inBattleOnly": true
+        }
+      }
+    ],
+    "line": "forja"
+  },
+  {
+    "id": "solforja-nucleo-blanco",
+    "name": "Solforja · Núcleo Blanco",
+    "stage": "despertar",
+    "affinity": "pulso",
+    "archetype": "atacante",
+    "recruitable": true,
+    "stats": {
+      "hp": 171,
+      "atk": 84,
+      "def": 51,
+      "spd": 59,
+      "dp": 120
+    },
+    "basic": {
+      "name": "Chispazo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Núcleo Blanco",
+      "power": 150,
+      "dpCost": 35,
+      "accuracy": 80
+    },
+    "description": "Cuando su vínculo es total, el ascua arde en blanco y funde cualquier defensa.",
+    "evolutions": [],
+    "line": "forja"
+  },
+  {
+    "id": "tilin",
+    "name": "Tilín",
+    "stage": "brote",
+    "affinity": "senal",
+    "archetype": "veloz",
+    "recruitable": true,
+    "stats": {
+      "hp": 30,
+      "atk": 10,
+      "def": 9,
+      "spd": 14,
+      "dp": 20
+    },
+    "basic": {
+      "name": "Golpe de Oreja",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Tintineo",
+      "power": 50,
+      "dpCost": 10,
+      "accuracy": 90
+    },
+    "description": "Bolita de pelo con orejas de cascabel. Suena al dormir.",
+    "evolutions": [
+      {
+        "to": "ecoli",
+        "conditions": {
+          "minSteps": 300
+        }
+      }
+    ],
+    "line": "eco"
+  },
+  {
+    "id": "ecoli",
+    "name": "Ecolí",
+    "stage": "novato",
+    "affinity": "senal",
+    "archetype": "veloz",
+    "recruitable": true,
+    "stats": {
+      "hp": 49,
+      "atk": 19,
+      "def": 14,
+      "spd": 24,
+      "dp": 40
+    },
+    "basic": {
+      "name": "Golpe de Oreja",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Onda Corta",
+      "power": 70,
+      "dpCost": 15,
+      "accuracy": 90
+    },
+    "description": "Liebre fénec con orejas altavoz. Oye un error de código a tres zonas de distancia.",
+    "evolutions": [
+      {
+        "to": "bramaliebre",
+        "conditions": {
+          "minLevel": 8,
+          "minSteps": 3000
+        }
+      }
+    ],
+    "line": "eco",
+    "starter": true
+  },
+  {
+    "id": "bramaliebre",
+    "name": "Bramaliebre",
+    "stage": "avanzado",
+    "affinity": "senal",
+    "archetype": "veloz",
+    "recruitable": true,
+    "stats": {
+      "hp": 73,
+      "atk": 28,
+      "def": 22,
+      "spd": 37,
+      "dp": 60
+    },
+    "basic": {
+      "name": "Golpe de Oreja",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Bramido Sónico",
+      "power": 90,
+      "dpCost": 20,
+      "accuracy": 90
+    },
+    "description": "Sus orejas amplifican cada paso en un golpe de sonido.",
+    "evolutions": [
+      {
+        "to": "trompetrueno",
+        "conditions": {
+          "minLevel": 18,
+          "minBond": 50,
+          "defeatedBoss": "sabana-engranaje"
+        }
+      },
+      {
+        "to": "silencio",
+        "conditions": {
+          "minLevel": 18,
+          "minTraining": 20
+        }
+      }
+    ],
+    "line": "eco"
+  },
+  {
+    "id": "trompetrueno",
+    "name": "Trompetrueno",
+    "stage": "elite",
+    "affinity": "senal",
+    "archetype": "veloz",
+    "recruitable": true,
+    "stats": {
+      "hp": 101,
+      "atk": 40,
+      "def": 30,
+      "spd": 53,
+      "dp": 80
+    },
+    "basic": {
+      "name": "Golpe de Oreja",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Trueno Metálico",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 90
+    },
+    "description": "Liebre guerrera con orejas de trompeta. Su grito rompe cristales de datos.",
+    "evolutions": [
+      {
+        "to": "sinfonia-titan",
+        "conditions": {
+          "minLevel": 30,
+          "minBond": 80,
+          "item": "cristal-eco"
+        }
+      }
+    ],
+    "line": "eco"
+  },
+  {
+    "id": "sinfonia-titan",
+    "name": "Sinfonía Titán",
+    "stage": "supremo",
+    "affinity": "senal",
+    "archetype": "veloz",
+    "recruitable": true,
+    "stats": {
+      "hp": 136,
+      "atk": 53,
+      "def": 39,
+      "spd": 75,
+      "dp": 100
+    },
+    "basic": {
+      "name": "Golpe de Oreja",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Gran Sinfonía",
+      "power": 130,
+      "dpCost": 30,
+      "accuracy": 90
+    },
+    "description": "Un coloso que combate como dirige una orquesta: cada golpe, una nota.",
+    "evolutions": [
+      {
+        "to": "sinfonia-titan-fortissimo",
+        "conditions": {
+          "minBond": 100,
+          "card": "parche-despertar",
+          "inBattleOnly": true
+        }
+      }
+    ],
+    "line": "eco"
+  },
+  {
+    "id": "sinfonia-titan-fortissimo",
+    "name": "Sinfonía Titán · Fortissimo",
+    "stage": "despertar",
+    "affinity": "senal",
+    "archetype": "veloz",
+    "recruitable": true,
+    "stats": {
+      "hp": 153,
+      "atk": 63,
+      "def": 46,
+      "spd": 86,
+      "dp": 120
+    },
+    "basic": {
+      "name": "Golpe de Oreja",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Fortissimo Final",
+      "power": 150,
+      "dpCost": 35,
+      "accuracy": 90
+    },
+    "description": "Su última nota sostenida silencia el mundo durante un instante.",
+    "evolutions": [],
+    "line": "eco"
+  },
+  {
+    "id": "pliegue",
+    "name": "Pliegue",
+    "stage": "brote",
+    "affinity": "senal",
+    "archetype": "mistico",
+    "recruitable": true,
+    "stats": {
+      "hp": 32,
+      "atk": 12,
+      "def": 10,
+      "spd": 10,
+      "dp": 25
+    },
+    "basic": {
+      "name": "Corte de Papel",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Revoloteo",
+      "power": 50,
+      "dpCost": 10,
+      "accuracy": 88
+    },
+    "description": "Un trocito de papel vivo que se pliega en formas al azar.",
+    "evolutions": [
+      {
+        "to": "origamin",
+        "conditions": {
+          "minSteps": 300
+        }
+      }
+    ],
+    "line": "pliegue"
+  },
+  {
+    "id": "origamin",
+    "name": "Origamín",
+    "stage": "novato",
+    "affinity": "senal",
+    "archetype": "mistico",
+    "recruitable": true,
+    "stats": {
+      "hp": 54,
+      "atk": 20,
+      "def": 15,
+      "spd": 18,
+      "dp": 50
+    },
+    "basic": {
+      "name": "Corte de Papel",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Grulla Afilada",
+      "power": 70,
+      "dpCost": 15,
+      "accuracy": 88
+    },
+    "description": "Zorro de papel plegado. Lanza grullas de papel con filo de cuchilla.",
+    "evolutions": [
+      {
+        "to": "pliegazorro",
+        "conditions": {
+          "minLevel": 8,
+          "minSteps": 3000
+        }
+      }
+    ],
+    "line": "pliegue",
+    "starter": true
+  },
+  {
+    "id": "pliegazorro",
+    "name": "Pliegazorro",
+    "stage": "avanzado",
+    "affinity": "senal",
+    "archetype": "mistico",
+    "recruitable": true,
+    "stats": {
+      "hp": 82,
+      "atk": 33,
+      "def": 23,
+      "spd": 27,
+      "dp": 75
+    },
+    "basic": {
+      "name": "Corte de Papel",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Mil Cortes",
+      "power": 90,
+      "dpCost": 20,
+      "accuracy": 88
+    },
+    "description": "Pliega el aire a su alrededor para desviar golpes.",
+    "evolutions": [
+      {
+        "to": "mil-pliegues",
+        "conditions": {
+          "minLevel": 18,
+          "minBond": 50,
+          "defeatedBoss": "sabana-engranaje"
+        }
+      },
+      {
+        "to": "tinta-negra",
+        "conditions": {
+          "minLevel": 18,
+          "timeOfDay": "noche"
+        }
+      }
+    ],
+    "line": "pliegue"
+  },
+  {
+    "id": "mil-pliegues",
+    "name": "Mil Pliegues",
+    "stage": "elite",
+    "affinity": "senal",
+    "archetype": "mistico",
+    "recruitable": true,
+    "stats": {
+      "hp": 121,
+      "atk": 45,
+      "def": 35,
+      "spd": 38,
+      "dp": 100
+    },
+    "basic": {
+      "name": "Corte de Papel",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Mandala Plegado",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 88
+    },
+    "description": "Cada pliegue de su cuerpo guarda un hechizo distinto.",
+    "evolutions": [
+      {
+        "to": "arcanorigami",
+        "conditions": {
+          "minLevel": 30,
+          "minBond": 80,
+          "item": "cristal-pliegue"
+        }
+      }
+    ],
+    "line": "pliegue"
+  },
+  {
+    "id": "arcanorigami",
+    "name": "Arcanorigami",
+    "stage": "supremo",
+    "affinity": "senal",
+    "archetype": "mistico",
+    "recruitable": true,
+    "stats": {
+      "hp": 154,
+      "atk": 58,
+      "def": 45,
+      "spd": 51,
+      "dp": 125
+    },
+    "basic": {
+      "name": "Corte de Papel",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Sello Arcano",
+      "power": 130,
+      "dpCost": 30,
+      "accuracy": 88
+    },
+    "description": "Hechicero de papel que escribe conjuros doblando la realidad.",
+    "evolutions": [
+      {
+        "to": "arcanorigami-papel-estelar",
+        "conditions": {
+          "minBond": 100,
+          "card": "parche-despertar",
+          "inBattleOnly": true
+        }
+      }
+    ],
+    "line": "pliegue"
+  },
+  {
+    "id": "arcanorigami-papel-estelar",
+    "name": "Arcanorigami · Papel Estelar",
+    "stage": "despertar",
+    "affinity": "senal",
+    "archetype": "mistico",
+    "recruitable": true,
+    "stats": {
+      "hp": 195,
+      "atk": 72,
+      "def": 55,
+      "spd": 61,
+      "dp": 150
+    },
+    "basic": {
+      "name": "Corte de Papel",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Constelación de Papel",
+      "power": 150,
+      "dpCost": 35,
+      "accuracy": 88
+    },
+    "description": "Su papel se vuelve cielo nocturno y cada estrella es un corte.",
+    "evolutions": [],
+    "line": "pliegue"
+  },
+  {
+    "id": "bichito",
+    "name": "Bichito",
+    "stage": "brote",
+    "affinity": "ruido",
+    "archetype": "veloz",
+    "recruitable": true,
+    "stats": {
+      "hp": 29,
+      "atk": 11,
+      "def": 9,
+      "spd": 14,
+      "dp": 20
+    },
+    "basic": {
+      "name": "Mordisco Corrupto",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Parpadeo",
+      "power": 50,
+      "dpCost": 10,
+      "accuracy": 90
+    },
+    "description": "Un píxel travieso que aparece y desaparece cuando no miras.",
+    "evolutions": [
+      {
+        "to": "glitchin",
+        "conditions": {
+          "minSteps": 300
+        }
+      }
+    ],
+    "line": "glitch"
+  },
+  {
+    "id": "glitchin",
+    "name": "Glitchín",
+    "stage": "novato",
+    "affinity": "ruido",
+    "archetype": "veloz",
+    "recruitable": true,
+    "stats": {
+      "hp": 49,
+      "atk": 18,
+      "def": 14,
+      "spd": 24,
+      "dp": 40
+    },
+    "basic": {
+      "name": "Mordisco Corrupto",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Error 404",
+      "power": 70,
+      "dpCost": 15,
+      "accuracy": 90
+    },
+    "description": "Duende de código roto. Se esconde dentro de los fallos y sale riéndose.",
+    "evolutions": [
+      {
+        "to": "titiriton",
+        "conditions": {
+          "minLevel": 8,
+          "minSteps": 3000
+        }
+      }
+    ],
+    "line": "glitch",
+    "starter": true
+  },
+  {
+    "id": "titiriton",
+    "name": "Titiritón",
+    "stage": "avanzado",
+    "affinity": "ruido",
+    "archetype": "veloz",
+    "recruitable": true,
+    "stats": {
+      "hp": 75,
+      "atk": 28,
+      "def": 22,
+      "spd": 38,
+      "dp": 60
+    },
+    "basic": {
+      "name": "Mordisco Corrupto",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Hilos Sueltos",
+      "power": 90,
+      "dpCost": 20,
+      "accuracy": 90
+    },
+    "description": "Maneja una marioneta de datos más grande que él. Nadie sabe quién controla a quién.",
+    "evolutions": [
+      {
+        "to": "marioneterror",
+        "conditions": {
+          "minLevel": 18,
+          "minBond": 50,
+          "defeatedBoss": "sabana-engranaje"
+        }
+      },
+      {
+        "to": "bufon-leal",
+        "conditions": {
+          "minLevel": 18,
+          "minBond": 70
+        }
+      }
+    ],
+    "line": "glitch"
+  },
+  {
+    "id": "marioneterror",
+    "name": "Marioneterror",
+    "stage": "elite",
+    "affinity": "ruido",
+    "archetype": "veloz",
+    "recruitable": true,
+    "stats": {
+      "hp": 102,
+      "atk": 40,
+      "def": 30,
+      "spd": 52,
+      "dp": 80
+    },
+    "basic": {
+      "name": "Mordisco Corrupto",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Danza Macabra",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 90
+    },
+    "description": "Sus hilos se conectan a lo que toca y lo hacen bailar a su ritmo.",
+    "evolutions": [
+      {
+        "to": "rey-del-error",
+        "conditions": {
+          "minLevel": 30,
+          "minBond": 80,
+          "item": "cristal-glitch"
+        }
+      }
+    ],
+    "line": "glitch"
+  },
+  {
+    "id": "rey-del-error",
+    "name": "Rey del Error",
+    "stage": "supremo",
+    "affinity": "ruido",
+    "archetype": "veloz",
+    "recruitable": true,
+    "stats": {
+      "hp": 138,
+      "atk": 51,
+      "def": 39,
+      "spd": 70,
+      "dp": 100
+    },
+    "basic": {
+      "name": "Mordisco Corrupto",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Excepción Fatal",
+      "power": 130,
+      "dpCost": 30,
+      "accuracy": 90
+    },
+    "description": "Señor de todo lo que se cuelga. Su corona es un mensaje de error infinito.",
+    "evolutions": [
+      {
+        "to": "rey-del-error-pantalla-azul",
+        "conditions": {
+          "minBond": 100,
+          "card": "parche-despertar",
+          "inBattleOnly": true
+        }
+      }
+    ],
+    "line": "glitch"
+  },
+  {
+    "id": "rey-del-error-pantalla-azul",
+    "name": "Rey del Error · Pantalla Azul",
+    "stage": "despertar",
+    "affinity": "ruido",
+    "archetype": "veloz",
+    "recruitable": true,
+    "stats": {
+      "hp": 153,
+      "atk": 64,
+      "def": 47,
+      "spd": 86,
+      "dp": 120
+    },
+    "basic": {
+      "name": "Mordisco Corrupto",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Pantallazo Azul",
+      "power": 150,
+      "dpCost": 35,
+      "accuracy": 90
+    },
+    "description": "Congela el combate entero en un azul absoluto.",
+    "evolutions": [],
+    "line": "glitch"
+  },
+  {
+    "id": "escarbi",
+    "name": "Escarbi",
+    "stage": "brote",
+    "affinity": "pulso",
+    "archetype": "tanque",
+    "recruitable": true,
+    "stats": {
+      "hp": 39,
+      "atk": 11,
+      "def": 12,
+      "spd": 8,
+      "dp": 20
+    },
+    "basic": {
+      "name": "Embestida",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Rodar",
+      "power": 50,
+      "dpCost": 10,
+      "accuracy": 85
+    },
+    "description": "Escarabajo diminuto y tímido que se esconde en su caparazón.",
+    "evolutions": [
+      {
+        "to": "corazita",
+        "conditions": {
+          "minSteps": 300
+        }
+      }
+    ],
+    "line": "quitina"
+  },
+  {
+    "id": "corazita",
+    "name": "Corazita",
+    "stage": "novato",
+    "affinity": "pulso",
+    "archetype": "tanque",
+    "recruitable": true,
+    "stats": {
+      "hp": 68,
+      "atk": 18,
+      "def": 21,
+      "spd": 12,
+      "dp": 40
+    },
+    "basic": {
+      "name": "Embestida",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Caparazón Duro",
+      "power": 70,
+      "dpCost": 15,
+      "accuracy": 85
+    },
+    "description": "Su caparazón aguanta lo que le echen, aunque él preferiría no pelear.",
+    "evolutions": [
+      {
+        "to": "bastion",
+        "conditions": {
+          "minLevel": 8,
+          "minSteps": 3000
+        }
+      }
+    ],
+    "line": "quitina",
+    "starter": true
+  },
+  {
+    "id": "bastion",
+    "name": "Bastión",
+    "stage": "avanzado",
+    "affinity": "pulso",
+    "archetype": "tanque",
+    "recruitable": true,
+    "stats": {
+      "hp": 103,
+      "atk": 27,
+      "def": 35,
+      "spd": 18,
+      "dp": 60
+    },
+    "basic": {
+      "name": "Embestida",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Muralla Viva",
+      "power": 90,
+      "dpCost": 20,
+      "accuracy": 85
+    },
+    "description": "Escarabajo erguido con un caparazón que se despliega como un muro.",
+    "evolutions": [
+      {
+        "to": "egida",
+        "conditions": {
+          "minLevel": 18,
+          "minBond": 50,
+          "defeatedBoss": "sabana-engranaje"
+        }
+      }
+    ],
+    "line": "quitina"
+  },
+  {
+    "id": "egida",
+    "name": "Égida",
+    "stage": "elite",
+    "affinity": "pulso",
+    "archetype": "tanque",
+    "recruitable": true,
+    "stats": {
+      "hp": 151,
+      "atk": 36,
+      "def": 46,
+      "spd": 24,
+      "dp": 80
+    },
+    "basic": {
+      "name": "Embestida",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Escudo Reflejo",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 85
+    },
+    "description": "Caballero escarabajo. Su escudo devuelve parte de cada golpe.",
+    "evolutions": [
+      {
+        "to": "paladin-quitina",
+        "conditions": {
+          "minLevel": 30,
+          "minBond": 80,
+          "item": "cristal-quitina"
+        }
+      }
+    ],
+    "line": "quitina"
+  },
+  {
+    "id": "paladin-quitina",
+    "name": "Paladín Quitina",
+    "stage": "supremo",
+    "affinity": "pulso",
+    "archetype": "tanque",
+    "recruitable": true,
+    "stats": {
+      "hp": 209,
+      "atk": 53,
+      "def": 68,
+      "spd": 34,
+      "dp": 100
+    },
+    "basic": {
+      "name": "Embestida",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Juicio Quitina",
+      "power": 130,
+      "dpCost": 30,
+      "accuracy": 85
+    },
+    "description": "Paladín de armadura iridiscente. Nunca da un paso atrás.",
+    "evolutions": [
+      {
+        "to": "paladin-quitina-coraza-solar",
+        "conditions": {
+          "minBond": 100,
+          "card": "parche-despertar",
+          "inBattleOnly": true
+        }
+      }
+    ],
+    "line": "quitina"
+  },
+  {
+    "id": "paladin-quitina-coraza-solar",
+    "name": "Paladín Quitina · Coraza Solar",
+    "stage": "despertar",
+    "affinity": "pulso",
+    "archetype": "tanque",
+    "recruitable": true,
+    "stats": {
+      "hp": 250,
+      "atk": 58,
+      "def": 79,
+      "spd": 41,
+      "dp": 120
+    },
+    "basic": {
+      "name": "Embestida",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Égida Solar",
+      "power": 150,
+      "dpCost": 35,
+      "accuracy": 85
+    },
+    "description": "Su armadura absorbe la luz y la devuelve como lanza.",
+    "evolutions": [],
+    "line": "quitina"
+  },
+  {
+    "id": "bolarmi",
+    "name": "Bolarmi",
+    "stage": "brote",
+    "affinity": "ruido",
+    "archetype": "tanque",
+    "recruitable": true,
+    "stats": {
+      "hp": 38,
+      "atk": 11,
+      "def": 12,
+      "spd": 8,
+      "dp": 20
+    },
+    "basic": {
+      "name": "Cornada",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Bola Rodante",
+      "power": 50,
+      "dpCost": 10,
+      "accuracy": 85
+    },
+    "description": "Se enrolla en una bola y rueda sin rumbo.",
+    "evolutions": [
+      {
+        "to": "rodacorno",
+        "conditions": {
+          "minSteps": 300
+        }
+      }
+    ],
+    "line": "telurica"
+  },
+  {
+    "id": "rodacorno",
+    "name": "Rodacorno",
+    "stage": "novato",
+    "affinity": "ruido",
+    "archetype": "tanque",
+    "recruitable": true,
+    "stats": {
+      "hp": 66,
+      "atk": 18,
+      "def": 21,
+      "spd": 13,
+      "dp": 40
+    },
+    "basic": {
+      "name": "Cornada",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Rodada Cornuda",
+      "power": 70,
+      "dpCost": 15,
+      "accuracy": 85
+    },
+    "description": "Armadillo con un cuerno en la frente. Rueda directo al objetivo.",
+    "evolutions": [
+      {
+        "to": "rinoblindo",
+        "conditions": {
+          "minLevel": 8,
+          "minSteps": 3000
+        }
+      }
+    ],
+    "line": "telurica",
+    "starter": true
+  },
+  {
+    "id": "rinoblindo",
+    "name": "Rinoblindo",
+    "stage": "avanzado",
+    "affinity": "ruido",
+    "archetype": "tanque",
+    "recruitable": true,
+    "stats": {
+      "hp": 105,
+      "atk": 28,
+      "def": 35,
+      "spd": 18,
+      "dp": 60
+    },
+    "basic": {
+      "name": "Cornada",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Carga Blindada",
+      "power": 90,
+      "dpCost": 20,
+      "accuracy": 85
+    },
+    "description": "Rinoceronte acorazado. Cuando arranca, no hay quien lo pare.",
+    "evolutions": [
+      {
+        "to": "terremotor",
+        "conditions": {
+          "minLevel": 18,
+          "minBond": 50,
+          "defeatedBoss": "sabana-engranaje"
+        }
+      }
+    ],
+    "line": "telurica"
+  },
+  {
+    "id": "terremotor",
+    "name": "Terremotor",
+    "stage": "elite",
+    "affinity": "ruido",
+    "archetype": "tanque",
+    "recruitable": true,
+    "stats": {
+      "hp": 149,
+      "atk": 39,
+      "def": 49,
+      "spd": 26,
+      "dp": 80
+    },
+    "basic": {
+      "name": "Cornada",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Sismo Motor",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 85
+    },
+    "description": "Cada pisada suya mueve la tierra unos centímetros.",
+    "evolutions": [
+      {
+        "to": "coloso-telurico",
+        "conditions": {
+          "minLevel": 30,
+          "minBond": 80,
+          "item": "cristal-telurico"
+        }
+      }
+    ],
+    "line": "telurica"
+  },
+  {
+    "id": "coloso-telurico",
+    "name": "Coloso Telúrico",
+    "stage": "supremo",
+    "affinity": "ruido",
+    "archetype": "tanque",
+    "recruitable": true,
+    "stats": {
+      "hp": 210,
+      "atk": 53,
+      "def": 68,
+      "spd": 35,
+      "dp": 100
+    },
+    "basic": {
+      "name": "Cornada",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Falla Tectónica",
+      "power": 130,
+      "dpCost": 30,
+      "accuracy": 85
+    },
+    "description": "Una montaña que camina. Abre grietas con solo apoyarse.",
+    "evolutions": [
+      {
+        "to": "coloso-telurico-placa-tectonica",
+        "conditions": {
+          "minBond": 100,
+          "card": "parche-despertar",
+          "inBattleOnly": true
+        }
+      }
+    ],
+    "line": "telurica"
+  },
+  {
+    "id": "coloso-telurico-placa-tectonica",
+    "name": "Coloso Telúrico · Placa Tectónica",
+    "stage": "despertar",
+    "affinity": "ruido",
+    "archetype": "tanque",
+    "recruitable": true,
+    "stats": {
+      "hp": 247,
+      "atk": 58,
+      "def": 79,
+      "spd": 37,
+      "dp": 120
+    },
+    "basic": {
+      "name": "Cornada",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Choque de Placas",
+      "power": 150,
+      "dpCost": 35,
+      "accuracy": 85
+    },
+    "description": "Mueve placas enteras de la Red como si fueran escudos.",
+    "evolutions": [],
+    "line": "telurica"
+  },
+  {
+    "id": "bip",
+    "name": "Bip",
+    "stage": "brote",
+    "affinity": "senal",
+    "archetype": "equilibrado",
+    "recruitable": true,
+    "stats": {
+      "hp": 33,
+      "atk": 10,
+      "def": 11,
+      "spd": 10,
+      "dp": 20
+    },
+    "basic": {
+      "name": "Llave Inglesa",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Pitido",
+      "power": 50,
+      "dpCost": 10,
+      "accuracy": 85
+    },
+    "description": "Un dron diminuto que pita cuando encuentra algo roto.",
+    "evolutions": [
+      {
+        "to": "tuerkin",
+        "conditions": {
+          "minSteps": 300
+        }
+      }
+    ],
+    "line": "engranaje"
+  },
+  {
+    "id": "tuerkin",
+    "name": "Tuerkín",
+    "stage": "novato",
+    "affinity": "senal",
+    "archetype": "equilibrado",
+    "recruitable": true,
+    "stats": {
+      "hp": 54,
+      "atk": 17,
+      "def": 18,
+      "spd": 19,
+      "dp": 40
+    },
+    "basic": {
+      "name": "Llave Inglesa",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Tuerca Giratoria",
+      "power": 70,
+      "dpCost": 15,
+      "accuracy": 85
+    },
+    "description": "Robot de reparaciones que se reconstruye un poco más grande tras cada victoria.",
+    "evolutions": [
+      {
+        "to": "engranajon",
+        "conditions": {
+          "minLevel": 8,
+          "minSteps": 3000
+        }
+      }
+    ],
+    "line": "engranaje",
+    "starter": true
+  },
+  {
+    "id": "engranajon",
+    "name": "Engranajón",
+    "stage": "avanzado",
+    "affinity": "senal",
+    "archetype": "equilibrado",
+    "recruitable": true,
+    "stats": {
+      "hp": 83,
+      "atk": 28,
+      "def": 28,
+      "spd": 27,
+      "dp": 60
+    },
+    "basic": {
+      "name": "Llave Inglesa",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Engranaje Dentado",
+      "power": 90,
+      "dpCost": 20,
+      "accuracy": 85
+    },
+    "description": "Lleva un engranaje gigante a la espalda que gira cuando piensa.",
+    "evolutions": [
+      {
+        "to": "androforja",
+        "conditions": {
+          "minLevel": 18,
+          "minBond": 50,
+          "defeatedBoss": "sabana-engranaje"
+        }
+      }
+    ],
+    "line": "engranaje"
+  },
+  {
+    "id": "androforja",
+    "name": "Androforja",
+    "stage": "elite",
+    "affinity": "senal",
+    "archetype": "equilibrado",
+    "recruitable": true,
+    "stats": {
+      "hp": 119,
+      "atk": 38,
+      "def": 39,
+      "spd": 38,
+      "dp": 80
+    },
+    "basic": {
+      "name": "Llave Inglesa",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Puño Pistón",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 85
+    },
+    "description": "Androide forjado de piezas recuperadas. Sus puños son pistones.",
+    "evolutions": [
+      {
+        "to": "deus-maquina",
+        "conditions": {
+          "minLevel": 30,
+          "minBond": 80,
+          "item": "cristal-engranaje"
+        }
+      }
+    ],
+    "line": "engranaje"
+  },
+  {
+    "id": "deus-maquina",
+    "name": "Deus Máquina",
+    "stage": "supremo",
+    "affinity": "senal",
+    "archetype": "equilibrado",
+    "recruitable": true,
+    "stats": {
+      "hp": 154,
+      "atk": 54,
+      "def": 51,
+      "spd": 53,
+      "dp": 100
+    },
+    "basic": {
+      "name": "Llave Inglesa",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Protocolo Deus",
+      "power": 130,
+      "dpCost": 30,
+      "accuracy": 85
+    },
+    "description": "Una máquina perfecta que calcula cada combate antes de empezarlo.",
+    "evolutions": [
+      {
+        "to": "deus-maquina-overclock",
+        "conditions": {
+          "minBond": 100,
+          "card": "parche-despertar",
+          "inBattleOnly": true
+        }
+      }
+    ],
+    "line": "engranaje"
+  },
+  {
+    "id": "deus-maquina-overclock",
+    "name": "Deus Máquina · Overclock",
+    "stage": "despertar",
+    "affinity": "senal",
+    "archetype": "equilibrado",
+    "recruitable": true,
+    "stats": {
+      "hp": 186,
+      "atk": 62,
+      "def": 62,
+      "spd": 64,
+      "dp": 120
+    },
+    "basic": {
+      "name": "Llave Inglesa",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Sobrecarga Total",
+      "power": 150,
+      "dpCost": 35,
+      "accuracy": 85
+    },
+    "description": "Funciona por encima de su límite. Echa humo, y no le importa.",
+    "evolutions": [],
+    "line": "engranaje"
+  },
+  {
+    "id": "burbuja",
+    "name": "Burbuja",
+    "stage": "brote",
+    "affinity": "pulso",
+    "archetype": "mistico",
+    "recruitable": true,
+    "stats": {
+      "hp": 32,
+      "atk": 11,
+      "def": 9,
+      "spd": 10,
+      "dp": 25
+    },
+    "basic": {
+      "name": "Chorro",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Pompa",
+      "power": 50,
+      "dpCost": 10,
+      "accuracy": 88
+    },
+    "description": "Una pompa con cara que flota a ras del suelo.",
+    "evolutions": [
+      {
+        "to": "ajolin",
+        "conditions": {
+          "minSteps": 300
+        }
+      }
+    ],
+    "line": "abisal"
+  },
+  {
+    "id": "ajolin",
+    "name": "Ajolín",
+    "stage": "novato",
+    "affinity": "pulso",
+    "archetype": "mistico",
+    "recruitable": true,
+    "stats": {
+      "hp": 56,
+      "atk": 21,
+      "def": 16,
+      "spd": 18,
+      "dp": 50
+    },
+    "basic": {
+      "name": "Chorro",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Burbuja Saltarina",
+      "power": 70,
+      "dpCost": 15,
+      "accuracy": 88
+    },
+    "description": "Ajolote alegre que lanza burbujas que estallan en chispas.",
+    "evolutions": [
+      {
+        "to": "marealote",
+        "conditions": {
+          "minLevel": 8,
+          "minSteps": 3000
+        }
+      }
+    ],
+    "line": "abisal",
+    "starter": true
+  },
+  {
+    "id": "marealote",
+    "name": "Marealote",
+    "stage": "avanzado",
+    "affinity": "pulso",
+    "archetype": "mistico",
+    "recruitable": true,
+    "stats": {
+      "hp": 84,
+      "atk": 31,
+      "def": 24,
+      "spd": 28,
+      "dp": 75
+    },
+    "basic": {
+      "name": "Chorro",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Marea Alta",
+      "power": 90,
+      "dpCost": 20,
+      "accuracy": 88
+    },
+    "description": "Mueve el agua de los datos como si fuera marea.",
+    "evolutions": [
+      {
+        "to": "abisalote",
+        "conditions": {
+          "minLevel": 18,
+          "minBond": 50,
+          "defeatedBoss": "sabana-engranaje"
+        }
+      }
+    ],
+    "line": "abisal"
+  },
+  {
+    "id": "abisalote",
+    "name": "Abisalote",
+    "stage": "elite",
+    "affinity": "pulso",
+    "archetype": "mistico",
+    "recruitable": true,
+    "stats": {
+      "hp": 118,
+      "atk": 43,
+      "def": 35,
+      "spd": 39,
+      "dp": 100
+    },
+    "basic": {
+      "name": "Chorro",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Presión Abisal",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 88
+    },
+    "description": "Vive en lo más hondo de la Red, donde la presión aplasta el código.",
+    "evolutions": [
+      {
+        "to": "leviatan-glacial",
+        "conditions": {
+          "minLevel": 30,
+          "minBond": 80,
+          "item": "cristal-abisal"
+        }
+      }
+    ],
+    "line": "abisal"
+  },
+  {
+    "id": "leviatan-glacial",
+    "name": "Leviatán Glacial",
+    "stage": "supremo",
+    "affinity": "pulso",
+    "archetype": "mistico",
+    "recruitable": true,
+    "stats": {
+      "hp": 153,
+      "atk": 60,
+      "def": 48,
+      "spd": 55,
+      "dp": 125
+    },
+    "basic": {
+      "name": "Chorro",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Glaciación",
+      "power": 130,
+      "dpCost": 30,
+      "accuracy": 88
+    },
+    "description": "Leviatán de hielo. Su respiración congela los paquetes en el aire.",
+    "evolutions": [
+      {
+        "to": "leviatan-glacial-cero-absoluto",
+        "conditions": {
+          "minBond": 100,
+          "card": "parche-despertar",
+          "inBattleOnly": true
+        }
+      }
+    ],
+    "line": "abisal"
+  },
+  {
+    "id": "leviatan-glacial-cero-absoluto",
+    "name": "Leviatán Glacial · Cero Absoluto",
+    "stage": "despertar",
+    "affinity": "pulso",
+    "archetype": "mistico",
+    "recruitable": true,
+    "stats": {
+      "hp": 188,
+      "atk": 72,
+      "def": 53,
+      "spd": 63,
+      "dp": 150
+    },
+    "basic": {
+      "name": "Chorro",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Cero Absoluto",
+      "power": 150,
+      "dpCost": 35,
+      "accuracy": 88
+    },
+    "description": "Detiene todo movimiento, incluso el de los datos.",
+    "evolutions": [],
+    "line": "abisal"
+  },
+  {
+    "id": "escoria",
+    "name": "Escoria",
+    "stage": "elite",
+    "affinity": "ruido",
+    "archetype": "atacante",
+    "recruitable": true,
+    "stats": {
+      "hp": 108,
+      "atk": 50,
+      "def": 33,
+      "spd": 36,
+      "dp": 80
+    },
+    "basic": {
+      "name": "Chispazo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Erupción Sucia",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 80
+    },
+    "description": "Lo que queda de un dragón de forja que perdió demasiadas veces: lava agrietada y humo. Aún puede volver a brillar.",
+    "evolutions": [
+      {
+        "to": "solforja",
+        "conditions": {
+          "minLevel": 30,
+          "minBond": 80,
+          "item": "cristal-forja"
+        }
+      }
+    ],
+    "line": "forja"
+  },
+  {
+    "id": "silencio",
+    "name": "Silencio",
+    "stage": "elite",
+    "affinity": "senal",
+    "archetype": "veloz",
+    "recruitable": true,
+    "stats": {
+      "hp": 102,
+      "atk": 39,
+      "def": 30,
+      "spd": 53,
+      "dp": 80
+    },
+    "basic": {
+      "name": "Golpe de Oreja",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Silencio Absoluto",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 90
+    },
+    "description": "Liebre entrenada para no hacer ruido. Apaga los ataques enemigos antes de que suenen.",
+    "evolutions": [
+      {
+        "to": "sinfonia-titan",
+        "conditions": {
+          "minLevel": 30,
+          "minBond": 80,
+          "item": "cristal-eco"
+        }
+      }
+    ],
+    "line": "eco"
+  },
+  {
+    "id": "tinta-negra",
+    "name": "Tinta Negra",
+    "stage": "elite",
+    "affinity": "ruido",
+    "archetype": "mistico",
+    "recruitable": true,
+    "stats": {
+      "hp": 116,
+      "atk": 43,
+      "def": 35,
+      "spd": 39,
+      "dp": 100
+    },
+    "basic": {
+      "name": "Corte de Papel",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Mancha Eterna",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 88
+    },
+    "description": "Si evoluciona de noche, la tinta empapa su papel y lo convierte en sombra.",
+    "evolutions": [
+      {
+        "to": "arcanorigami",
+        "conditions": {
+          "minLevel": 30,
+          "minBond": 80,
+          "item": "cristal-pliegue"
+        }
+      }
+    ],
+    "line": "pliegue"
+  },
+  {
+    "id": "bufon-leal",
+    "name": "Bufón Leal",
+    "stage": "elite",
+    "affinity": "pulso",
+    "archetype": "veloz",
+    "recruitable": true,
+    "stats": {
+      "hp": 102,
+      "atk": 39,
+      "def": 30,
+      "spd": 55,
+      "dp": 80
+    },
+    "basic": {
+      "name": "Mordisco Corrupto",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Broma Heroica",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 90
+    },
+    "description": "Cuando su vínculo con su Enlazador es fuerte, la marioneta corta sus hilos y se vuelve héroe.",
+    "evolutions": [
+      {
+        "to": "rey-del-error",
+        "conditions": {
+          "minLevel": 30,
+          "minBond": 80,
+          "item": "cristal-glitch"
+        }
+      }
+    ],
+    "line": "glitch"
+  },
+  {
+    "id": "emperador-crisol",
+    "name": "Emperador Crisol",
+    "stage": "fusion",
+    "affinity": "pulso",
+    "archetype": "atacante",
+    "recruitable": false,
+    "stats": {
+      "hp": 181,
+      "atk": 93,
+      "def": 58,
+      "spd": 64,
+      "dp": 140
+    },
+    "basic": {
+      "name": "Golpe Fusión",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Crisol Imperial",
+      "power": 170,
+      "dpCost": 40,
+      "accuracy": 80
+    },
+    "description": "Dragón y paladín fundidos en una sola armadura de fuego. Gobierna el campo de batalla.",
+    "evolutions": []
+  },
+  {
+    "id": "eclipse-plegado",
+    "name": "Eclipse Plegado",
+    "stage": "fusion",
+    "affinity": "ruido",
+    "archetype": "mistico",
+    "recruitable": false,
+    "stats": {
+      "hp": 205,
+      "atk": 79,
+      "def": 56,
+      "spd": 66,
+      "dp": 175
+    },
+    "basic": {
+      "name": "Golpe Fusión",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Eclipse Total",
+      "power": 170,
+      "dpCost": 40,
+      "accuracy": 88
+    },
+    "description": "Papel, sombra y error en un solo hechizo. Pliega la luz hasta apagarla.",
+    "evolutions": []
+  },
+  {
+    "id": "orquesta-omega",
+    "name": "Orquesta Omega",
+    "stage": "fusion",
+    "affinity": "senal",
+    "archetype": "equilibrado",
+    "recruitable": false,
+    "stats": {
+      "hp": 201,
+      "atk": 67,
+      "def": 67,
+      "spd": 67,
+      "dp": 140
+    },
+    "basic": {
+      "name": "Golpe Fusión",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Movimiento Final",
+      "power": 170,
+      "dpCost": 40,
+      "accuracy": 85
+    },
+    "description": "Una máquina de guerra que funciona a base de música. Cada engranaje es un instrumento.",
+    "evolutions": []
+  },
+  {
+    "id": "tormenta-telurica",
+    "name": "Tormenta Telúrica",
+    "stage": "fusion",
+    "affinity": "ruido",
+    "archetype": "tanque",
+    "recruitable": false,
+    "stats": {
+      "hp": 269,
+      "atk": 65,
+      "def": 80,
+      "spd": 43,
+      "dp": 140
+    },
+    "basic": {
+      "name": "Golpe Fusión",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Glaciación Sísmica",
+      "power": 170,
+      "dpCost": 40,
+      "accuracy": 85
+    },
+    "description": "Un titán de tierra y hielo. Donde pisa, el suelo se congela y se parte.",
+    "evolutions": []
+  },
+  {
+    "id": "bitbicho",
+    "name": "Bitbicho",
+    "stage": "novato",
+    "affinity": "ruido",
+    "archetype": "veloz",
+    "recruitable": true,
+    "stats": {
+      "hp": 49,
+      "atk": 18,
+      "def": 15,
+      "spd": 24,
+      "dp": 40
+    },
+    "basic": {
+      "name": "Picadura",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Enjambre de Bits",
+      "power": 70,
+      "dpCost": 15,
+      "accuracy": 90
+    },
+    "description": "Un insecto hecho de bits sueltos. Siempre va en grupo.",
+    "evolutions": [
+      {
+        "to": "aranared",
+        "conditions": {
+          "minLevel": 12
+        }
+      }
+    ]
+  },
+  {
+    "id": "pixelito",
+    "name": "Pixelito",
+    "stage": "novato",
+    "affinity": "senal",
+    "archetype": "equilibrado",
+    "recruitable": true,
+    "stats": {
+      "hp": 56,
+      "atk": 18,
+      "def": 18,
+      "spd": 19,
+      "dp": 40
+    },
+    "basic": {
+      "name": "Placaje de Datos",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Destello RGB",
+      "power": 70,
+      "dpCost": 15,
+      "accuracy": 85
+    },
+    "description": "Un cubito de luz que cambia de color con su humor.",
+    "evolutions": []
+  },
+  {
+    "id": "caracolchon",
+    "name": "Caracolchón",
+    "stage": "novato",
+    "affinity": "pulso",
+    "archetype": "tanque",
+    "recruitable": true,
+    "stats": {
+      "hp": 71,
+      "atk": 17,
+      "def": 21,
+      "spd": 12,
+      "dp": 40
+    },
+    "basic": {
+      "name": "Placaje de Datos",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Casa Blindada",
+      "power": 70,
+      "dpCost": 15,
+      "accuracy": 85
+    },
+    "description": "Caracol con un colchón por concha. Lento, blando y sorprendentemente duro.",
+    "evolutions": []
+  },
+  {
+    "id": "murciclic",
+    "name": "Murciclic",
+    "stage": "novato",
+    "affinity": "ruido",
+    "archetype": "veloz",
+    "recruitable": true,
+    "stats": {
+      "hp": 49,
+      "atk": 19,
+      "def": 14,
+      "spd": 24,
+      "dp": 40
+    },
+    "basic": {
+      "name": "Mordisco",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Doble Clic",
+      "power": 70,
+      "dpCost": 15,
+      "accuracy": 90
+    },
+    "description": "Murciélago que se orienta con clics. Odia la luz de las pantallas.",
+    "evolutions": []
+  },
+  {
+    "id": "ranadin",
+    "name": "Ranadín",
+    "stage": "novato",
+    "affinity": "pulso",
+    "archetype": "equilibrado",
+    "recruitable": true,
+    "stats": {
+      "hp": 54,
+      "atk": 18,
+      "def": 18,
+      "spd": 18,
+      "dp": 40
+    },
+    "basic": {
+      "name": "Lengüetazo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Salto Rana",
+      "power": 70,
+      "dpCost": 15,
+      "accuracy": 85
+    },
+    "description": "Rana saltarina que croa en código Morse.",
+    "evolutions": [
+      {
+        "to": "sapotron",
+        "conditions": {
+          "minLevel": 12
+        }
+      }
+    ]
+  },
+  {
+    "id": "topocable",
+    "name": "Topocable",
+    "stage": "novato",
+    "affinity": "senal",
+    "archetype": "tanque",
+    "recruitable": true,
+    "stats": {
+      "hp": 71,
+      "atk": 18,
+      "def": 22,
+      "spd": 12,
+      "dp": 40
+    },
+    "basic": {
+      "name": "Zarpazo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Túnel de Fibra",
+      "power": 70,
+      "dpCost": 15,
+      "accuracy": 85
+    },
+    "description": "Topo que cava túneles entre los cables de la Red.",
+    "evolutions": []
+  },
+  {
+    "id": "polillux",
+    "name": "Polillux",
+    "stage": "novato",
+    "affinity": "senal",
+    "archetype": "mistico",
+    "recruitable": true,
+    "stats": {
+      "hp": 54,
+      "atk": 19,
+      "def": 16,
+      "spd": 18,
+      "dp": 50
+    },
+    "basic": {
+      "name": "Aleteo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Polvo de Luz",
+      "power": 70,
+      "dpCost": 15,
+      "accuracy": 88
+    },
+    "description": "Polilla atraída por cualquier pantalla encendida.",
+    "evolutions": []
+  },
+  {
+    "id": "cangrejal",
+    "name": "Cangrejal",
+    "stage": "novato",
+    "affinity": "pulso",
+    "archetype": "tanque",
+    "recruitable": true,
+    "stats": {
+      "hp": 70,
+      "atk": 18,
+      "def": 20,
+      "spd": 12,
+      "dp": 40
+    },
+    "basic": {
+      "name": "Pinza",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Tenaza Cerrada",
+      "power": 70,
+      "dpCost": 15,
+      "accuracy": 85
+    },
+    "description": "Cangrejo que camina de lado entre los paquetes de datos.",
+    "evolutions": [
+      {
+        "to": "escorpiolag",
+        "conditions": {
+          "minLevel": 12
+        }
+      }
+    ]
+  },
+  {
+    "id": "hongolin",
+    "name": "Hongolín",
+    "stage": "novato",
+    "affinity": "ruido",
+    "archetype": "mistico",
+    "recruitable": true,
+    "stats": {
+      "hp": 57,
+      "atk": 20,
+      "def": 16,
+      "spd": 18,
+      "dp": 50
+    },
+    "basic": {
+      "name": "Esporas",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Nube de Esporas",
+      "power": 70,
+      "dpCost": 15,
+      "accuracy": 88
+    },
+    "description": "Seta que crece donde el código se pudre.",
+    "evolutions": []
+  },
+  {
+    "id": "pajarrafaga",
+    "name": "Pajarráfaga",
+    "stage": "novato",
+    "affinity": "senal",
+    "archetype": "veloz",
+    "recruitable": true,
+    "stats": {
+      "hp": 47,
+      "atk": 19,
+      "def": 15,
+      "spd": 23,
+      "dp": 40
+    },
+    "basic": {
+      "name": "Picotazo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Ráfaga",
+      "power": 70,
+      "dpCost": 15,
+      "accuracy": 90
+    },
+    "description": "Pájaro diminuto que vuela tan rápido que deja estela.",
+    "evolutions": [
+      {
+        "to": "gaviotaje",
+        "conditions": {
+          "minLevel": 12
+        }
+      }
+    ]
+  },
+  {
+    "id": "aranared",
+    "name": "Arañared",
+    "stage": "avanzado",
+    "affinity": "ruido",
+    "archetype": "atacante",
+    "recruitable": true,
+    "stats": {
+      "hp": 74,
+      "atk": 38,
+      "def": 22,
+      "spd": 28,
+      "dp": 60
+    },
+    "basic": {
+      "name": "Picadura",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Red Pegajosa",
+      "power": 90,
+      "dpCost": 20,
+      "accuracy": 80
+    },
+    "description": "Teje redes con hilos de conexión. Lo que cae en ellas, se desconecta.",
+    "evolutions": [
+      {
+        "to": "manticora-spam",
+        "conditions": {
+          "minLevel": 24
+        }
+      }
+    ]
+  },
+  {
+    "id": "gaviotaje",
+    "name": "Gaviotaje",
+    "stage": "avanzado",
+    "affinity": "senal",
+    "archetype": "veloz",
+    "recruitable": true,
+    "stats": {
+      "hp": 71,
+      "atk": 29,
+      "def": 21,
+      "spd": 38,
+      "dp": 60
+    },
+    "basic": {
+      "name": "Picotazo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Picado en Ráfaga",
+      "power": 90,
+      "dpCost": 20,
+      "accuracy": 90
+    },
+    "description": "Gaviota que vuela sobre el Mar de Paquetes robando lo que flota.",
+    "evolutions": [
+      {
+        "to": "grifo-bus",
+        "conditions": {
+          "minLevel": 24
+        }
+      }
+    ]
+  },
+  {
+    "id": "sapotron",
+    "name": "Sapotrón",
+    "stage": "avanzado",
+    "affinity": "pulso",
+    "archetype": "atacante",
+    "recruitable": true,
+    "stats": {
+      "hp": 76,
+      "atk": 35,
+      "def": 24,
+      "spd": 26,
+      "dp": 60
+    },
+    "basic": {
+      "name": "Lengüetazo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Lengua Eléctrica",
+      "power": 90,
+      "dpCost": 20,
+      "accuracy": 80
+    },
+    "description": "Sapo enorme con lengua electrificada.",
+    "evolutions": []
+  },
+  {
+    "id": "cactuson",
+    "name": "Cactusón",
+    "stage": "avanzado",
+    "affinity": "pulso",
+    "archetype": "tanque",
+    "recruitable": true,
+    "stats": {
+      "hp": 107,
+      "atk": 28,
+      "def": 33,
+      "spd": 19,
+      "dp": 60
+    },
+    "basic": {
+      "name": "Pinchazo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Lluvia de Púas",
+      "power": 90,
+      "dpCost": 20,
+      "accuracy": 85
+    },
+    "description": "Cactus gruñón que guarda la entrada del Parque Arranque.",
+    "evolutions": []
+  },
+  {
+    "id": "golem-disco",
+    "name": "Gólem Disco",
+    "stage": "avanzado",
+    "affinity": "senal",
+    "archetype": "tanque",
+    "recruitable": true,
+    "stats": {
+      "hp": 105,
+      "atk": 27,
+      "def": 34,
+      "spd": 19,
+      "dp": 60
+    },
+    "basic": {
+      "name": "Golpe Pesado",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Giro de Disco",
+      "power": 90,
+      "dpCost": 20,
+      "accuracy": 85
+    },
+    "description": "Gólem hecho de discos apilados. Gira para atacar.",
+    "evolutions": []
+  },
+  {
+    "id": "medusonica",
+    "name": "Medusónica",
+    "stage": "avanzado",
+    "affinity": "senal",
+    "archetype": "mistico",
+    "recruitable": true,
+    "stats": {
+      "hp": 83,
+      "atk": 32,
+      "def": 24,
+      "spd": 28,
+      "dp": 75
+    },
+    "basic": {
+      "name": "Roce",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Tentáculo Sónico",
+      "power": 90,
+      "dpCost": 20,
+      "accuracy": 88
+    },
+    "description": "Medusa que flota emitiendo ondas que marean.",
+    "evolutions": []
+  },
+  {
+    "id": "lobocifra",
+    "name": "Lobocifra",
+    "stage": "avanzado",
+    "affinity": "ruido",
+    "archetype": "atacante",
+    "recruitable": true,
+    "stats": {
+      "hp": 80,
+      "atk": 38,
+      "def": 23,
+      "spd": 27,
+      "dp": 60
+    },
+    "basic": {
+      "name": "Mordisco",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Aullido Cifrado",
+      "power": 90,
+      "dpCost": 20,
+      "accuracy": 80
+    },
+    "description": "Lobo que habla en clave. Solo su manada lo entiende.",
+    "evolutions": []
+  },
+  {
+    "id": "buhoraculo",
+    "name": "Búhoráculo",
+    "stage": "avanzado",
+    "affinity": "senal",
+    "archetype": "mistico",
+    "recruitable": true,
+    "stats": {
+      "hp": 82,
+      "atk": 32,
+      "def": 24,
+      "spd": 29,
+      "dp": 75
+    },
+    "basic": {
+      "name": "Picotazo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Mirada Oracular",
+      "power": 90,
+      "dpCost": 20,
+      "accuracy": 88
+    },
+    "description": "Búho que ve los ataques antes de que lleguen.",
+    "evolutions": []
+  },
+  {
+    "id": "escorpiolag",
+    "name": "Escorpiolag",
+    "stage": "avanzado",
+    "affinity": "ruido",
+    "archetype": "atacante",
+    "recruitable": true,
+    "stats": {
+      "hp": 77,
+      "atk": 37,
+      "def": 23,
+      "spd": 26,
+      "dp": 60
+    },
+    "basic": {
+      "name": "Pinza",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Aguijón Lento",
+      "power": 90,
+      "dpCost": 20,
+      "accuracy": 80
+    },
+    "description": "Su picadura vuelve lento todo lo que toca.",
+    "evolutions": []
+  },
+  {
+    "id": "ciervoltio",
+    "name": "Ciervoltio",
+    "stage": "avanzado",
+    "affinity": "pulso",
+    "archetype": "veloz",
+    "recruitable": true,
+    "stats": {
+      "hp": 74,
+      "atk": 27,
+      "def": 23,
+      "spd": 37,
+      "dp": 60
+    },
+    "basic": {
+      "name": "Cornada",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Asta Eléctrica",
+      "power": 90,
+      "dpCost": 20,
+      "accuracy": 90
+    },
+    "description": "Ciervo cuyas astas descargan electricidad estática.",
+    "evolutions": []
+  },
+  {
+    "id": "manticora-spam",
+    "name": "Mantícora Spam",
+    "stage": "elite",
+    "affinity": "ruido",
+    "archetype": "atacante",
+    "recruitable": true,
+    "stats": {
+      "hp": 112,
+      "atk": 50,
+      "def": 33,
+      "spd": 38,
+      "dp": 80
+    },
+    "basic": {
+      "name": "Zarpazo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Lluvia de Spam",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 80
+    },
+    "description": "Bestia que satura a sus presas con miles de mensajes.",
+    "evolutions": []
+  },
+  {
+    "id": "grifo-bus",
+    "name": "Grifo Bus",
+    "stage": "elite",
+    "affinity": "senal",
+    "archetype": "veloz",
+    "recruitable": true,
+    "stats": {
+      "hp": 99,
+      "atk": 41,
+      "def": 31,
+      "spd": 53,
+      "dp": 80
+    },
+    "basic": {
+      "name": "Picotazo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Transferencia",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 90
+    },
+    "description": "Grifo que transporta datos entre zonas a toda velocidad.",
+    "evolutions": []
+  },
+  {
+    "id": "minotauro-kernel",
+    "name": "Minotauro Kernel",
+    "stage": "elite",
+    "affinity": "pulso",
+    "archetype": "atacante",
+    "recruitable": true,
+    "stats": {
+      "hp": 107,
+      "atk": 53,
+      "def": 33,
+      "spd": 37,
+      "dp": 80
+    },
+    "basic": {
+      "name": "Cornada",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Pánico del Núcleo",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 80
+    },
+    "description": "Guarda el corazón de un laberinto de código.",
+    "evolutions": []
+  },
+  {
+    "id": "serpiente-bucle",
+    "name": "Serpiente Bucle",
+    "stage": "elite",
+    "affinity": "ruido",
+    "archetype": "mistico",
+    "recruitable": true,
+    "stats": {
+      "hp": 121,
+      "atk": 43,
+      "def": 34,
+      "spd": 39,
+      "dp": 100
+    },
+    "basic": {
+      "name": "Mordisco",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Bucle Infinito",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 88
+    },
+    "description": "Se muerde la cola y atrapa a su rival en el mismo instante una y otra vez.",
+    "evolutions": []
+  },
+  {
+    "id": "golemagma",
+    "name": "Golemagma",
+    "stage": "elite",
+    "affinity": "pulso",
+    "archetype": "tanque",
+    "recruitable": true,
+    "stats": {
+      "hp": 156,
+      "atk": 37,
+      "def": 46,
+      "spd": 25,
+      "dp": 80
+    },
+    "basic": {
+      "name": "Golpe Pesado",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Puño de Magma",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 85
+    },
+    "description": "Gólem de roca fundida que vive en el Volcán Compilador.",
+    "evolutions": []
+  },
+  {
+    "id": "fenix-reinicio",
+    "name": "Fénix Reinicio",
+    "stage": "elite",
+    "affinity": "pulso",
+    "archetype": "mistico",
+    "recruitable": true,
+    "stats": {
+      "hp": 117,
+      "atk": 44,
+      "def": 32,
+      "spd": 39,
+      "dp": 100
+    },
+    "basic": {
+      "name": "Aleteo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Renacer",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 88
+    },
+    "description": "Cuando cae, se reinicia en llamas.",
+    "evolutions": []
+  },
+  {
+    "id": "hidra-fork",
+    "name": "Hidra Fork",
+    "stage": "elite",
+    "affinity": "ruido",
+    "archetype": "atacante",
+    "recruitable": true,
+    "stats": {
+      "hp": 112,
+      "atk": 51,
+      "def": 33,
+      "spd": 36,
+      "dp": 80
+    },
+    "basic": {
+      "name": "Mordisco",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Bifurcación",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 80
+    },
+    "description": "Cada cabeza cortada se bifurca en dos procesos nuevos.",
+    "evolutions": []
+  },
+  {
+    "id": "yeti-criptografico",
+    "name": "Yeti Criptográfico",
+    "stage": "elite",
+    "affinity": "senal",
+    "archetype": "tanque",
+    "recruitable": true,
+    "stats": {
+      "hp": 156,
+      "atk": 37,
+      "def": 49,
+      "spd": 25,
+      "dp": 80
+    },
+    "basic": {
+      "name": "Zarpazo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Ventisca Cifrada",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 85
+    },
+    "description": "Guarda las claves del Glaciar bajo capas de hielo.",
+    "evolutions": []
+  },
+  {
+    "id": "kraken-paquete",
+    "name": "Kraken Paquete",
+    "stage": "elite",
+    "affinity": "senal",
+    "archetype": "equilibrado",
+    "recruitable": true,
+    "stats": {
+      "hp": 124,
+      "atk": 40,
+      "def": 40,
+      "spd": 40,
+      "dp": 80
+    },
+    "basic": {
+      "name": "Tentáculo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Remolino de Datos",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 85
+    },
+    "description": "Enreda los paquetes que cruzan el mar y los hunde.",
+    "evolutions": []
+  },
+  {
+    "id": "tortuga-archivo",
+    "name": "Tortuga Archivo",
+    "stage": "elite",
+    "affinity": "pulso",
+    "archetype": "tanque",
+    "recruitable": true,
+    "stats": {
+      "hp": 150,
+      "atk": 36,
+      "def": 50,
+      "spd": 26,
+      "dp": 80
+    },
+    "basic": {
+      "name": "Golpe Pesado",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Caparazón Histórico",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 85
+    },
+    "description": "Lleva en su caparazón el archivo de toda la Red.",
+    "evolutions": []
+  },
+  {
+    "id": "reina-colmena",
+    "name": "Reina Colmena",
+    "stage": "supremo",
+    "affinity": "ruido",
+    "archetype": "mistico",
+    "recruitable": false,
+    "stats": {
+      "hp": 158,
+      "atk": 62,
+      "def": 45,
+      "spd": 53,
+      "dp": 125
+    },
+    "basic": {
+      "name": "Picadura",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Orden de la Colmena",
+      "power": 130,
+      "dpCost": 30,
+      "accuracy": 88
+    },
+    "description": "Gobierna la colmena corrupta. Cada abeja es un fragmento de virus.",
+    "evolutions": []
+  },
+  {
+    "id": "titan-cortafuegos",
+    "name": "Titán Cortafuegos",
+    "stage": "supremo",
+    "affinity": "pulso",
+    "archetype": "tanque",
+    "recruitable": false,
+    "stats": {
+      "hp": 197,
+      "atk": 49,
+      "def": 67,
+      "spd": 32,
+      "dp": 100
+    },
+    "basic": {
+      "name": "Golpe Pesado",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Muro Ígneo",
+      "power": 130,
+      "dpCost": 30,
+      "accuracy": 85
+    },
+    "description": "Guardián de la Ciudadela. Nada entra sin su permiso.",
+    "evolutions": []
+  },
+  {
+    "id": "senor-del-lag",
+    "name": "Señor del Lag",
+    "stage": "supremo",
+    "affinity": "ruido",
+    "archetype": "mistico",
+    "recruitable": false,
+    "stats": {
+      "hp": 164,
+      "atk": 59,
+      "def": 45,
+      "spd": 55,
+      "dp": 125
+    },
+    "basic": {
+      "name": "Roce",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Retardo Eterno",
+      "power": 130,
+      "dpCost": 30,
+      "accuracy": 88
+    },
+    "description": "Todo a su alrededor llega tarde, incluso los golpes.",
+    "evolutions": []
+  },
+  {
+    "id": "coloso-nulo",
+    "name": "Coloso Nulo",
+    "stage": "supremo",
+    "affinity": "ruido",
+    "archetype": "tanque",
+    "recruitable": false,
+    "stats": {
+      "hp": 196,
+      "atk": 52,
+      "def": 62,
+      "spd": 32,
+      "dp": 100
+    },
+    "basic": {
+      "name": "Golpe Pesado",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Puntero Nulo",
+      "power": 130,
+      "dpCost": 30,
+      "accuracy": 85
+    },
+    "description": "Un gigante hecho de nada. Lo que toca deja de existir.",
+    "evolutions": []
+  },
+  {
+    "id": "arcangel-checksum",
+    "name": "Arcángel Checksum",
+    "stage": "supremo",
+    "affinity": "senal",
+    "archetype": "mistico",
+    "recruitable": false,
+    "stats": {
+      "hp": 154,
+      "atk": 61,
+      "def": 47,
+      "spd": 55,
+      "dp": 125
+    },
+    "basic": {
+      "name": "Aleteo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Verificación Divina",
+      "power": 130,
+      "dpCost": 30,
+      "accuracy": 88
+    },
+    "description": "Comprueba la pureza de cada dato. Lo corrupto, lo borra.",
+    "evolutions": []
+  },
+  {
+    "id": "emperatriz-virica",
+    "name": "Emperatriz Vírica",
+    "stage": "supremo",
+    "affinity": "ruido",
+    "archetype": "atacante",
+    "recruitable": false,
+    "stats": {
+      "hp": 145,
+      "atk": 73,
+      "def": 41,
+      "spd": 50,
+      "dp": 100
+    },
+    "basic": {
+      "name": "Zarpazo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Pandemia",
+      "power": 130,
+      "dpCost": 30,
+      "accuracy": 80
+    },
+    "description": "Señora de todos los virus. Infecta con una mirada.",
+    "evolutions": []
+  },
+  {
+    "id": "gusano-mundial",
+    "name": "Gusano Mundial",
+    "stage": "supremo",
+    "affinity": "ruido",
+    "archetype": "tanque",
+    "recruitable": false,
+    "stats": {
+      "hp": 202,
+      "atk": 50,
+      "def": 65,
+      "spd": 32,
+      "dp": 100
+    },
+    "basic": {
+      "name": "Mordisco",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Propagación",
+      "power": 130,
+      "dpCost": 30,
+      "accuracy": 85
+    },
+    "description": "Un gusano tan largo que rodea la Red entera.",
+    "evolutions": []
+  },
+  {
+    "id": "guardian-raiz",
+    "name": "Guardián Raíz",
+    "stage": "supremo",
+    "affinity": "pulso",
+    "archetype": "equilibrado",
+    "recruitable": false,
+    "stats": {
+      "hp": 167,
+      "atk": 52,
+      "def": 53,
+      "spd": 51,
+      "dp": 100
+    },
+    "basic": {
+      "name": "Golpe Pesado",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Permiso de Raíz",
+      "power": 130,
+      "dpCost": 30,
+      "accuracy": 85
+    },
+    "description": "El primer Eco de todos. Custodia los cimientos de la Red.",
+    "evolutions": []
+  },
+  {
+    "id": "dragon-desbordamiento",
+    "name": "Dragón Desbordamiento",
+    "stage": "supremo",
+    "affinity": "senal",
+    "archetype": "atacante",
+    "recruitable": false,
+    "stats": {
+      "hp": 146,
+      "atk": 73,
+      "def": 44,
+      "spd": 50,
+      "dp": 100
+    },
+    "basic": {
+      "name": "Zarpazo",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Desbordamiento",
+      "power": 130,
+      "dpCost": 30,
+      "accuracy": 80
+    },
+    "description": "Un dragón que creció más allá de su memoria. Amenaza con romper la Red.",
+    "evolutions": []
+  },
+  {
+    "id": "fantasma-cache",
+    "name": "Fantasma Caché",
+    "stage": "elite",
+    "affinity": "senal",
+    "archetype": "mistico",
+    "recruitable": true,
+    "stats": {
+      "hp": 118,
+      "atk": 46,
+      "def": 35,
+      "spd": 40,
+      "dp": 100
+    },
+    "basic": {
+      "name": "Roce",
+      "power": 35,
+      "dpCost": 0,
+      "accuracy": 95
+    },
+    "signature": {
+      "name": "Datos Fantasma",
+      "power": 110,
+      "dpCost": 25,
+      "accuracy": 88
+    },
+    "description": "Restos de páginas olvidadas que vagan por la Ciudad Píxel.",
+    "evolutions": []
+  }
+]

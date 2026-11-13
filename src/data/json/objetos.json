@@ -1,0 +1,219 @@
+[
+  {
+    "id": "disco-vida-s",
+    "name": "Disco Vida S",
+    "kind": "recuperacion",
+    "description": "Recupera el 30 % de la vida.",
+    "effect": {
+      "healPercent": 30
+    },
+    "price": 30
+  },
+  {
+    "id": "disco-vida-m",
+    "name": "Disco Vida M",
+    "kind": "recuperacion",
+    "description": "Recupera el 60 % de la vida.",
+    "effect": {
+      "healPercent": 60
+    },
+    "price": 70
+  },
+  {
+    "id": "disco-vida-l",
+    "name": "Disco Vida L",
+    "kind": "recuperacion",
+    "description": "Recupera toda la vida.",
+    "effect": {
+      "healPercent": 100
+    },
+    "price": 140
+  },
+  {
+    "id": "disco-energia",
+    "name": "Disco Energía",
+    "kind": "recuperacion",
+    "description": "Recupera 40 DP.",
+    "effect": {
+      "dp": 40
+    },
+    "price": 60
+  },
+  {
+    "id": "disco-total",
+    "name": "Disco Total",
+    "kind": "recuperacion",
+    "description": "Recupera toda la vida y todos los DP.",
+    "effect": {
+      "healPercent": 100,
+      "dp": 999
+    },
+    "price": 300
+  },
+  {
+    "id": "fruta-fuerza",
+    "name": "Fruta Fuerza",
+    "kind": "fruta",
+    "description": "Ataque +2 para siempre.",
+    "effect": {
+      "atk": 2
+    },
+    "price": 200
+  },
+  {
+    "id": "fruta-coraza",
+    "name": "Fruta Coraza",
+    "kind": "fruta",
+    "description": "Defensa +2 para siempre.",
+    "effect": {
+      "def": 2
+    },
+    "price": 200
+  },
+  {
+    "id": "fruta-viento",
+    "name": "Fruta Viento",
+    "kind": "fruta",
+    "description": "Velocidad +2 para siempre.",
+    "effect": {
+      "spd": 2
+    },
+    "price": 200
+  },
+  {
+    "id": "fruta-vida",
+    "name": "Fruta Vida",
+    "kind": "fruta",
+    "description": "Vida máxima +5 para siempre.",
+    "effect": {
+      "hp": 5
+    },
+    "price": 200
+  },
+  {
+    "id": "fruta-dulce",
+    "name": "Fruta Dulce",
+    "kind": "fruta",
+    "description": "Tu compañero la adora. Vínculo +10.",
+    "effect": {
+      "bond": 10
+    },
+    "price": 150
+  },
+  {
+    "id": "nucleo-fusion",
+    "name": "Núcleo de Fusión",
+    "kind": "fusion",
+    "description": "Permite fusionar a dos Supremos con un vínculo muy fuerte."
+  },
+  {
+    "id": "pesas-entrenamiento",
+    "name": "Pesas de Entrenamiento",
+    "kind": "entrenamiento",
+    "description": "Las próximas 3 sesiones de entrenamiento dan el doble.",
+    "price": 120
+  },
+  {
+    "id": "amuleto-suerte",
+    "name": "Amuleto de la Suerte",
+    "kind": "amuleto",
+    "description": "Durante 1.000 pasos, las variantes Brillantes son el doble de probables.",
+    "effect": {
+      "steps": 1000
+    },
+    "price": 250
+  },
+  {
+    "id": "radar",
+    "name": "Radar",
+    "kind": "radar",
+    "description": "El próximo encuentro será un Eco dispuesto a unirse a tu equipo.",
+    "price": 180
+  },
+  {
+    "id": "antivirus",
+    "name": "Antivirus",
+    "kind": "antivirus",
+    "description": "Limpia a un Eco infectado de tu equipo.",
+    "price": 160
+  },
+  {
+    "id": "sobre-parches",
+    "name": "Sobre de Parches",
+    "kind": "sobre",
+    "description": "Contiene un Parche al azar.",
+    "price": 150
+  },
+  {
+    "id": "huevo-raro-cofre",
+    "name": "Cofre con Huevo",
+    "kind": "sobre",
+    "description": "Dentro hay un Huevo Raro."
+  },
+  {
+    "id": "cristal-de-sabana",
+    "name": "Cristal de la Sabana",
+    "kind": "clave",
+    "description": "Prueba de haber vencido al guardián de la Sabana Engranaje."
+  },
+  {
+    "id": "mapa-corrupto",
+    "name": "Mapa Corrupto",
+    "kind": "clave",
+    "description": "Muestra el camino a la Colmena Corrupta."
+  },
+  {
+    "id": "llave-raiz",
+    "name": "Llave Raíz",
+    "kind": "clave",
+    "description": "Abre el camino a la Raíz del Mundo."
+  },
+  {
+    "id": "cristal-forja",
+    "name": "Cristal Solforja",
+    "kind": "cristal",
+    "description": "Lo necesita un Élite de la línea de Brasko para alcanzar su forma Suprema."
+  },
+  {
+    "id": "cristal-eco",
+    "name": "Cristal Sinfonía Titán",
+    "kind": "cristal",
+    "description": "Lo necesita un Élite de la línea de Ecolí para alcanzar su forma Suprema."
+  },
+  {
+    "id": "cristal-pliegue",
+    "name": "Cristal Arcanorigami",
+    "kind": "cristal",
+    "description": "Lo necesita un Élite de la línea de Origamín para alcanzar su forma Suprema."
+  },
+  {
+    "id": "cristal-glitch",
+    "name": "Cristal Rey del Error",
+    "kind": "cristal",
+    "description": "Lo necesita un Élite de la línea de Glitchín para alcanzar su forma Suprema."
+  },
+  {
+    "id": "cristal-quitina",
+    "name": "Cristal Paladín Quitina",
+    "kind": "cristal",
+    "description": "Lo necesita un Élite de la línea de Corazita para alcanzar su forma Suprema."
+  },
+  {
+    "id": "cristal-telurico",
+    "name": "Cristal Coloso Telúrico",
+    "kind": "cristal",
+    "description": "Lo necesita un Élite de la línea de Rodacorno para alcanzar su forma Suprema."
+  },
+  {
+    "id": "cristal-engranaje",
+    "name": "Cristal Deus Máquina",
+    "kind": "cristal",
+    "description": "Lo necesita un Élite de la línea de Tuerkín para alcanzar su forma Suprema."
+  },
+  {
+    "id": "cristal-abisal",
+    "name": "Cristal Leviatán Glacial",
+    "kind": "cristal",
+    "description": "Lo necesita un Élite de la línea de Ajolín para alcanzar su forma Suprema."
+  }
+]

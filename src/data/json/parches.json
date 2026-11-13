@@ -1,0 +1,240 @@
+[
+  {
+    "id": "parche-fuerza",
+    "name": "Parche Fuerza",
+    "rarity": "comun",
+    "description": "Ataque +30 % durante 3 turnos.",
+    "effect": {
+      "type": "buff",
+      "stat": "atk",
+      "value": 30,
+      "turns": 3
+    },
+    "price": 80
+  },
+  {
+    "id": "parche-coraza",
+    "name": "Parche Coraza",
+    "rarity": "comun",
+    "description": "Defensa +30 % durante 3 turnos.",
+    "effect": {
+      "type": "buff",
+      "stat": "def",
+      "value": 30,
+      "turns": 3
+    },
+    "price": 80
+  },
+  {
+    "id": "parche-velocidad",
+    "name": "Parche Velocidad",
+    "rarity": "comun",
+    "description": "Velocidad +40 % durante 3 turnos.",
+    "effect": {
+      "type": "buff",
+      "stat": "spd",
+      "value": 40,
+      "turns": 3
+    },
+    "price": 80
+  },
+  {
+    "id": "parche-cura",
+    "name": "Parche Cura",
+    "rarity": "comun",
+    "description": "Recupera el 30 % de la vida.",
+    "effect": {
+      "type": "heal",
+      "value": 30
+    },
+    "price": 60
+  },
+  {
+    "id": "parche-energia",
+    "name": "Parche Energía",
+    "rarity": "comun",
+    "description": "Recupera 30 DP.",
+    "effect": {
+      "type": "dp",
+      "value": 30
+    },
+    "price": 60
+  },
+  {
+    "id": "parche-escudo",
+    "name": "Parche Escudo",
+    "rarity": "comun",
+    "description": "Bloquea por completo el siguiente golpe.",
+    "effect": {
+      "type": "shield",
+      "turns": 1
+    },
+    "price": 90
+  },
+  {
+    "id": "parche-precision",
+    "name": "Parche Precisión",
+    "rarity": "comun",
+    "description": "Tus ataques no fallan durante 2 turnos.",
+    "effect": {
+      "type": "sureHit",
+      "turns": 2
+    },
+    "price": 70
+  },
+  {
+    "id": "parche-espada-plasma",
+    "name": "Parche Espada de Plasma",
+    "rarity": "rara",
+    "description": "Ataque +60 % durante 2 turnos.",
+    "effect": {
+      "type": "buff",
+      "stat": "atk",
+      "value": 60,
+      "turns": 2
+    },
+    "price": 220
+  },
+  {
+    "id": "parche-muralla",
+    "name": "Parche Muralla",
+    "rarity": "rara",
+    "description": "Defensa +60 % durante 2 turnos.",
+    "effect": {
+      "type": "buff",
+      "stat": "def",
+      "value": 60,
+      "turns": 2
+    },
+    "price": 220
+  },
+  {
+    "id": "parche-cura-total",
+    "name": "Parche Cura Total",
+    "rarity": "rara",
+    "description": "Recupera el 70 % de la vida.",
+    "effect": {
+      "type": "heal",
+      "value": 70
+    },
+    "price": 200
+  },
+  {
+    "id": "parche-obediencia",
+    "name": "Parche Obediencia",
+    "rarity": "rara",
+    "description": "Tu compañero obedece siempre durante 3 turnos.",
+    "effect": {
+      "type": "obey",
+      "turns": 3
+    },
+    "price": 180
+  },
+  {
+    "id": "parche-doble",
+    "name": "Parche Doble Golpe",
+    "rarity": "rara",
+    "description": "Tu próximo ataque golpea dos veces.",
+    "effect": {
+      "type": "doubleStrike",
+      "turns": 1
+    },
+    "price": 240
+  },
+  {
+    "id": "parche-critico",
+    "name": "Parche Crítico",
+    "rarity": "rara",
+    "description": "Tu próximo ataque es un golpe crítico.",
+    "effect": {
+      "type": "crit",
+      "turns": 1
+    },
+    "price": 200
+  },
+  {
+    "id": "parche-aturdir",
+    "name": "Parche Aturdir",
+    "rarity": "rara",
+    "description": "El rival pierde su próximo turno.",
+    "effect": {
+      "type": "stun",
+      "turns": 1
+    },
+    "price": 260
+  },
+  {
+    "id": "parche-conversor-pulso",
+    "name": "Conversor Pulso",
+    "rarity": "rara",
+    "description": "Tu compañero es de afinidad Pulso durante 3 turnos.",
+    "effect": {
+      "type": "convert",
+      "affinity": "pulso",
+      "turns": 3
+    },
+    "price": 160
+  },
+  {
+    "id": "parche-conversor-senal",
+    "name": "Conversor Señal",
+    "rarity": "rara",
+    "description": "Tu compañero es de afinidad Señal durante 3 turnos.",
+    "effect": {
+      "type": "convert",
+      "affinity": "senal",
+      "turns": 3
+    },
+    "price": 160
+  },
+  {
+    "id": "parche-conversor-ruido",
+    "name": "Conversor Ruido",
+    "rarity": "rara",
+    "description": "Tu compañero es de afinidad Ruido durante 3 turnos.",
+    "effect": {
+      "type": "convert",
+      "affinity": "ruido",
+      "turns": 3
+    },
+    "price": 160
+  },
+  {
+    "id": "parche-evolucion",
+    "name": "Parche Evolución",
+    "rarity": "epica",
+    "description": "Evoluciona en combate sin gastar DP y sin riesgo de fallo.",
+    "effect": {
+      "type": "evolve"
+    }
+  },
+  {
+    "id": "parche-reinicio",
+    "name": "Parche Reinicio",
+    "rarity": "epica",
+    "description": "Si tu compañero cae en este combate, vuelve con toda la vida.",
+    "effect": {
+      "type": "revive"
+    }
+  },
+  {
+    "id": "parche-despertar",
+    "name": "Parche Despertar",
+    "rarity": "epica",
+    "description": "Con el vínculo al máximo, un Supremo alcanza su Despertar durante el combate.",
+    "effect": {
+      "type": "awaken"
+    }
+  },
+  {
+    "id": "parche-drenaje",
+    "name": "Parche Drenaje",
+    "rarity": "epica",
+    "description": "Durante 3 turnos recuperas el 50 % del daño que haces.",
+    "effect": {
+      "type": "drain",
+      "value": 50,
+      "turns": 3
+    }
+  }
+]

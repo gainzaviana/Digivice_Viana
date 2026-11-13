@@ -1,0 +1,173 @@
+[
+  {
+    "id": "huevo-comun",
+    "name": "Huevo Común",
+    "steps": 1000,
+    "description": "Un huevo corriente. De él sale un Novato salvaje.",
+    "pool": [
+      {
+        "species": "bitbicho",
+        "weight": 10
+      },
+      {
+        "species": "pixelito",
+        "weight": 10
+      },
+      {
+        "species": "caracolchon",
+        "weight": 10
+      },
+      {
+        "species": "murciclic",
+        "weight": 10
+      },
+      {
+        "species": "ranadin",
+        "weight": 10
+      },
+      {
+        "species": "topocable",
+        "weight": 10
+      },
+      {
+        "species": "polillux",
+        "weight": 10
+      },
+      {
+        "species": "cangrejal",
+        "weight": 10
+      },
+      {
+        "species": "hongolin",
+        "weight": 10
+      },
+      {
+        "species": "pajarrafaga",
+        "weight": 10
+      }
+    ],
+    "brillanteChance": 2
+  },
+  {
+    "id": "huevo-raro",
+    "name": "Huevo Raro",
+    "steps": 3000,
+    "description": "Late con fuerza. Puede contener el Brote de cualquier línea de compañeros.",
+    "pool": [
+      {
+        "species": "chispin",
+        "weight": 10
+      },
+      {
+        "species": "tilin",
+        "weight": 10
+      },
+      {
+        "species": "pliegue",
+        "weight": 10
+      },
+      {
+        "species": "bichito",
+        "weight": 10
+      },
+      {
+        "species": "escarbi",
+        "weight": 10
+      },
+      {
+        "species": "bolarmi",
+        "weight": 10
+      },
+      {
+        "species": "bip",
+        "weight": 10
+      },
+      {
+        "species": "burbuja",
+        "weight": 10
+      },
+      {
+        "species": "bitbicho",
+        "weight": 4
+      },
+      {
+        "species": "pixelito",
+        "weight": 4
+      },
+      {
+        "species": "caracolchon",
+        "weight": 4
+      },
+      {
+        "species": "murciclic",
+        "weight": 4
+      },
+      {
+        "species": "ranadin",
+        "weight": 4
+      },
+      {
+        "species": "topocable",
+        "weight": 4
+      },
+      {
+        "species": "polillux",
+        "weight": 4
+      },
+      {
+        "species": "cangrejal",
+        "weight": 4
+      },
+      {
+        "species": "hongolin",
+        "weight": 4
+      },
+      {
+        "species": "pajarrafaga",
+        "weight": 4
+      }
+    ],
+    "brillanteChance": 5
+  },
+  {
+    "id": "huevo-ancestral",
+    "name": "Huevo Ancestral",
+    "steps": 8000,
+    "description": "Muy antiguo. Siempre contiene un Brote de compañero, y a menudo Brillante.",
+    "pool": [
+      {
+        "species": "chispin",
+        "weight": 10
+      },
+      {
+        "species": "tilin",
+        "weight": 10
+      },
+      {
+        "species": "pliegue",
+        "weight": 10
+      },
+      {
+        "species": "bichito",
+        "weight": 10
+      },
+      {
+        "species": "escarbi",
+        "weight": 10
+      },
+      {
+        "species": "bolarmi",
+        "weight": 10
+      },
+      {
+        "species": "bip",
+        "weight": 10
+      },
+      {
+        "species": "burbuja",
+        "weight": 10
+      }
+    ],
+    "brillanteChance": 25
+  }
+]

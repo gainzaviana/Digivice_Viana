@@ -1,0 +1,42 @@
+[
+  {
+    "id": "emperador-crisol",
+    "parts": [
+      "solforja",
+      "paladin-quitina"
+    ],
+    "result": "emperador-crisol",
+    "item": "nucleo-fusion",
+    "minBond": 90
+  },
+  {
+    "id": "eclipse-plegado",
+    "parts": [
+      "arcanorigami",
+      "rey-del-error"
+    ],
+    "result": "eclipse-plegado",
+    "item": "nucleo-fusion",
+    "minBond": 90
+  },
+  {
+    "id": "orquesta-omega",
+    "parts": [
+      "sinfonia-titan",
+      "deus-maquina"
+    ],
+    "result": "orquesta-omega",
+    "item": "nucleo-fusion",
+    "minBond": 90
+  },
+  {
+    "id": "tormenta-telurica",
+    "parts": [
+      "coloso-telurico",
+      "leviatan-glacial"
+    ],
+    "result": "tormenta-telurica",
+    "item": "nucleo-fusion",
+    "minBond": 90
+  }
+]
