@@ -110,14 +110,36 @@ export const MAX_SIMULATED = 5_000;
 
 /**
  * Reads today's Health total from pasted text: what the Shortcut copies ("enlace pasos=8421
- * fecha=2026-11-13"), an import link, or just a number ("8.421").
+ * fecha=2026-11-13", or a Health sample as text such as "6.240 pasos" / "6240 count"), an
+ * import link, or just a number ("8.421").
  */
 export function parseHealthText(text: string, now = new Date()): HealthImport | undefined {
   const t = text.trim();
   const link = t.indexOf("#importar?");
   if (link >= 0) return parseImport(t.slice(link), now);
-  const steps = /pasos\s*[=:]\s*([\d.,\s]+)/i.exec(t)?.[1] ?? (/^[\d.,\s]+$/.test(t) ? t : undefined);
-  if (steps === undefined) return undefined;
+  const tagged = /pasos\s*[=:]\s*([\d.,\s]+)/i.exec(t)?.[1];
   const day = /fecha\s*[=:]\s*(\d{4}-\d{2}-\d{2})/i.exec(t)?.[1];
-  return parseImport(`#importar?pasos=${encodeURIComponent(steps)}${day ? `&fecha=${day}` : ""}`, now);
+  const steps = tagged !== undefined ? toInteger(tagged) : loneNumber(t);
+  if (steps === undefined) return undefined;
+  return parseImport(`#importar?pasos=${steps}${day ? `&fecha=${day}` : ""}`, now);
+}
+
+/** "6.240" / "6,240" (thousands) → 6240; "6240,6" / "6240.6" (decimals) → 6241. */
+function toInteger(raw: string): number | undefined {
+  const v = raw.replace(/\s/g, "");
+  if (/^\d{1,3}([.,]\d{3})+$/.test(v)) return Number(v.replace(/[.,]/g, ""));
+  if (/^\d+([.,]\d{1,2})?$/.test(v)) return Math.round(Number(v.replace(",", ".")));
+  if (/^\d{1,3}([.,]\d{3})+[.,]\d{1,2}$/.test(v)) return Math.round(Number(v.slice(0, -3).replace(/[.,]/g, "") + "." + v.slice(-2).replace(/\D/g, "")));
+  return undefined;
+}
+
+/** The only number in a text, ignoring dates and times (a Health sample copied as text). */
+function loneNumber(text: string): number | undefined {
+  const cleaned = text
+    .replace(/\d{4}-\d{2}-\d{2}(T[\d:.+-Z]+)?/g, " ")
+    .replace(/\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}/g, " ")
+    .replace(/\d{1,2}:\d{2}(:\d{2})?/g, " ");
+  const numbers = cleaned.match(/\d[\d.,\s]*\d|\d/g)?.map((n) => n.trim()) ?? [];
+  if (numbers.length !== 1) return undefined;
+  return toInteger(numbers[0]);
 }

@@ -82,12 +82,10 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
         <details class="small">
           <summary class="strong">Cómo crear el atajo (una vez)</summary>
           <ol class="recipe">
-            <li>Abre la app Atajos › «+» y llámalo, por ejemplo, <b>Enlace pasos</b>.</li>
-            <li>Añade <b>Buscar muestras de salud</b>: Tipo <i>es</i> Pasos, Fecha de inicio <i>es</i> Hoy, Agrupar por <i>Día</i>.</li>
-            <li>Añade <b>Obtener detalles de muestras de salud</b>: Valor. Luego <b>Redondear número</b>.</li>
-            <li>Añade <b>Formatear fecha</b>: Fecha actual, formato personalizado <code>yyyy-MM-dd</code>.</li>
-            <li>Añade <b>Texto</b>: <code>enlace pasos=</code>[Número redondeado] <code>fecha=</code>[Fecha formateada]</li>
-            <li>Añade <b>Copiar al portapapeles</b> con ese texto. La primera vez, permite el acceso a Salud (solo pasos).</li>
+            <li>Abre la app Atajos (si no la tienes, es gratis en el App Store) › «+» y llámalo <b>Enlace pasos</b>.</li>
+            <li>Añade <b>Buscar muestras de salud</b>: Tipo <i>Pasos</i>, filtro Fecha de inicio <i>es hoy</i>, Agrupar por <i>Día</i>.</li>
+            <li>Justo debajo, añade <b>Copiar al portapapeles</b>. Se conecta solo con el bloque de arriba.</li>
+            <li>Pruébalo con ▶ y permite el acceso a Salud (solo Pasos).</li>
           </ol>
           <p>Uso: ejecuta el atajo, abre Enlace y pulsa <b>Pegar de Salud</b>. iOS te pedirá permiso para pegar: pulsa «Permitir pegar».</p>
           <p>Más rápido: Ajustes › Accesibilidad › Tocar › <b>Tocar atrás</b> › Doble toque › elige tu atajo. Así das dos golpecitos en la parte de atrás del iPhone y los pasos quedan copiados.</p>

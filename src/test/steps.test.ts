@@ -73,7 +73,14 @@ describe("parseHealthText", () => {
     expect(parseHealthText(" 8.421 ", now)).toMatchObject({ steps: 8421, day: "2026-11-13" });
     expect(parseHealthText("https://x.io/#importar?pasos=12&fecha=2026-11-12", now)).toMatchObject({ steps: 12, day: "2026-11-12" });
   });
+  it("reads a Health sample copied as text", () => {
+    expect(parseHealthText("6.240 pasos", now)?.steps).toBe(6240);
+    expect(parseHealthText("6240 count", now)?.steps).toBe(6240);
+    expect(parseHealthText("6240,6", now)?.steps).toBe(6241);
+    expect(parseHealthText("6.240 pasos\n13/11/2026 0:00 – 13/11/2026 23:59", now)?.steps).toBe(6240);
+    expect(parseHealthText("Pasos: 1.234.567", now)).toBeUndefined();
+  });
   it("rejects anything else", () => {
-    for (const t of ["", "hola", "pasos=", "enlace pasos=9999999", "pasos=5 fecha=2027-01-01"]) expect(parseHealthText(t, now)).toBeUndefined();
+    for (const t of ["", "hola", "pasos=", "enlace pasos=9999999", "pasos=5 fecha=2027-01-01", "3 de 5 Ecos"]) expect(parseHealthText(t, now)).toBeUndefined();
   });
 });
