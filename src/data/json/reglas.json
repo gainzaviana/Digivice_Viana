@@ -1,22 +1,17 @@
 {
-  "levelCap": 60,
+  "levelCap": 70,
   "maxBond": 100,
   "stepsPerBond": 600,
-  "encounterEveryMinSteps": 80,
-  "encounterEveryMaxSteps": 220,
+  "encounterEveryMinSteps": 150,
+  "encounterEveryMaxSteps": 350,
   "events": {
-    "battle": 45,
-    "recruit": 10,
-    "item": 18,
-    "egg": 6,
-    "merchant": 6,
-    "shrine": 5,
-    "nothing": 10
+    "battle": 60,
+    "cache": 20,
+    "sos": 10,
+    "hazard": 10
   },
   "brillanteChance": 1.0,
   "infectadoChance": 4.0,
-  "defeatPenaltyFraction": 0.15,
-  "defeatPenaltyMin": 100,
   "deckSize": 6,
   "startingLevel": 1,
   "startingBits": 100,
@@ -37,10 +32,6 @@
   "bossBitsPerOrder": 60,
   "foundBitsMin": 3,
   "foundBitsMax": 15,
-  "merchantOffers": 3,
-  "shrineBaseCost": 120,
-  "shrineCostPerOrder": 25,
-  "shrineEpicChance": 20,
   "itemDrops": [
     {
       "item": "disco-vida-s",
@@ -235,7 +226,6 @@
       0.3
     ]
   },
-  "bossDefeatPenaltyFraction": 0.35,
   "training": {
     "sessionsPerDay": 5,
     "tierScores": [
@@ -361,10 +351,157 @@
     "awakenCost": 20,
     "unlockZone": {
       "2": 1,
-      "3": 5,
-      "4": 10
+      "3": 6,
+      "4": 12
     },
-    "fusionZone": 13,
-    "awakenZone": 16
-  }
+    "fusionZone": 15,
+    "awakenZone": 17
+  },
+  "defeat": {
+    "pushbackMin": 300,
+    "pushbackMax": 600,
+    "bondLoss": 3,
+    "recoverySteps": 300,
+    "recoveryHours": 2
+  },
+  "cache": {
+    "dpMin": 5,
+    "dpMax": 10,
+    "weights": {
+      "dp": 40,
+      "item": 35,
+      "card": 15,
+      "egg": 10
+    }
+  },
+  "sos": {
+    "levelBonus": 2,
+    "bond": 8,
+    "rareChance": 50
+  },
+  "hazard": {
+    "seconds": 4,
+    "xpWins": 1.5,
+    "hpLossPercent": 10,
+    "dpLoss": 3
+  },
+  "care": {
+    "maxCharges": 3,
+    "stepsPerCharge": 500,
+    "hoursPerCharge": 2,
+    "energyDP": [
+      3,
+      4,
+      5,
+      6
+    ],
+    "energyBond": [
+      1,
+      1,
+      2,
+      3
+    ],
+    "pulseHeal": [
+      30,
+      45,
+      60,
+      75
+    ],
+    "tierScores": [
+      40,
+      70,
+      90
+    ]
+  },
+  "city": {
+    "healCost": 15,
+    "blessingBond": 3,
+    "offeringBase": 120,
+    "offeringPerOrder": 25,
+    "epicChance": 20,
+    "shop": {
+      "1": [
+        "disco-vida-s",
+        "disco-energia",
+        "parche-cura",
+        "parche-fuerza"
+      ],
+      "2": [
+        "disco-vida-s",
+        "disco-vida-m",
+        "disco-energia",
+        "fruta-fuerza",
+        "fruta-viento",
+        "parche-coraza",
+        "parche-velocidad"
+      ],
+      "3": [
+        "disco-vida-m",
+        "disco-energia",
+        "fruta-vida",
+        "fruta-coraza",
+        "pesas-entrenamiento",
+        "radar",
+        "parche-escudo",
+        "parche-precision"
+      ],
+      "4": [
+        "disco-vida-m",
+        "disco-vida-l",
+        "disco-energia",
+        "fruta-fuerza",
+        "fruta-viento",
+        "antivirus",
+        "amuleto-suerte",
+        "sobre-parches"
+      ],
+      "5": [
+        "disco-vida-l",
+        "disco-total",
+        "fruta-vida",
+        "fruta-dulce",
+        "sobre-parches",
+        "pesas-entrenamiento"
+      ],
+      "6": [
+        "disco-vida-l",
+        "disco-total",
+        "fruta-dulce",
+        "sobre-parches",
+        "amuleto-suerte"
+      ]
+    }
+  },
+  "areas": [
+    {
+      "order": 1,
+      "name": "Valle del Arranque",
+      "description": "Prados, bosques y playas donde todo empieza."
+    },
+    {
+      "order": 2,
+      "name": "Tierras del Servidor",
+      "description": "Desiertos de silicio, sabanas de engranajes y pantanos lentos."
+    },
+    {
+      "order": 3,
+      "name": "Costa del Ancho de Banda",
+      "description": "Ciudades de píxeles, cumbres ventosas y mares de paquetes."
+    },
+    {
+      "order": 4,
+      "name": "Reinos del Legado",
+      "description": "Ruinas antiguas, glaciares cifrados y volcanes que compilan."
+    },
+    {
+      "order": 5,
+      "name": "Fronteras Proxy",
+      "description": "Islas, ciudadelas y el abismo donde se pierden los datos."
+    },
+    {
+      "order": 6,
+      "name": "Núcleo del Mundo",
+      "description": "El santuario, la torre del desbordamiento y la raíz de La Red Profunda."
+    }
+  ]
 }

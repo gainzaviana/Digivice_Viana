@@ -25,6 +25,8 @@ export class Game {
   message?: string;
   private rng = new Rng();
   private listeners = new Set<() => void>();
+  /** Told about every batch of credited steps (the home scene speeds up its walk). */
+  readonly stepListeners = new Set<(steps: number) => void>();
   private messageTimer?: ReturnType<typeof setTimeout>;
 
   constructor() {
@@ -52,6 +54,11 @@ export class Game {
     clearTimeout(this.messageTimer);
     this.messageTimer = setTimeout(() => { this.message = undefined; this.changed(); }, 3800);
     this.changed();
+  }
+
+  /** Reads something that may need the game's random source (e.g. today's shrine offering). */
+  peek<T>(read: (save: GameSave, data: GameData, rng: Rng) => T): T {
+    return read(this.save, this.data, this.rng);
   }
 
   /** Runs an action on the save, saves it and shows its message. */
@@ -120,6 +127,7 @@ export class Game {
 
   private applySteps(n: number, note?: string) {
     this.save.totalSteps += n;
+    for (const fn of this.stepListeners) fn(n);
     refreshDaily(this.save, this.data);
     const events = walk(n, this.save, this.data, this.rng);
     storeSave(this.save);
@@ -157,7 +165,10 @@ export class Game {
   startBattle(event?: PendingEvent) {
     const b = Battle.start(event, this.save, this.data, this.rng.next());
     if (!b) {
-      this.show(event ? "Tu compañero necesita recuperarse: camina un poco o usa un Disco Vida." : "Tu compañero necesita recuperarse antes de enfrentarse al jefe.");
+      const injured = this.save.squad.find((e) => e.id === this.save.partnerID)?.injured;
+      this.show(injured
+        ? "Tu compañero está herido: cúralo en Cuidados (Pulso de datos), con un objeto de vida, en la ciudad o caminando un poco."
+        : event ? "Tu compañero necesita recuperarse: camina un poco o usa un Disco Vida." : "Tu compañero necesita recuperarse antes de enfrentarse al jefe.");
       return;
     }
     this.battle = b;

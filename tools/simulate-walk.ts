@@ -12,6 +12,9 @@ import { acceptRecruit, declineRecruit, flee, leave, newGame, receiveBlessing, u
 import { Battle, type Outcome } from "../src/systems/battle/battle";
 import { chooseAttack } from "../src/systems/battle/ai";
 import { finishBattle } from "../src/systems/battle/results";
+import { openCache, resolveHazard } from "../src/systems/road";
+import { playCare } from "../src/systems/care";
+import { rest } from "../src/systems/walk";
 
 const argv = process.argv.slice(2);
 const args = argv.filter((a) => !a.startsWith("--"));
@@ -37,6 +40,10 @@ const hpShare = () => { const p = partnerOf(save); return p ? p.hp / Math.max(1,
 const name = (id: string) => data.eco.get(id)?.name ?? id;
 
 function maintain() {
+  // Care: cure an injury with the Pulse game, top up DP with Energy Charge (a decent player scores ~75).
+  const partner = partnerOf(save)!;
+  if (partner.injured && save.care.charges > 0) playCare(save, "pulso", 75, data);
+  else if (partner.dp < 20 && save.care.charges > 1) playCare(save, "energia", 75, data);
   if (hpShare() < 0.5) {
     for (const disc of ["disco-vida-l", "disco-vida-m", "disco-vida-s", "disco-total"]) {
       if ((save.inventory[disc] ?? 0) > 0) { useItem(save, disc, data, rng); if (hpShare() >= 0.5) break; }
@@ -57,6 +64,7 @@ function bestBossCost(): number {
 
 const RESERVE = 15;
 let lastBossTryLevel = 0;
+let clock = Date.now();
 
 function fight(event?: PendingEvent): Outcome | undefined {
   const b = Battle.start(event, save, data, rng.next());
@@ -89,18 +97,28 @@ function fight(event?: PendingEvent): Outcome | undefined {
     }
   }
   zones.set(b.regionOrder, z);
-  say(finishBattle(save, b, data).message);
+  say(finishBattle(save, b, data, new Date(clock), rng).message);
   return b.outcome;
 }
 
 while (walked < totalSteps) {
   const batch = Math.min(500, totalSteps - walked);
   walked += batch;
-  for (const e of walk(batch, save, data, rng)) { counts[e.kind] = (counts[e.kind] ?? 0) + 1; say(e.text); }
+  // A simulated clock: about 3,000 steps a day (500 steps ≈ 4 hours of the day).
+  clock += 4 * 3_600_000;
+  rest(save, data, clock);
+  for (const e of walk(batch, save, data, rng, clock)) { counts[e.kind] = (counts[e.kind] ?? 0) + 1; say(e.text); }
   maintain();
   for (const event of [...save.pending]) {
     switch (event.kind) {
-      case "battle": if (hpShare() >= 0.35 && fight(event)) maintain(); else flee(save, event.id, data); break;
+      case "battle":
+      case "sos":
+        // Injured: wait (walk, Care or items); otherwise fight when healthy enough, flee wild ones if weak.
+        if (partnerOf(save)!.injured) break;
+        if (hpShare() >= 0.35 && fight(event)) maintain(); else if (event.kind === "battle") flee(save, event.id, data);
+        break;
+      case "cache": openCache(save, event.id, data, rng); break;
+      case "hazard": resolveHazard(save, event.id, rng.float() < 0.7, data); break;
       case "recruit": if (!acceptRecruit(save, event.id, data).ok) declineRecruit(save, event.id, data); break;
       case "merchant": leave(save, event.id); break;
       case "shrine": receiveBlessing(save, event.id, data); break;

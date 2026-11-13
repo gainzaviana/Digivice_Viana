@@ -17,12 +17,14 @@ const write = process.argv.includes("--write");
 
 /** Partner level when reaching each zone's boss, as measured by tools/simulate-walk.ts. */
 const PARTNER_LEVEL: Record<number, number> = {
-  1: 5, 2: 7, 3: 9, 4: 11, 5: 13.5, 6: 15.5, 7: 18, 8: 20, 9: 22, 10: 25,
-  11: 28, 12: 31, 13: 34, 14: 36, 15: 38, 16: 41, 17: 44, 18: 47, 19: 51,
+  1: 4, 2: 8, 3: 12, 4: 15, 5: 17, 6: 21, 7: 24, 8: 27, 9: 29, 10: 32,
+  11: 36, 12: 40, 13: 44, 14: 46, 15: 48, 16: 51, 17: 54, 18: 57, 19: 48,
 };
 /** The best evolution tier unlocked when fighting each zone (zone 1: none yet). */
 const tierAt = (zone: number) => {
   const u = data.rules.evolution.unlockZone;
+  // The secret 19th zone opens in Area 5, so it's fought with Stage 4.
+  if (zone === 19) return 4;
   return zone > u["4"] ? 4 : zone > u["3"] ? 3 : zone > u["2"] ? 2 : 1;
 };
 const WILD_TARGET = 0.75;

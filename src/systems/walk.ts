@@ -1,13 +1,15 @@
 import type { GameData, Region } from "../data/models";
 import { Rng } from "../core/random";
-import { addLog, newID, partnerOf, type GameSave, type LogEntry, type LogKind, type MerchantOffer, type Variant } from "../core/save";
+import { addLog, newID, partnerOf, type EcoInstance, type GameSave, type LogEntry, type LogKind, type Variant } from "../core/save";
 import { maxStats, newEco } from "./progression";
 import { record } from "./challenges";
 
 /**
- * Turns walked steps into the game: zone progress, random events, egg hatching,
- * recovery and bond. Steps are processed in chunks up to the next moment
- * something can happen, so thousands at once stay in order.
+ * Turns walked steps into the game: the city road (toward its boss), a Digivice alert every
+ * 150–350 steps (wild battle 60 %, data cache 20 %, SOS rescue 10 %, data hazard 10 %), egg
+ * incubation, recovery (HP, DP, bond, injuries) and Care charges. Steps are processed in chunks up
+ * to the next moment something can happen, so thousands at once stay in order. Lifetime steps and
+ * egg progress are never lost.
  * Returns what happened, oldest first (also added to the log).
  */
 export function walk(steps: number, save: GameSave, data: GameData, rng: Rng, now = Date.now()): LogEntry[] {
@@ -19,7 +21,7 @@ export function walk(steps: number, save: GameSave, data: GameData, rng: Rng, no
 
   while (remaining > 0) {
     let chunk = remaining;
-    // The road keeps giving encounters while the boss waits: that's where the partner trains for it.
+    // The road keeps giving events while the boss waits: that's where the partner trains for it.
     const inZone = !!save.map.regionID;
     const approaching = inZone && !save.map.bossReady;
     if (inZone) chunk = Math.min(chunk, Math.max(1, save.map.stepsToNextEvent));
@@ -34,7 +36,7 @@ export function walk(steps: number, save: GameSave, data: GameData, rng: Rng, no
       if (approaching && save.map.stepsLeft === 0) {
         save.map.bossReady = true;
         if (!save.guide.seen.includes(region.boss.species)) save.guide.seen.push(region.boss.species);
-        log("boss", `¡Has cruzado ${region.name}! ${data.eco.get(region.boss.species)?.name} (nivel ${region.boss.level}) te espera.`);
+        log("boss", `¡Has llegado a ${region.name}! ${data.eco.get(region.boss.species)?.name} (nivel ${region.boss.level}) defiende la ciudad.`);
       } else if (save.map.stepsToNextEvent <= 0) {
         rollEvent(region, save, data, rng, now, log);
         save.map.stepsToNextEvent = rng.int(rules.encounterEveryMinSteps, rules.encounterEveryMaxSteps);
@@ -44,86 +46,59 @@ export function walk(steps: number, save: GameSave, data: GameData, rng: Rng, no
     hatchEggs(chunk, save, data, rng, log);
   }
 
-  recover(steps, save, data);
+  recover(steps, save, data, log);
   record(save, "steps", steps, new Date(now));
   record(save, "hatches", events.filter((e) => e.kind === "hatch").length, new Date(now));
   for (const e of events) addLog(save, e.kind, e.text, e.date);
   return events;
 }
 
+export type RoadEvent = "battle" | "cache" | "sos" | "hazard";
+
+/** A Digivice alert on the road. Every kind waits in Sucesos (and on the home path) until resolved. */
 function rollEvent(region: Region, save: GameSave, data: GameData, rng: Rng, now: number, log: (k: LogKind, t: string) => void) {
   const rules = data.rules;
-  let kind: string;
-  if (save.map.radarActive) {
-    save.map.radarActive = false;
-    kind = "recruit";
-  } else {
-    const w = rules.events;
-    kind = rng.weighted(
-      [["battle", w.battle], ["recruit", w.recruit], ["item", w.item], ["egg", w.egg], ["merchant", w.merchant], ["shrine", w.shrine], ["nothing", w.nothing]] as [string, number][],
-      (x) => x[1],
-    )?.[0] ?? "nothing";
-  }
-  const interactive = ["battle", "recruit", "merchant", "shrine"].includes(kind);
-  if (interactive && save.pending.length >= rules.maxPendingEvents) {
-    log("info", "Algo se movió entre los datos, pero tienes demasiados sucesos pendientes y pasó de largo.");
+  const w = rules.events;
+  // The Radar makes the next alert an SOS rescue.
+  const kind: RoadEvent = save.map.radarActive ? "sos" : rng.weighted(
+    [["battle", w.battle], ["cache", w.cache], ["sos", w.sos], ["hazard", w.hazard]] as [RoadEvent, number][],
+    (x) => x[1],
+  )?.[0] ?? "battle";
+  save.map.radarActive = false;
+  if (save.pending.length >= rules.maxPendingEvents) {
+    log("info", "¡BIP! Algo apareció en el radar, pero tienes demasiados sucesos pendientes y pasó de largo.");
     return;
   }
+  const encounter = rng.weighted(region.encounters, (e) => e.weight);
+  const species = encounter && data.eco.get(encounter.species);
   switch (kind) {
-    case "battle":
-    case "recruit": {
-      const candidates = kind === "recruit" ? region.encounters.filter((e) => data.eco.get(e.species)?.recruitable) : region.encounters;
-      const encounter = rng.weighted(candidates.length ? candidates : region.encounters, (e) => e.weight);
-      const species = encounter && data.eco.get(encounter.species);
+    case "battle": {
       if (!encounter || !species) return;
-      const isRecruit = kind === "recruit" && candidates.length > 0;
       const level = rng.int(encounter.minLevel, encounter.maxLevel);
       const variant = rollVariant(save, data, rng);
-      save.pending.push({ id: newID(), kind: isRecruit ? "recruit" : "battle", regionID: region.id, date: now, species: species.id, level, variant });
+      save.pending.push({ id: newID(), kind: "battle", regionID: region.id, date: now, species: species.id, level, variant });
       if (!save.guide.seen.includes(species.id)) save.guide.seen.push(species.id);
       const name = species.name + (variant === "normal" ? "" : ` ${variant}`);
-      log(isRecruit ? "recruit" : "battle", isRecruit ? `${name} (nivel ${level}) quiere unirse a tu equipo.` : `¡Un ${name} salvaje (nivel ${level}) te corta el paso!`);
+      log("battle", `¡BIP! ¡Un ${name} salvaje (nivel ${level}) te corta el paso!`);
       return;
     }
-    case "item": {
-      const drop = rng.weighted(rules.itemDrops.filter((d) => d.minRegion <= region.order), (d) => d.weight);
-      const item = drop && data.item.get(drop.item);
-      if (!item) return;
-      save.inventory[item.id] = (save.inventory[item.id] ?? 0) + 1;
-      log("item", `Encontraste: ${item.name}.`);
+    case "cache":
+      save.pending.push({ id: newID(), kind: "cache", regionID: region.id, date: now });
+      log("item", "¡BIP! Un cofre de datos brilla en el camino.");
+      return;
+    case "sos": {
+      // A captor holds a little Eco; beating it (a bit stronger than usual) frees it.
+      if (!encounter || !species) return;
+      const level = encounter.maxLevel + rules.sos.levelBonus;
+      save.pending.push({ id: newID(), kind: "sos", regionID: region.id, date: now, species: species.id, level, variant: "normal" });
+      if (!save.guide.seen.includes(species.id)) save.guide.seen.push(species.id);
+      log("battle", `¡BIP! ¡Señal de socorro! Un ${species.name} (nivel ${level}) tiene atrapado a un Eco.`);
       return;
     }
-    case "egg": {
-      const drop = rng.weighted(rules.eggDrops.filter((d) => d.minRegion <= region.order), (d) => d.weight);
-      const egg = drop && data.egg.get(drop.egg);
-      if (!egg) return;
-      if (save.eggs.length >= rules.maxEggs) {
-        const bits = Math.floor(egg.steps / 50);
-        save.bits += bits;
-        log("bits", `Encontraste un ${egg.name}, pero no puedes llevar más huevos. Lo cambias por ${bits} bits.`);
-      } else {
-        save.eggs.push({ id: newID(), typeID: egg.id, stepsLeft: egg.steps });
-        log("egg", `¡Encontraste un ${egg.name}! Se abrirá en ${egg.steps.toLocaleString("es")} pasos.`);
-      }
+    case "hazard":
+      save.pending.push({ id: newID(), kind: "hazard", regionID: region.id, date: now });
+      log("info", "¡BIP! ¡Una tormenta de datos bloquea el camino!");
       return;
-    }
-    case "merchant":
-      save.pending.push({ id: newID(), kind: "merchant", regionID: region.id, date: now, offers: merchantOffers(data, rng) });
-      log("merchant", "Un mercader ambulante ha montado su puesto en el camino.");
-      return;
-    case "shrine": {
-      const epic = rng.int(1, 100) <= rules.shrineEpicChance;
-      const parche = rng.pick(data.parches.filter((p) => p.rarity === (epic ? "epica" : "rara")));
-      if (!parche) return;
-      save.pending.push({ id: newID(), kind: "shrine", regionID: region.id, date: now, parche: parche.id, cost: rules.shrineBaseCost + rules.shrineCostPerOrder * region.order });
-      log("shrine", "Has encontrado un santuario misterioso.");
-      return;
-    }
-    default: {
-      const bits = rng.int(rules.foundBitsMin, rules.foundBitsMax);
-      save.bits += bits;
-      log("bits", `Encontraste ${bits} bits por el camino.`);
-    }
   }
 }
 
@@ -135,14 +110,12 @@ export function rollVariant(save: GameSave, data: GameData, rng: Rng): Variant {
   return "normal";
 }
 
-function merchantOffers(data: GameData, rng: Rng): MerchantOffer[] {
-  const pool: MerchantOffer[] = [
-    ...data.items.filter((i) => i.price !== undefined).map((i) => ({ id: newID(), kind: "item" as const, contentID: i.id, price: i.price!, sold: false })),
-    ...data.parches.filter((p) => p.price !== undefined).map((p) => ({ id: newID(), kind: "parche" as const, contentID: p.id, price: p.price!, sold: false })),
-  ];
-  const offers: MerchantOffer[] = [];
-  while (offers.length < data.rules.merchantOffers && pool.length) offers.push(pool.splice(rng.int(0, pool.length - 1), 1)[0]);
-  return offers;
+/** Puts an egg in a free incubator slot. False if the incubator is full. */
+export function addEgg(save: GameSave, typeID: string, data: GameData): boolean {
+  const egg = data.egg.get(typeID);
+  if (!egg || save.eggs.length >= data.rules.maxEggs) return false;
+  save.eggs.push({ id: newID(), typeID: egg.id, stepsLeft: egg.steps });
+  return true;
 }
 
 function hatchEggs(walked: number, save: GameSave, data: GameData, rng: Rng, log: (k: LogKind, t: string) => void) {
@@ -164,10 +137,22 @@ function hatchEggs(walked: number, save: GameSave, data: GameData, rng: Rng, log
   save.eggs = kept;
 }
 
-function recover(steps: number, save: GameSave, data: GameData) {
+/** Ends an injury: the Eco can battle again. */
+export function cureInjury(eco: EcoInstance) { eco.injured = undefined; }
+
+function recover(steps: number, save: GameSave, data: GameData, log: (k: LogKind, t: string) => void) {
   const partner = partnerOf(save);
-  if (!partner) return;
   const r = data.rules;
+  // Care charges refill with steps too.
+  if (save.care.charges < r.care.maxCharges) {
+    save.care.steps += steps;
+    const gained = Math.floor(save.care.steps / r.care.stepsPerCharge);
+    if (gained > 0) {
+      save.care.charges = Math.min(r.care.maxCharges, save.care.charges + gained);
+      save.care.steps = save.care.charges >= r.care.maxCharges ? 0 : save.care.steps % r.care.stepsPerCharge;
+    }
+  }
+  if (!partner) return;
   const crossed = (every: number) => Math.floor((partner.stepsWalked + steps) / every) - Math.floor(partner.stepsWalked / every);
   const bond = crossed(r.stepsPerBond), dp = crossed(r.stepsPerDP), heal = crossed(r.stepsPerHealPercent);
   partner.stepsWalked += steps;
@@ -175,18 +160,35 @@ function recover(steps: number, save: GameSave, data: GameData) {
   partner.bond = Math.min(r.maxBond, partner.bond + bond);
   partner.dp = Math.min(r.maxDP, partner.dp + dp);
   partner.hp = Math.min(max.hp, partner.hp + Math.ceil((max.hp * heal) / 100));
+  if (partner.injured) {
+    partner.injured.stepsLeft -= steps;
+    if (partner.injured.stepsLeft <= 0) {
+      cureInjury(partner);
+      log("info", `${partner.nickname ?? data.eco.get(partner.speciesID)?.name} se ha recuperado de sus heridas caminando.`);
+    }
+  }
 }
 
-/** Resting: the partner recovers 1 DP every few hours of real time, even without walking. */
+/**
+ * Resting (real time): the partner recovers 1 DP every few hours, injuries heal after a while,
+ * and Care charges refill. Returns the DP gained.
+ */
 export function rest(save: GameSave, data: GameData, now = Date.now()): number {
-  const every = data.rules.restHoursPerDP * 3_600_000;
+  const r = data.rules;
+  const charge = r.care.hoursPerCharge * 3_600_000;
+  if (save.care.charges < r.care.maxCharges) {
+    const ticks = Math.floor((now - save.care.lastCharge) / charge);
+    if (ticks > 0) { save.care.charges = Math.min(r.care.maxCharges, save.care.charges + ticks); save.care.lastCharge += ticks * charge; }
+  } else save.care.lastCharge = now;
+  const partner = partnerOf(save);
+  if (partner?.injured && now - partner.injured.since >= r.defeat.recoveryHours * 3_600_000) cureInjury(partner);
+  const every = r.restHoursPerDP * 3_600_000;
   if (!save.lastRest) { save.lastRest = now; return 0; }
   const ticks = Math.floor((now - save.lastRest) / every);
   if (ticks <= 0) return 0;
   save.lastRest += ticks * every;
-  const partner = partnerOf(save);
   if (!partner) return 0;
   const before = partner.dp;
-  partner.dp = Math.min(data.rules.maxDP, partner.dp + ticks);
+  partner.dp = Math.min(r.maxDP, partner.dp + ticks);
   return partner.dp - before;
 }

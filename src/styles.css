@@ -462,3 +462,45 @@ details[open] summary { margin-bottom: 6px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* Map road with landmarks */
+.route { position: relative; height: 26px; margin: 10px 4px 2px; border-radius: 999px; background: var(--surface-2); box-shadow: inset 0 2px 5px rgba(80, 50, 30, 0.16); }
+.route-fill { position: absolute; inset: 0 auto 0 0; border-radius: 999px; background: linear-gradient(90deg, var(--teal), var(--green)); transition: width 0.6s var(--ease); }
+.route-mark { position: absolute; top: 50%; transform: translate(-50%, -50%); font-size: 14px; line-height: 1; filter: grayscale(1) opacity(0.55); }
+.route-mark.passed { filter: none; }
+.route-mark.boss { font-size: 18px; filter: none; color: var(--coral); }
+.screen-title { font-size: 26px; font-weight: 800; margin: 4px 2px; }
+
+/* Care */
+.charges { display: flex; gap: 10px; }
+.charge { width: 30px; height: 30px; border-radius: 50%; background: var(--surface-2); box-shadow: inset 0 2px 4px rgba(80, 50, 30, 0.2); }
+.charge.on { background: radial-gradient(circle at 35% 35%, #fff6d6, var(--amber)); box-shadow: 0 0 12px var(--amber); }
+.energy-core, .storm-core { --fill: 0; position: relative; width: 190px; height: 190px; border-radius: 50%; border: 0; margin: 8px auto;
+  font-size: 28px; font-weight: 900; color: var(--text); touch-action: manipulation; user-select: none; -webkit-user-select: none;
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--amber) calc(var(--fill) * 100%), var(--surface-2)) 0 55%, var(--surface-2) 56%);
+  box-shadow: 0 0 calc(10px + var(--fill) * 40px) color-mix(in srgb, var(--amber) 70%, transparent), inset 0 -6px 16px rgba(80, 50, 30, 0.15);
+  transition: transform 0.08s; }
+.energy-core:active, .storm-core:active { transform: scale(0.95); }
+.storm-core { background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--teal) calc(var(--fill) * 100%), var(--purple)) 0 58%, var(--surface-2) 60%);
+  box-shadow: 0 0 calc(14px + var(--fill) * 36px) color-mix(in srgb, var(--purple) 60%, transparent); animation: storm 1.2s ease-in-out infinite; color: #fff; }
+@keyframes storm { 50% { transform: rotate(4deg) scale(1.03); } }
+.pulse-bar { position: relative; height: 56px; border-radius: 999px; overflow: hidden; background: var(--surface-2); box-shadow: inset 0 2px 5px rgba(80, 50, 30, 0.18); }
+.pulse-zone { position: absolute; top: 0; bottom: 0; left: 46%; width: 8%; background: var(--green); opacity: 0.85; }
+.pulse-zone.wide { left: 41%; width: 18%; opacity: 0.35; }
+.pulse-dot { position: absolute; top: 50%; width: 18px; height: 18px; margin-top: -9px; border-radius: 50%; background: #fff; box-shadow: 0 0 14px var(--coral), 0 0 0 4px var(--coral); }
+.cache-icon { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; font-size: 26px; color: #fff;
+  background: linear-gradient(135deg, var(--amber), var(--coral)); box-shadow: 0 0 18px var(--amber); animation: bob 1.6s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(-4px); } }
+
+/* Home: the living Digivice view */
+.home { padding-top: calc(env(safe-area-inset-top) + 8px); }
+.home-stage { position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: 24px; overflow: hidden;
+  box-shadow: 0 14px 34px rgba(90, 60, 40, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.4); background: var(--surface-2); }
+.home-stage canvas { display: block; width: 100%; height: 100%; touch-action: manipulation; }
+.home-loading { position: absolute; inset: 0; background: linear-gradient(110deg, var(--surface-2) 30%, var(--surface) 50%, var(--surface-2) 70%); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+.home-hud { position: absolute; left: 10px; right: 10px; top: 10px; display: flex; justify-content: space-between; gap: 8px; pointer-events: none; }
+.hud-pill { pointer-events: auto; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 700; color: var(--text); border: 0;
+  background: color-mix(in srgb, var(--surface) 75%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 4px 14px rgba(60, 40, 30, 0.15); }
+.hud-pill.alert { color: #fff; background: linear-gradient(135deg, var(--coral), var(--red)); animation: beep 1s ease-in-out infinite; }
+@keyframes beep { 50% { transform: scale(1.08); box-shadow: 0 0 18px var(--coral); } }

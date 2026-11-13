@@ -29,6 +29,8 @@ export interface EcoInstance {
   lossStreak: number;
   /** Evolutions this Eco has unlocked by beating bosses (species ids), usable before a battle for DP. */
   unlocked: string[];
+  /** Injured after a defeat (1 HP): can't battle until healed (items, the Pulse mini-game, rest or walking). */
+  injured?: { stepsLeft: number; since: number };
   trainingSessions: number;
   stepsWalked: number;
   history: string[];
@@ -51,7 +53,8 @@ export interface MerchantOffer { id: string; kind: "item" | "parche"; contentID:
 
 export interface PendingEvent {
   id: string;
-  kind: "battle" | "recruit" | "merchant" | "shrine";
+  /** Road events: battle, cache (data crate), sos (rescue battle), hazard (quick challenge). Older saves may hold recruit/merchant/shrine. */
+  kind: "battle" | "cache" | "sos" | "hazard" | "recruit" | "merchant" | "shrine";
   regionID: string;
   date: number;
   species?: string;
@@ -123,10 +126,14 @@ export interface GameSave {
   createdAt: number;
   /** When resting DP was last added (time-based DP recovery). */
   lastRest?: number;
+  /** Care mini-game charges, refilled by steps and time. */
+  care: { charges: number; steps: number; lastCharge: number };
+  /** City services used today (free healing, shrine blessing) and today's shrine offering. */
+  cityDay: { day: string; healed: boolean; blessed: boolean; offering?: string };
 }
 
-/** 2: D-Ark stats (HP/AP/SP + DP pool), temporary evolutions unlocked by bosses. */
-export const SAVE_VERSION = 2;
+/** 2: D-Ark stats (HP/AP/SP + DP pool), temporary evolutions unlocked by bosses. 3: 18 cities in 6 Areas, injuries, Care. */
+export const SAVE_VERSION = 3;
 
 export function newSave(): GameSave {
   return {
@@ -149,6 +156,8 @@ export function newSave(): GameSave {
     claimedAchievements: [],
     trainingDay: { day: "", count: 0 },
     settings: { sound: true, graphicsEffects: true, motionSensor: true, shortcutName: DEFAULT_SHORTCUT },
+    care: { charges: 3, steps: 0, lastCharge: Date.now() },
+    cityDay: { day: "", healed: false, blessed: false },
     createdAt: Date.now(),
   };
 }
@@ -167,6 +176,8 @@ export function migrate(raw: unknown): GameSave {
     daily: { ...fresh.daily, ...s.daily },
     trainingDay: { ...fresh.trainingDay, ...s.trainingDay },
     settings: { ...fresh.settings, ...s.settings },
+    care: { ...fresh.care, ...s.care },
+    cityDay: { ...fresh.cityDay, ...s.cityDay },
     squad: (s.squad ?? []).map((e) => ({ ...e, lossStreak: e.lossStreak ?? 0, unlocked: e.unlocked ?? [], bonus: { ...ZERO_STATS, ...e.bonus } })),
     // Older saves keep their number so the game can convert them (systems/upgrade.ts).
     version: typeof s.version === "number" ? s.version : SAVE_VERSION,

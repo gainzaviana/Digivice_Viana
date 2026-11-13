@@ -4,7 +4,8 @@ import "./styles.css";
 import { game, useGame } from "./game";
 import { refreshDaily, claimableCount } from "./systems/challenges";
 import { StarterSelect } from "./ui/starter";
-import { PartnerScreen } from "./ui/partner";
+import { HomeScreen } from "./ui/home";
+import { CareScreen } from "./ui/care";
 import { MapScreen } from "./ui/map";
 import { EventsScreen } from "./ui/events";
 import { SquadScreen } from "./ui/squad";
@@ -19,12 +20,14 @@ const ICONS = {
   bell: "M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5a2.2 2.2 0 0 0 4 0",
   team: "M8.5 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3.5 19c.6-3 2.6-5 5-5s4.4 2 5 5M16 10.5a2.5 2.5 0 1 0 0-5M15.5 14c2.2.2 3.9 2 4.5 5",
   device: "M7 3h10a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3zM8 7h8v6H8zM9 17h.01M15 17h.01",
+  care: "M3 12h4l2-5 4 10 2-5h6",
 } as const;
 
 const TABS = [
-  ["Compañero", ICONS.heart],
+  ["Inicio", ICONS.heart],
   ["Mapa", ICONS.map],
   ["Sucesos", ICONS.bell],
+  ["Cuidados", ICONS.care],
   ["Equipo", ICONS.team],
   ["Terminal", ICONS.device],
 ] as const;
@@ -53,16 +56,18 @@ function App() {
 
   if (g.battle) return <BattleView battle={g.battle} />;
   if (!g.started) return <><StarterSelect /><Toast /></>;
-  const badges = [0, 0, g.save.pending.length, 0, claimableCount(g.save, g.data)];
+  const partner = g.save.squad.find((e) => e.id === g.save.partnerID);
+  const badges = [0, 0, g.save.pending.length, partner?.injured ? 1 : 0, 0, claimableCount(g.save, g.data)];
   return (
     <div class="app">
       <main>
         <SyncBanner />
-        {tab === 0 && <PartnerScreen />}
+        {tab === 0 && <HomeScreen go={(t) => { setTab(t); scrollTo(0, 0); }} />}
         {tab === 1 && <MapScreen />}
         {tab === 2 && <EventsScreen />}
-        {tab === 3 && <SquadScreen />}
-        {tab === 4 && <TerminalScreen />}
+        {tab === 3 && <CareScreen />}
+        {tab === 4 && <SquadScreen />}
+        {tab === 5 && <TerminalScreen />}
       </main>
       <nav class="tabs" role="tablist">
         {TABS.map(([name, icon], i) => (

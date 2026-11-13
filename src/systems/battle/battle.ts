@@ -63,6 +63,8 @@ export class Battle {
   readonly regionID: string;
   readonly regionOrder: number;
   readonly eventID?: string;
+  /** An SOS rescue: beating the captor frees the trapped Eco. */
+  readonly rescue: boolean;
   readonly partnerID: string;
   readonly partnerBond: number;
   readonly bossDefeats: number;
@@ -94,9 +96,9 @@ export class Battle {
   /** A battle against a pending wild Eco, or the current zone's boss (no event). Undefined if it can't start. */
   static start(event: PendingEvent | undefined, save: GameSave, data: GameData, seed: number): Battle | undefined {
     const p = partnerOf(save);
-    if (!p || p.hp <= 0) return undefined;
+    if (!p || p.hp <= 0 || p.injured) return undefined;
     if (event) {
-      if (event.kind !== "battle" || !event.species || !data.eco.has(event.species)) return undefined;
+      if ((event.kind !== "battle" && event.kind !== "sos") || !event.species || !data.eco.has(event.species)) return undefined;
       return new Battle(save, data, seed, event.species, event.level ?? 1, event.variant ?? "normal", false, event.regionID, event.id);
     }
     const region = save.map.regionID ? data.region.get(save.map.regionID) : undefined;
@@ -112,6 +114,7 @@ export class Battle {
     this.regionID = regionID;
     this.regionOrder = data.region.get(regionID)?.order ?? 1;
     this.eventID = eventID;
+    this.rescue = !!eventID && save.pending.some((e) => e.id === eventID && e.kind === "sos");
     this.partnerID = p.id;
     this.partnerBond = p.bond;
     this.bossDefeats = isBoss ? save.map.bossDefeats : 0;

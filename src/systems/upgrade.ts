@@ -11,6 +11,17 @@ import { baseFormOf, maxStats } from "./progression";
  */
 export function upgradeSave(save: GameSave, data: GameData): boolean {
   if (save.version >= SAVE_VERSION) return false;
+  if (save.version < 2) upgradeTo2(save, data);
+  // 2 → 3: the map became 18 cities in 6 Areas with longer roads. The current city is kept, with
+  // the same steps left (roads only got longer, so nothing walked is lost).
+  const region = save.map.regionID ? data.region.get(save.map.regionID) : undefined;
+  if (region && !save.map.bossReady) save.map.stepsLeft = Math.min(region.steps, Math.max(1, save.map.stepsLeft));
+  save.map.stepsToNextEvent = Math.min(save.map.stepsToNextEvent, data.rules.encounterEveryMaxSteps);
+  save.version = SAVE_VERSION;
+  return true;
+}
+
+function upgradeTo2(save: GameSave, data: GameData) {
   for (const eco of save.squad) {
     const old = eco.bonus as unknown as Record<string, number | undefined>;
     const reached = [...new Set([...(eco.history ?? []), eco.speciesID])].filter((id) => data.eco.has(id));
@@ -29,6 +40,4 @@ export function upgradeSave(save: GameSave, data: GameData): boolean {
     const max = maxStats(eco, data);
     eco.hp = eco.hp <= 0 ? 0 : max.hp;
   }
-  save.version = SAVE_VERSION;
-  return true;
 }

@@ -2,7 +2,7 @@
   {
     "id": "huevo-comun",
     "name": "Huevo Común",
-    "steps": 1000,
+    "steps": 500,
     "description": "Un huevo corriente. De él sale un Novato salvaje.",
     "pool": [
       {
@@ -51,7 +51,7 @@
   {
     "id": "huevo-raro",
     "name": "Huevo Raro",
-    "steps": 3000,
+    "steps": 1200,
     "description": "Late con fuerza. Puede contener el Brote de cualquier línea de compañeros.",
     "pool": [
       {
@@ -132,7 +132,7 @@
   {
     "id": "huevo-ancestral",
     "name": "Huevo Ancestral",
-    "steps": 8000,
+    "steps": 2000,
     "description": "Muy antiguo. Siempre contiene un Brote de compañero, y a menudo Brillante.",
     "pool": [
       {

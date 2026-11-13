@@ -44,6 +44,21 @@ exactly where counting starts or stops.
   evolving, bosses that need levels and the evolutions available by then (a level 1 partner can't beat the first one).
   `tools/archetype-matrix.ts` checks the archetypes against each other.
 
+## Map, events and recovery
+
+- **18 cities in 6 Areas** (plus a secret one). Every city has its own boss; the 3rd city's boss is the Area Boss,
+  which frees a new partner line (it joins at level 1). Roads per city: Area 1 1,500 steps, Area 2 3,500, Area 3 6,000,
+  Area 4 9,000, Area 5 12,500, Area 6 16,000 / 19,000 / 22,000 — about 154,000 steps, ~7 weeks at 3,000 a day.
+  Landmarks every 1,000 steps. Cities have a healing spot, a shrine and a shop.
+- **Digivice alerts** every 150–350 steps: wild battle 60 %, data cache 20 % (DP, items, Parches, eggs), SOS rescue
+  10 % (a tougher captor; winning gives bond and often rare data), data hazard 10 % (tap/shake challenge: XP or a small
+  HP/DP loss). They show on the home path and in Sucesos.
+- **Digi-eggs** (500 / 1,200 / 2,000 steps) from caches, city bosses and rescues, in a 3-slot incubator.
+- **Defeat:** pushed back 300–600 steps on the road, injured at 1 HP (no battles until healed), bond −3. Lifetime steps
+  and egg progress are never lost. Injuries heal with the Pulse game, healing items, the city, 2 h of rest or 300 steps.
+- **Cuidados:** Energy Charge (DP +3…+6, bond) and Data Pulse (30–75 % HP, cures injuries). 3 charges, +1 every
+  500 steps or 2 hours.
+
 ## Develop
 
 ```sh

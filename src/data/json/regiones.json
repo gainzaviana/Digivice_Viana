@@ -3,7 +3,7 @@
     "id": "parque-arranque",
     "name": "Parque Arranque",
     "order": 1,
-    "steps": 800,
+    "steps": 1500,
     "description": "Donde todo Enlazador da sus primeros pasos. Hierba de píxel y bancos de datos.",
     "encounters": [
       {
@@ -35,7 +35,8 @@
       "species": "cactuson",
       "level": 1
     },
-    "bossCard": "parche-fuerza"
+    "bossCard": "parche-fuerza",
+    "area": 1
   },
   {
     "id": "bosque-cache",
@@ -47,8 +48,8 @@
       {
         "species": "polillux",
         "weight": 30,
-        "minLevel": 4,
-        "maxLevel": 5
+        "minLevel": 3,
+        "maxLevel": 4
       },
       {
         "species": "hongolin",
@@ -59,27 +60,28 @@
       {
         "species": "topocable",
         "weight": 25,
-        "minLevel": 4,
-        "maxLevel": 5
+        "minLevel": 3,
+        "maxLevel": 4
       },
       {
         "species": "murciclic",
         "weight": 20,
-        "minLevel": 5,
-        "maxLevel": 6
+        "minLevel": 4,
+        "maxLevel": 5
       }
     ],
     "boss": {
       "species": "buhoraculo",
       "level": 5
     },
-    "bossReward": "huevo-raro-cofre"
+    "bossReward": "huevo-raro-cofre",
+    "area": 1
   },
   {
     "id": "isla-firmware",
     "name": "Isla Firmware",
     "order": 3,
-    "steps": 2200,
+    "steps": 1500,
     "description": "Una isla que se reescribe cada noche. Nunca es igual dos veces.",
     "encounters": [
       {
@@ -91,8 +93,8 @@
       {
         "species": "ranadin",
         "weight": 25,
-        "minLevel": 6,
-        "maxLevel": 7
+        "minLevel": 7,
+        "maxLevel": 8
       },
       {
         "species": "caracolchon",
@@ -103,139 +105,142 @@
       {
         "species": "medusonica",
         "weight": 5,
-        "minLevel": 2,
-        "maxLevel": 3
+        "minLevel": 3,
+        "maxLevel": 4
       },
       {
         "species": "pajarrafaga",
         "weight": 15,
-        "minLevel": 6,
-        "maxLevel": 7
+        "minLevel": 7,
+        "maxLevel": 8
       }
     ],
     "boss": {
       "species": "medusonica",
-      "level": 7
+      "level": 9
     },
-    "bossCard": "parche-coraza"
+    "bossCard": "parche-coraza",
+    "area": 1
   },
   {
     "id": "desierto-servidor",
     "name": "Desierto Servidor",
     "order": 4,
-    "steps": 3000,
+    "steps": 3500,
     "description": "Dunas de silicio bajo un sol de ventiladores. El calor ralentiza todo.",
     "encounters": [
       {
         "species": "cangrejal",
         "weight": 25,
-        "minLevel": 7,
-        "maxLevel": 8
+        "minLevel": 10,
+        "maxLevel": 11
       },
       {
         "species": "topocable",
         "weight": 20,
-        "minLevel": 7,
-        "maxLevel": 8
+        "minLevel": 10,
+        "maxLevel": 11
       },
       {
         "species": "cactuson",
         "weight": 20,
-        "minLevel": 3,
-        "maxLevel": 4
+        "minLevel": 5,
+        "maxLevel": 6
       },
       {
         "species": "escorpiolag",
         "weight": 10,
-        "minLevel": 3,
-        "maxLevel": 4
+        "minLevel": 5,
+        "maxLevel": 6
       },
       {
         "species": "murciclic",
         "weight": 25,
-        "minLevel": 7,
-        "maxLevel": 8
-      }
-    ],
-    "boss": {
-      "species": "escorpiolag",
-      "level": 9
-    }
-  },
-  {
-    "id": "sabana-engranaje",
-    "name": "Sabana Engranaje",
-    "order": 5,
-    "steps": 3800,
-    "description": "Llanuras donde la hierba son engranajes que giran con el viento.",
-    "encounters": [
-      {
-        "species": "ciervoltio",
-        "weight": 25,
-        "minLevel": 4,
-        "maxLevel": 5
-      },
-      {
-        "species": "sapotron",
-        "weight": 20,
-        "minLevel": 4,
-        "maxLevel": 5
-      },
-      {
-        "species": "golem-disco",
-        "weight": 15,
-        "minLevel": 4,
-        "maxLevel": 5
-      },
-      {
-        "species": "bitbicho",
-        "weight": 20,
-        "minLevel": 9,
-        "maxLevel": 10
-      },
-      {
-        "species": "pixelito",
-        "weight": 20,
         "minLevel": 10,
         "maxLevel": 11
       }
     ],
     "boss": {
-      "species": "golem-disco",
+      "species": "escorpiolag",
       "level": 12
     },
-    "bossReward": "cristal-de-sabana"
+    "area": 2
+  },
+  {
+    "id": "sabana-engranaje",
+    "name": "Sabana Engranaje",
+    "order": 5,
+    "steps": 3500,
+    "description": "Llanuras donde la hierba son engranajes que giran con el viento.",
+    "encounters": [
+      {
+        "species": "ciervoltio",
+        "weight": 25,
+        "minLevel": 6,
+        "maxLevel": 7
+      },
+      {
+        "species": "sapotron",
+        "weight": 20,
+        "minLevel": 7,
+        "maxLevel": 8
+      },
+      {
+        "species": "golem-disco",
+        "weight": 15,
+        "minLevel": 7,
+        "maxLevel": 8
+      },
+      {
+        "species": "bitbicho",
+        "weight": 20,
+        "minLevel": 13,
+        "maxLevel": 14
+      },
+      {
+        "species": "pixelito",
+        "weight": 20,
+        "minLevel": 13,
+        "maxLevel": 14
+      }
+    ],
+    "boss": {
+      "species": "golem-disco",
+      "level": 14
+    },
+    "bossReward": "cristal-de-sabana",
+    "area": 2
   },
   {
     "id": "pantano-latencia",
     "name": "Pantano Latencia",
     "order": 6,
-    "steps": 4500,
+    "steps": 3500,
     "description": "Todo llega tarde en este pantano, hasta el eco de tus pasos.",
     "encounters": [
       {
         "species": "sapotron",
         "weight": 25,
-        "minLevel": 5,
-        "maxLevel": 6
+        "minLevel": 7,
+        "maxLevel": 8
       },
       {
         "species": "hongolin",
         "weight": 20,
-        "minLevel": 11,
-        "maxLevel": 12
+        "minLevel": 14,
+        "maxLevel": 15
       },
       {
         "species": "escorpiolag",
         "weight": 20,
-        "minLevel": 5,
-        "maxLevel": 6
+        "minLevel": 8,
+        "maxLevel": 9
       },
       {
         "species": "medusonica",
         "weight": 20,
-        "minLevel": 5,
-        "maxLevel": 6
+        "minLevel": 6,
+        "maxLevel": 7
       },
       {
         "species": "serpiente-bucle",
@@ -246,58 +251,60 @@
       {
         "species": "ranadin",
         "weight": 10,
-        "minLevel": 11,
-        "maxLevel": 12
+        "minLevel": 13,
+        "maxLevel": 14
       }
     ],
     "boss": {
       "species": "serpiente-bucle",
-      "level": 13
+      "level": 11
     },
-    "bossCard": "parche-obediencia"
+    "bossCard": "parche-obediencia",
+    "area": 2
   },
   {
     "id": "ciudad-pixel",
     "name": "Ciudad Píxel",
     "order": 7,
-    "steps": 5200,
+    "steps": 6000,
     "description": "Una ciudad de neón donde vagan páginas olvidadas.",
     "encounters": [
       {
         "species": "pixelito",
         "weight": 20,
-        "minLevel": 13,
-        "maxLevel": 14
+        "minLevel": 19,
+        "maxLevel": 20
       },
       {
         "species": "lobocifra",
         "weight": 25,
-        "minLevel": 7,
-        "maxLevel": 8
+        "minLevel": 10,
+        "maxLevel": 11
       },
       {
         "species": "buhoraculo",
         "weight": 20,
-        "minLevel": 6,
-        "maxLevel": 7
+        "minLevel": 9,
+        "maxLevel": 10
       },
       {
         "species": "aranared",
         "weight": 25,
-        "minLevel": 7,
-        "maxLevel": 8
+        "minLevel": 10,
+        "maxLevel": 11
       },
       {
         "species": "fantasma-cache",
         "weight": 10,
-        "minLevel": 3,
-        "maxLevel": 4
+        "minLevel": 6,
+        "maxLevel": 7
       }
     ],
     "boss": {
       "species": "fantasma-cache",
-      "level": 14
-    }
+      "level": 21
+    },
+    "area": 3
   },
   {
     "id": "cumbres-ancho-de-banda",
@@ -309,128 +316,131 @@
       {
         "species": "gaviotaje",
         "weight": 25,
-        "minLevel": 8,
-        "maxLevel": 9
+        "minLevel": 11,
+        "maxLevel": 12
       },
       {
         "species": "ciervoltio",
         "weight": 25,
-        "minLevel": 8,
-        "maxLevel": 9
+        "minLevel": 11,
+        "maxLevel": 12
       },
       {
         "species": "pajarrafaga",
         "weight": 15,
-        "minLevel": 15,
-        "maxLevel": 16
+        "minLevel": 20,
+        "maxLevel": 21
       },
       {
         "species": "grifo-bus",
         "weight": 5,
-        "minLevel": 4,
-        "maxLevel": 5
+        "minLevel": 6,
+        "maxLevel": 7
       },
       {
         "species": "golem-disco",
         "weight": 30,
-        "minLevel": 9,
-        "maxLevel": 10
+        "minLevel": 12,
+        "maxLevel": 13
       }
     ],
     "boss": {
       "species": "grifo-bus",
-      "level": 17
+      "level": 21
     },
-    "bossCard": "parche-velocidad"
+    "bossCard": "parche-velocidad",
+    "area": 3
   },
   {
     "id": "mar-de-paquetes",
     "name": "Mar de Paquetes",
     "order": 9,
-    "steps": 7000,
+    "steps": 6000,
     "description": "Un océano de paquetes perdidos que flotan a la deriva.",
     "encounters": [
       {
         "species": "gaviotaje",
         "weight": 25,
-        "minLevel": 9,
-        "maxLevel": 10
+        "minLevel": 13,
+        "maxLevel": 14
       },
       {
         "species": "medusonica",
         "weight": 25,
-        "minLevel": 9,
-        "maxLevel": 10
+        "minLevel": 12,
+        "maxLevel": 13
       },
       {
         "species": "cangrejal",
         "weight": 15,
-        "minLevel": 17,
-        "maxLevel": 18
+        "minLevel": 24,
+        "maxLevel": 25
       },
       {
         "species": "kraken-paquete",
         "weight": 10,
-        "minLevel": 5,
-        "maxLevel": 6
+        "minLevel": 8,
+        "maxLevel": 9
       },
       {
         "species": "sapotron",
         "weight": 25,
-        "minLevel": 8,
-        "maxLevel": 9
+        "minLevel": 12,
+        "maxLevel": 13
       }
     ],
     "boss": {
       "species": "kraken-paquete",
-      "level": 20
+      "level": 27
     },
-    "bossReward": "disco-total"
+    "bossReward": "disco-total",
+    "area": 3
   },
   {
     "id": "ruinas-legado",
     "name": "Ruinas Legado",
     "order": 10,
-    "steps": 8000,
+    "steps": 9000,
     "description": "Restos de una versión antigua de la Red. Aquí duerme código que nadie recuerda.",
     "encounters": [
       {
         "species": "tortuga-archivo",
         "weight": 10,
-        "minLevel": 6,
-        "maxLevel": 7
+        "minLevel": 9,
+        "maxLevel": 10
       },
       {
         "species": "lobocifra",
         "weight": 25,
-        "minLevel": 10,
-        "maxLevel": 11
+        "minLevel": 13,
+        "maxLevel": 14
       },
       {
         "species": "buhoraculo",
         "weight": 25,
-        "minLevel": 10,
-        "maxLevel": 11
+        "minLevel": 12,
+        "maxLevel": 13
       },
       {
         "species": "minotauro-kernel",
         "weight": 15,
-        "minLevel": 5,
-        "maxLevel": 6
+        "minLevel": 8,
+        "maxLevel": 9
       },
       {
         "species": "hongolin",
         "weight": 25,
-        "minLevel": 16,
-        "maxLevel": 17
+        "minLevel": 24,
+        "maxLevel": 25
       }
     ],
     "boss": {
       "species": "tortuga-archivo",
-      "level": 23
+      "level": 29
     },
     "bossCard": "parche-cura-total",
-    "bossGivesPartnerCrystal": true
+    "bossGivesPartnerCrystal": true,
+    "area": 4
   },
   {
     "id": "glaciar-criptografico",
@@ -442,127 +452,130 @@
       {
         "species": "yeti-criptografico",
         "weight": 15,
-        "minLevel": 8,
-        "maxLevel": 9
+        "minLevel": 10,
+        "maxLevel": 11
       },
       {
         "species": "golem-disco",
         "weight": 25,
-        "minLevel": 12,
-        "maxLevel": 13
+        "minLevel": 16,
+        "maxLevel": 17
       },
       {
         "species": "ciervoltio",
-        "weight": 25,
-        "minLevel": 11,
-        "maxLevel": 12
-      },
-      {
-        "species": "grifo-bus",
-        "weight": 15,
-        "minLevel": 7,
-        "maxLevel": 8
-      },
-      {
-        "species": "polillux",
-        "weight": 20,
-        "minLevel": 20,
-        "maxLevel": 21
-      }
-    ],
-    "boss": {
-      "species": "yeti-criptografico",
-      "level": 36
-    }
-  },
-  {
-    "id": "volcan-compilador",
-    "name": "Volcán Compilador",
-    "order": 12,
-    "steps": 10000,
-    "description": "Un volcán que compila lava en roca. Cada erupción es una nueva versión.",
-    "encounters": [
-      {
-        "species": "golemagma",
-        "weight": 15,
-        "minLevel": 8,
-        "maxLevel": 9
-      },
-      {
-        "species": "fenix-reinicio",
-        "weight": 10,
-        "minLevel": 7,
-        "maxLevel": 8
-      },
-      {
-        "species": "minotauro-kernel",
-        "weight": 20,
-        "minLevel": 8,
-        "maxLevel": 9
-      },
-      {
-        "species": "cactuson",
-        "weight": 25,
-        "minLevel": 14,
-        "maxLevel": 15
-      },
-      {
-        "species": "aranared",
-        "weight": 30,
-        "minLevel": 13,
-        "maxLevel": 14
-      }
-    ],
-    "boss": {
-      "species": "golemagma",
-      "level": 46
-    },
-    "bossCard": "parche-espada-plasma",
-    "bossGivesPartnerCrystal": true
-  },
-  {
-    "id": "archipielago-proxy",
-    "name": "Archipiélago Proxy",
-    "order": 13,
-    "steps": 11000,
-    "description": "Islas que hablan en nombre de otras. Nada es lo que parece.",
-    "encounters": [
-      {
-        "species": "kraken-paquete",
-        "weight": 20,
-        "minLevel": 9,
-        "maxLevel": 10
-      },
-      {
-        "species": "hidra-fork",
-        "weight": 15,
-        "minLevel": 9,
-        "maxLevel": 10
-      },
-      {
-        "species": "serpiente-bucle",
-        "weight": 20,
-        "minLevel": 8,
-        "maxLevel": 9
-      },
-      {
-        "species": "gaviotaje",
         "weight": 25,
         "minLevel": 15,
         "maxLevel": 16
       },
       {
-        "species": "fantasma-cache",
-        "weight": 20,
+        "species": "grifo-bus",
+        "weight": 15,
         "minLevel": 9,
         "maxLevel": 10
+      },
+      {
+        "species": "polillux",
+        "weight": 20,
+        "minLevel": 26,
+        "maxLevel": 27
+      }
+    ],
+    "boss": {
+      "species": "yeti-criptografico",
+      "level": 32
+    },
+    "area": 4
+  },
+  {
+    "id": "volcan-compilador",
+    "name": "Volcán Compilador",
+    "order": 12,
+    "steps": 9000,
+    "description": "Un volcán que compila lava en roca. Cada erupción es una nueva versión.",
+    "encounters": [
+      {
+        "species": "golemagma",
+        "weight": 15,
+        "minLevel": 12,
+        "maxLevel": 13
+      },
+      {
+        "species": "fenix-reinicio",
+        "weight": 10,
+        "minLevel": 11,
+        "maxLevel": 12
+      },
+      {
+        "species": "minotauro-kernel",
+        "weight": 20,
+        "minLevel": 11,
+        "maxLevel": 12
+      },
+      {
+        "species": "cactuson",
+        "weight": 25,
+        "minLevel": 18,
+        "maxLevel": 19
+      },
+      {
+        "species": "aranared",
+        "weight": 30,
+        "minLevel": 17,
+        "maxLevel": 18
+      }
+    ],
+    "boss": {
+      "species": "golemagma",
+      "level": 37
+    },
+    "bossCard": "parche-espada-plasma",
+    "bossGivesPartnerCrystal": true,
+    "area": 4
+  },
+  {
+    "id": "archipielago-proxy",
+    "name": "Archipiélago Proxy",
+    "order": 13,
+    "steps": 12500,
+    "description": "Islas que hablan en nombre de otras. Nada es lo que parece.",
+    "encounters": [
+      {
+        "species": "kraken-paquete",
+        "weight": 20,
+        "minLevel": 12,
+        "maxLevel": 13
+      },
+      {
+        "species": "hidra-fork",
+        "weight": 15,
+        "minLevel": 13,
+        "maxLevel": 14
+      },
+      {
+        "species": "serpiente-bucle",
+        "weight": 20,
+        "minLevel": 11,
+        "maxLevel": 12
+      },
+      {
+        "species": "gaviotaje",
+        "weight": 25,
+        "minLevel": 19,
+        "maxLevel": 20
+      },
+      {
+        "species": "fantasma-cache",
+        "weight": 20,
+        "minLevel": 11,
+        "maxLevel": 12
       }
     ],
     "boss": {
       "species": "senor-del-lag",
-      "level": 29
+      "level": 37
     },
-    "bossReward": "mapa-corrupto"
+    "bossReward": "mapa-corrupto",
+    "area": 5
   },
   {
     "id": "ciudadela-cortafuegos",
@@ -574,90 +587,92 @@
       {
         "species": "minotauro-kernel",
         "weight": 25,
-        "minLevel": 10,
-        "maxLevel": 11
+        "minLevel": 13,
+        "maxLevel": 14
       },
       {
         "species": "golemagma",
         "weight": 20,
-        "minLevel": 11,
-        "maxLevel": 12
+        "minLevel": 15,
+        "maxLevel": 16
       },
       {
         "species": "fenix-reinicio",
         "weight": 15,
-        "minLevel": 9,
-        "maxLevel": 10
+        "minLevel": 14,
+        "maxLevel": 15
       },
       {
         "species": "tortuga-archivo",
         "weight": 20,
-        "minLevel": 11,
-        "maxLevel": 12
+        "minLevel": 15,
+        "maxLevel": 16
       },
       {
         "species": "manticora-spam",
         "weight": 20,
-        "minLevel": 10,
-        "maxLevel": 11
+        "minLevel": 14,
+        "maxLevel": 15
       }
     ],
     "boss": {
       "species": "titan-cortafuegos",
-      "level": 33
+      "level": 43
     },
     "bossCard": "parche-muralla",
-    "bossGivesPartnerCrystal": true
+    "bossGivesPartnerCrystal": true,
+    "area": 5
   },
   {
     "id": "abismo-nulo",
     "name": "Abismo Nulo",
     "order": 15,
-    "steps": 14000,
+    "steps": 12500,
     "description": "Donde termina la memoria. Un vacío que se traga lo que cae en él.",
     "encounters": [
       {
         "species": "hidra-fork",
         "weight": 25,
-        "minLevel": 11,
-        "maxLevel": 12
+        "minLevel": 14,
+        "maxLevel": 15
       },
       {
         "species": "manticora-spam",
         "weight": 25,
-        "minLevel": 11,
-        "maxLevel": 12
+        "minLevel": 14,
+        "maxLevel": 15
       },
       {
         "species": "serpiente-bucle",
         "weight": 20,
-        "minLevel": 11,
-        "maxLevel": 12
+        "minLevel": 13,
+        "maxLevel": 14
       },
       {
         "species": "yeti-criptografico",
         "weight": 20,
-        "minLevel": 12,
-        "maxLevel": 13
+        "minLevel": 16,
+        "maxLevel": 17
       },
       {
         "species": "emperatriz-virica",
         "weight": 2,
-        "minLevel": 7,
-        "maxLevel": 8
+        "minLevel": 9,
+        "maxLevel": 10
       },
       {
         "species": "lobocifra",
         "weight": 8,
-        "minLevel": 17,
-        "maxLevel": 18
+        "minLevel": 22,
+        "maxLevel": 23
       }
     ],
     "boss": {
       "species": "coloso-nulo",
-      "level": 35
+      "level": 45
     },
-    "bossReward": "nucleo-fusion"
+    "bossReward": "nucleo-fusion",
+    "area": 5
   },
   {
     "id": "santuario-nucleo",
@@ -669,215 +684,177 @@
       {
         "species": "manticora-spam",
         "weight": 15,
-        "minLevel": 12,
-        "maxLevel": 13
+        "minLevel": 15,
+        "maxLevel": 16
       },
       {
         "species": "grifo-bus",
         "weight": 15,
-        "minLevel": 11,
-        "maxLevel": 12
+        "minLevel": 15,
+        "maxLevel": 16
       },
       {
         "species": "minotauro-kernel",
         "weight": 15,
-        "minLevel": 11,
-        "maxLevel": 12
+        "minLevel": 15,
+        "maxLevel": 16
       },
       {
         "species": "hidra-fork",
         "weight": 15,
-        "minLevel": 12,
-        "maxLevel": 13
+        "minLevel": 15,
+        "maxLevel": 16
       },
       {
         "species": "fenix-reinicio",
         "weight": 15,
-        "minLevel": 10,
-        "maxLevel": 11
+        "minLevel": 14,
+        "maxLevel": 15
       },
       {
         "species": "kraken-paquete",
         "weight": 15,
-        "minLevel": 11,
-        "maxLevel": 12
+        "minLevel": 15,
+        "maxLevel": 16
       },
       {
         "species": "arcangel-checksum",
         "weight": 3,
-        "minLevel": 7,
-        "maxLevel": 8
+        "minLevel": 9,
+        "maxLevel": 10
       }
     ],
     "boss": {
       "species": "dragon-desbordamiento",
-      "level": 36
+      "level": 46
     },
     "bossCard": "parche-despertar",
-    "bossReward": "llave-raiz"
-  },
-  {
-    "id": "colmena-corrupta",
-    "name": "Colmena Corrupta",
-    "order": 17,
-    "steps": 9000,
-    "description": "Zona secreta infectada. Las paredes zumban.",
-    "encounters": [
-      {
-        "species": "bitbicho",
-        "weight": 30,
-        "minLevel": 34,
-        "maxLevel": 35
-      },
-      {
-        "species": "aranared",
-        "weight": 30,
-        "minLevel": 20,
-        "maxLevel": 21
-      },
-      {
-        "species": "manticora-spam",
-        "weight": 25,
-        "minLevel": 12,
-        "maxLevel": 13
-      },
-      {
-        "species": "emperatriz-virica",
-        "weight": 5,
-        "minLevel": 8,
-        "maxLevel": 9
-      }
-    ],
-    "boss": {
-      "species": "reina-colmena",
-      "level": 37
-    },
-    "requiresItem": "mapa-corrupto",
-    "bossCard": "parche-drenaje"
+    "bossReward": "llave-raiz",
+    "area": 6
   },
   {
     "id": "torre-desbordamiento",
     "name": "Torre del Desbordamiento",
-    "order": 18,
-    "steps": 20000,
+    "order": 17,
+    "steps": 19000,
     "description": "Una torre que no deja de crecer. Solo para Enlazadores que ya salvaron la Red.",
     "encounters": [
       {
         "species": "manticora-spam",
         "weight": 10,
-        "minLevel": 14,
-        "maxLevel": 15
+        "minLevel": 16,
+        "maxLevel": 17
       },
       {
         "species": "grifo-bus",
         "weight": 10,
-        "minLevel": 13,
-        "maxLevel": 14
+        "minLevel": 17,
+        "maxLevel": 18
       },
       {
         "species": "minotauro-kernel",
         "weight": 10,
-        "minLevel": 13,
-        "maxLevel": 14
+        "minLevel": 16,
+        "maxLevel": 17
       },
       {
         "species": "serpiente-bucle",
         "weight": 10,
-        "minLevel": 14,
-        "maxLevel": 15
+        "minLevel": 15,
+        "maxLevel": 16
       },
       {
         "species": "golemagma",
         "weight": 10,
-        "minLevel": 15,
-        "maxLevel": 16
+        "minLevel": 18,
+        "maxLevel": 19
       },
       {
         "species": "fenix-reinicio",
         "weight": 10,
-        "minLevel": 14,
-        "maxLevel": 15
+        "minLevel": 15,
+        "maxLevel": 16
       },
       {
         "species": "hidra-fork",
         "weight": 10,
-        "minLevel": 14,
-        "maxLevel": 15
+        "minLevel": 16,
+        "maxLevel": 17
       },
       {
         "species": "yeti-criptografico",
         "weight": 10,
-        "minLevel": 15,
-        "maxLevel": 16
+        "minLevel": 18,
+        "maxLevel": 19
       },
       {
         "species": "kraken-paquete",
         "weight": 10,
-        "minLevel": 13,
-        "maxLevel": 14
+        "minLevel": 16,
+        "maxLevel": 17
       },
       {
         "species": "tortuga-archivo",
         "weight": 10,
-        "minLevel": 15,
-        "maxLevel": 16
+        "minLevel": 18,
+        "maxLevel": 19
       },
       {
         "species": "arcangel-checksum",
         "weight": 4,
-        "minLevel": 8,
-        "maxLevel": 9
-      },
-      {
-        "species": "gusano-mundial",
-        "weight": 3,
         "minLevel": 10,
         "maxLevel": 11
       },
       {
+        "species": "gusano-mundial",
+        "weight": 3,
+        "minLevel": 12,
+        "maxLevel": 13
+      },
+      {
         "species": "senor-del-lag",
         "weight": 3,
-        "minLevel": 8,
-        "maxLevel": 9
+        "minLevel": 11,
+        "maxLevel": 12
       }
     ],
     "boss": {
       "species": "emperatriz-virica",
-      "level": 43
+      "level": 48
     },
-    "postGame": true,
-    "bossCard": "parche-reinicio"
+    "bossCard": "parche-reinicio",
+    "area": 6
   },
   {
     "id": "raiz-del-mundo",
     "name": "Raíz del Mundo",
-    "order": 19,
-    "steps": 25000,
+    "order": 18,
+    "steps": 22000,
     "description": "Los cimientos de la Red. Nadie ha vuelto para contar qué hay al fondo.",
     "encounters": [
       {
         "species": "gusano-mundial",
         "weight": 15,
-        "minLevel": 11,
-        "maxLevel": 12
+        "minLevel": 13,
+        "maxLevel": 14
       },
       {
         "species": "arcangel-checksum",
         "weight": 15,
-        "minLevel": 10,
-        "maxLevel": 11
+        "minLevel": 12,
+        "maxLevel": 13
       },
       {
         "species": "coloso-nulo",
         "weight": 15,
-        "minLevel": 11,
-        "maxLevel": 12
+        "minLevel": 13,
+        "maxLevel": 14
       },
       {
         "species": "titan-cortafuegos",
         "weight": 15,
-        "minLevel": 11,
-        "maxLevel": 12
+        "minLevel": 13,
+        "maxLevel": 14
       },
       {
         "species": "reina-colmena",
@@ -888,16 +865,55 @@
       {
         "species": "dragon-desbordamiento",
         "weight": 5,
-        "minLevel": 10,
-        "maxLevel": 11
+        "minLevel": 11,
+        "maxLevel": 12
       }
     ],
     "boss": {
       "species": "guardian-raiz",
-      "level": 48
+      "level": 53
     },
-    "requiresItem": "llave-raiz",
-    "postGame": true,
-    "bossCard": "parche-evolucion"
+    "bossCard": "parche-evolucion",
+    "area": 6
+  },
+  {
+    "id": "colmena-corrupta",
+    "name": "Colmena Corrupta",
+    "order": 19,
+    "steps": 12500,
+    "description": "Zona secreta infectada. Las paredes zumban.",
+    "encounters": [
+      {
+        "species": "bitbicho",
+        "weight": 30,
+        "minLevel": 44,
+        "maxLevel": 45
+      },
+      {
+        "species": "aranared",
+        "weight": 30,
+        "minLevel": 26,
+        "maxLevel": 27
+      },
+      {
+        "species": "manticora-spam",
+        "weight": 25,
+        "minLevel": 16,
+        "maxLevel": 17
+      },
+      {
+        "species": "emperatriz-virica",
+        "weight": 5,
+        "minLevel": 11,
+        "maxLevel": 12
+      }
+    ],
+    "boss": {
+      "species": "reina-colmena",
+      "level": 41
+    },
+    "requiresItem": "mapa-corrupto",
+    "bossCard": "parche-drenaje",
+    "area": 5
   }
 ]

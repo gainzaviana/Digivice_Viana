@@ -51,6 +51,8 @@ export interface Encounter { species: string; weight: number; minLevel: number; 
 export interface Region {
   id: string; name: string; order: number; steps: number; description: string; encounters: Encounter[];
   boss: { species: string; level: number }; requiresItem?: string; postGame?: boolean;
+  /** The Area (1–6) this city belongs to; its 3rd city's boss is the Area Boss. */
+  area: number;
   bossReward?: string; bossCard?: string; bossGivesPartnerCrystal?: boolean;
 }
 
@@ -118,13 +120,22 @@ export interface GameRules {
   xp: XPRules;
   evolution: EvolutionRules;
   encounterEveryMinSteps: number; encounterEveryMaxSteps: number;
-  events: { battle: number; recruit: number; item: number; egg: number; merchant: number; shrine: number; nothing: number };
+  /** Road events every encounterEveryMin…MaxSteps: wild battle, data cache, SOS rescue, data hazard. */
+  events: { battle: number; cache: number; sos: number; hazard: number };
   brillanteChance: number; infectadoChance: number;
-  defeatPenaltyFraction: number; bossDefeatPenaltyFraction: number; defeatPenaltyMin: number;
+  /** A defeat pushes the player back on the city's road, leaves the Eco injured (1 HP) and lowers bond. */
+  defeat: { pushbackMin: number; pushbackMax: number; bondLoss: number; recoverySteps: number; recoveryHours: number };
+  cache: { dpMin: number; dpMax: number; weights: { dp: number; item: number; card: number; egg: number } };
+  sos: { levelBonus: number; bond: number; rareChance: number };
+  hazard: { seconds: number; xpWins: number; hpLossPercent: number; dpLoss: number };
+  /** Care mini-games: charges refill every stepsPerCharge steps or hoursPerCharge hours. Arrays by score tier 0–3. */
+  care: { maxCharges: number; stepsPerCharge: number; hoursPerCharge: number; energyDP: number[]; energyBond: number[]; pulseHeal: number[]; tierScores: number[] };
+  /** City services: healing spot, shrine, shop (item/Parche ids by Area). */
+  city: { healCost: number; blessingBond: number; offeringBase: number; offeringPerOrder: number; epicChance: number; shop: Record<string, string[]> };
+  areas: { order: number; name: string; description: string }[];
   deckSize: number; startingLevel: number; startingDP: number; startingBits: number; startingItems: Record<string, number>; startingCards: string[];
   stepsPerHealPercent: number; maxPendingEvents: number; maxEggs: number; squadCap: number;
-  bossBitsPerOrder: number; foundBitsMin: number; foundBitsMax: number; merchantOffers: number;
-  shrineBaseCost: number; shrineCostPerOrder: number; shrineEpicChance: number;
+  bossBitsPerOrder: number; foundBitsMin: number; foundBitsMax: number;
   itemDrops: { item: string; weight: number; minRegion: number }[];
   eggDrops: { egg: string; weight: number; minRegion: number }[];
   battle: BattleTuning;

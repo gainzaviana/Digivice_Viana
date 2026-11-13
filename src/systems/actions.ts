@@ -180,7 +180,7 @@ export function defeatBoss(save: GameSave, data: GameData): ActionResult {
     const next = main[index + 1];
     save.map.regionID = next.id;
     save.map.stepsLeft = next.steps;
-    text += ` Siguiente zona: ${next.name}.`;
+    text += next.area !== region.area ? ` ¡Nueva área: ${data.rules.areas.find((a) => a.order === next.area)?.name ?? ""}! Siguiente ciudad: ${next.name}.` : ` Siguiente ciudad: ${next.name}.`;
   } else {
     save.map.stepsLeft = region.steps;
     if (region.id === main[main.length - 1]?.id) text += " ¡Has salvado La Red Profunda! Se abren nuevos caminos.";
@@ -203,10 +203,12 @@ export function useItem(save: GameSave, itemID: string, data: GameData, rng: Rng
       if (!eco || !item.effect) return refused("Elige a quién dárselo.");
       const max = maxStats(eco, data);
       const maxDP = data.rules.maxDP;
-      const heals = !!item.effect.healPercent && eco.hp < max.hp, charges = !!item.effect.dp && eco.dp < maxDP;
+      const heals = !!item.effect.healPercent && (eco.hp < max.hp || !!eco.injured), charges = !!item.effect.dp && eco.dp < maxDP;
       if (!heals && !charges) return refused(item.effect.dp && !item.effect.healPercent ? "Ya tiene el DP al máximo." : "Ya está en plena forma.");
       if (item.effect.healPercent) eco.hp = Math.min(max.hp, eco.hp + Math.ceil((max.hp * item.effect.healPercent) / 100));
       if (item.effect.dp) eco.dp = Math.min(maxDP, eco.dp + item.effect.dp);
+      // Any healing item also treats an injury.
+      if (item.effect.healPercent) eco.injured = undefined;
       consume();
       return done(`Usaste ${item.name}. Vida ${eco.hp}/${max.hp}, DP ${eco.dp}/${maxDP}.`);
     }

@@ -11,6 +11,7 @@ import { finishBattle } from "../systems/battle/results";
 import { maxStats, newEco } from "../systems/progression";
 import { unlockAfterBoss } from "../systems/evolution";
 import { upgradeSave } from "../systems/upgrade";
+import { playCare } from "../systems/care";
 
 const data = loadGameData();
 
@@ -32,7 +33,7 @@ describe("game", () => {
           const b = Battle.start(e, save, data, rng.next());
           if (!b) continue;
           while (!b.outcome) b.playTurn(chooseAttack("partner", b, rng));
-          expect(finishBattle(save, b, data).ok).toBe(true);
+          expect(finishBattle(save, b, data, new Date(0), rng).ok).toBe(true);
           battles++;
         }
       }
@@ -89,7 +90,8 @@ describe("game", () => {
     // Stage 3 needs a boss from zone 5 on.
     expect(unlockAfterBoss(p, 2, save, data).unlocked).toEqual([]);
     p.bond = 60;
-    expect(unlockAfterBoss(p, 5, save, data).unlocked.map((s) => s.id)).toContain("calderon");
+    expect(unlockAfterBoss(p, 5, save, data).unlocked).toEqual([]);
+    expect(unlockAfterBoss(p, 6, save, data).unlocked.map((s) => s.id)).toContain("calderon");
   });
 
   it("evolves only temporarily, for DP, and reverts after the battle", () => {
@@ -122,6 +124,64 @@ describe("game", () => {
     expect(q.unlocked).toEqual(["fraguadrako", "calderon"]);
     expect(q.bonus).toEqual({ hp: 5, ap: 2, sp: 1 });
     expect(q.dp).toBe(50);
+  });
+
+  it("lays out 18 cities in 6 Areas with the multi-day distances", () => {
+    const main = data.regions.filter((r) => !r.requiresItem);
+    expect(main.length).toBe(18);
+    expect([1, 2, 3, 4, 5, 6].map((a) => main.filter((r) => r.area === a).length)).toEqual([3, 3, 3, 3, 3, 3]);
+    expect(main.map((r) => r.steps)).toEqual([1500, 1500, 1500, 3500, 3500, 3500, 6000, 6000, 6000, 9000, 9000, 9000, 12500, 12500, 12500, 16000, 19000, 22000]);
+  });
+
+  it("raises a Digivice alert every 150–350 steps with the 4 event kinds", () => {
+    const save = newGame("brasko", newSave(), data)!;
+    const rng = new Rng(4);
+    const kinds: Record<string, number> = {};
+    for (let i = 0; i < 400; i++) {
+      walk(200, save, data, rng, 0);
+      for (const e of save.pending) kinds[e.kind] = (kinds[e.kind] ?? 0) + 1;
+      save.pending = [];
+      save.map.bossReady = false; save.map.stepsLeft = 1500;
+    }
+    const total = Object.values(kinds).reduce((a, b) => a + b, 0);
+    expect(total).toBeGreaterThan(200);
+    expect(Object.keys(kinds).sort()).toEqual(["battle", "cache", "hazard", "sos"]);
+    expect(kinds.battle / total).toBeGreaterThan(0.5);
+  });
+
+  it("injures and pushes back on defeat, keeping lifetime steps and eggs", () => {
+    const save = newGame("brasko", newSave(), data)!;
+    const p = partnerOf(save)!;
+    save.totalSteps = 9999;
+    save.eggs = [{ id: "g", typeID: "huevo-comun", stepsLeft: 200 }];
+    save.map.stepsLeft = 700;
+    const bond = (p.bond = 20);
+    const b = Battle.start({ id: "e", kind: "battle", regionID: save.map.regionID!, date: 0, species: "cactuson", level: 30, variant: "normal" }, save, data, 1)!;
+    save.pending.push({ id: "e", kind: "battle", regionID: save.map.regionID!, date: 0, species: "cactuson", level: 30 });
+    b.begin();
+    const rng = new Rng(9);
+    while (!b.outcome) b.playTurn("basic");
+    expect(b.outcome).toBe("defeat");
+    finishBattle(save, b, data, new Date(0), rng);
+    expect(p.hp).toBe(1);
+    expect(p.injured).toBeTruthy();
+    expect(p.bond).toBe(bond - 3);
+    expect(save.map.stepsLeft).toBeGreaterThanOrEqual(700 + 300);
+    expect(save.map.stepsLeft).toBeLessThanOrEqual(1500);
+    expect(save.totalSteps).toBe(9999);
+    expect(save.eggs[0].stepsLeft).toBe(200);
+    expect(Battle.start(undefined, { ...save, map: { ...save.map, bossReady: true } }, data, 1)).toBeUndefined();
+    // The Pulse mini-game (good score) cures it; it costs a charge.
+    expect(playCare(save, "pulso", 80, data).ok).toBe(true);
+    expect(p.injured).toBeUndefined();
+    expect(save.care.charges).toBe(2);
+  });
+
+  it("refills Care charges every 500 steps", () => {
+    const save = newGame("brasko", newSave(), data)!;
+    save.care.charges = 0;
+    walk(1100, save, data, new Rng(1), 0);
+    expect(save.care.charges).toBe(2);
   });
 
   it("migrates partial saves", () => {
