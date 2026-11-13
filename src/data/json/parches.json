@@ -3,10 +3,10 @@
     "id": "parche-fuerza",
     "name": "Parche Fuerza",
     "rarity": "comun",
-    "description": "Ataque +30 % durante 3 turnos.",
+    "description": "AP +30 % durante 3 turnos.",
     "effect": {
       "type": "buff",
-      "stat": "atk",
+      "stat": "ap",
       "value": 30,
       "turns": 3
     },
@@ -16,10 +16,10 @@
     "id": "parche-coraza",
     "name": "Parche Coraza",
     "rarity": "comun",
-    "description": "Defensa +30 % durante 3 turnos.",
+    "description": "Recibe un 30 % menos de daño durante 3 turnos.",
     "effect": {
       "type": "buff",
-      "stat": "def",
+      "stat": "guard",
       "value": 30,
       "turns": 3
     },
@@ -29,10 +29,10 @@
     "id": "parche-velocidad",
     "name": "Parche Velocidad",
     "rarity": "comun",
-    "description": "Velocidad +40 % durante 3 turnos.",
+    "description": "SP +40 % durante 3 turnos.",
     "effect": {
       "type": "buff",
-      "stat": "spd",
+      "stat": "sp",
       "value": 40,
       "turns": 3
     },
@@ -53,10 +53,10 @@
     "id": "parche-energia",
     "name": "Parche Energía",
     "rarity": "comun",
-    "description": "Recupera 30 DP.",
+    "description": "Carga +2 para ataques especiales.",
     "effect": {
-      "type": "dp",
-      "value": 30
+      "type": "charge",
+      "value": 2
     },
     "price": 60
   },
@@ -86,10 +86,10 @@
     "id": "parche-espada-plasma",
     "name": "Parche Espada de Plasma",
     "rarity": "rara",
-    "description": "Ataque +60 % durante 2 turnos.",
+    "description": "AP +60 % durante 2 turnos.",
     "effect": {
       "type": "buff",
-      "stat": "atk",
+      "stat": "ap",
       "value": 60,
       "turns": 2
     },
@@ -99,10 +99,10 @@
     "id": "parche-muralla",
     "name": "Parche Muralla",
     "rarity": "rara",
-    "description": "Defensa +60 % durante 2 turnos.",
+    "description": "Recibe un 60 % menos de daño durante 2 turnos.",
     "effect": {
       "type": "buff",
-      "stat": "def",
+      "stat": "guard",
       "value": 60,
       "turns": 2
     },
@@ -203,7 +203,7 @@
     "id": "parche-evolucion",
     "name": "Parche Evolución",
     "rarity": "epica",
-    "description": "Evoluciona en combate sin gastar DP y sin riesgo de fallo.",
+    "description": "Evoluciona un paso más durante el combate sin gastar DP (si ya está desbloqueado).",
     "effect": {
       "type": "evolve"
     }
@@ -221,7 +221,7 @@
     "id": "parche-despertar",
     "name": "Parche Despertar",
     "rarity": "epica",
-    "description": "Con el vínculo al máximo, un Supremo alcanza su Despertar durante el combate.",
+    "description": "Un Eco con su Despertar desbloqueado lo alcanza en combate sin gastar DP.",
     "effect": {
       "type": "awaken"
     }

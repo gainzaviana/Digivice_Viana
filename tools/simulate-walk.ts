@@ -7,8 +7,8 @@ import { Rng } from "../src/core/random";
 import { newSave, partnerOf, type PendingEvent } from "../src/core/save";
 import { STAGE_NAME } from "../src/data/models";
 import { walk } from "../src/systems/walk";
-import { maxStats, evolutionStatus } from "../src/systems/progression";
-import { acceptRecruit, declineRecruit, evolve, flee, leave, newGame, receiveBlessing, useItem } from "../src/systems/actions";
+import { maxStats, stageMultiplier } from "../src/systems/progression";
+import { acceptRecruit, declineRecruit, flee, leave, newGame, receiveBlessing, useItem } from "../src/systems/actions";
 import { Battle, type Outcome } from "../src/systems/battle/battle";
 import { chooseAttack } from "../src/systems/battle/ai";
 import { finishBattle } from "../src/systems/battle/results";
@@ -31,7 +31,7 @@ let walked = 0;
 interface ZoneStats { wins: number; losses: number; fled: number; left: number; turns: number; bossTries: number; bossWins: number }
 const zones = new Map<number, ZoneStats>();
 const bossLines: string[] = [];
-let battleEvolutions = 0, evolutionFailures = 0;
+let battleEvolutions = 0;
 const say = (t: string) => { if (showLog) console.log(`${String(walked).padStart(7)}  ${t}`); };
 const hpShare = () => { const p = partnerOf(save); return p ? p.hp / Math.max(1, maxStats(p, data).hp) : 0; };
 const name = (id: string) => data.eco.get(id)?.name ?? id;
@@ -45,40 +45,47 @@ function maintain() {
   for (const fruit of ["fruta-fuerza", "fruta-coraza", "fruta-viento", "fruta-vida", "fruta-dulce"]) {
     while ((save.inventory[fruit] ?? 0) > 0 && useItem(save, fruit, data, rng).ok) { /* eat them all */ }
   }
-  const p = partnerOf(save);
-  const ready = p && evolutionStatus(p, save, data).find((s) => s.ready && !s.evolution.conditions.inBattleOnly);
-  if (p && ready) say(evolve(save, p.id, ready.target.id, data).message);
 }
+
+/** The best form the bot can afford for a boss (keeps nothing back). */
+function bestBossCost(): number {
+  const b = Battle.start(undefined, { ...save, map: { ...save.map, bossReady: true } }, data, 1);
+  if (!b) return 0;
+  const costs = b.forms.filter((f) => !f.blocked).map((f) => f.cost);
+  return costs.length ? Math.min(data.rules.maxDP, Math.max(...costs)) : 0;
+}
+
+const RESERVE = 15;
+let lastBossTryLevel = 0;
 
 function fight(event?: PendingEvent): Outcome | undefined {
   const b = Battle.start(event, save, data, rng.next());
   if (!b) return undefined;
-  for (let offer = b.evolutionOffer; offer && !offer.blocked && b.partner.dp - offer.cost >= offer.target.signature.dpCost; offer = b.evolutionOffer) {
-    const beats = b.evolveBeforeBattle();
-    if (beats.some((x) => x.t === "evolve" && !x.success)) { evolutionFailures++; break; }
-    battleEvolutions++;
-  }
+  // Evolve: for bosses, the strongest affordable form; for wild Ecos above Stage 1, the cheapest
+  // form that matches them, keeping DP in reserve for the next boss.
+  const options = b.formOptions().filter((f) => !f.blocked).sort((x, y) => x.multiplier - y.multiplier);
+  const enemyK = stageMultiplier(data.eco.get(b.enemy.speciesID), data);
+  let pick = b.isBoss ? options[options.length - 1] : options.find((f) => f.multiplier >= enemyK && b.dp - f.cost >= RESERVE);
+  if (!b.isBoss && enemyK <= 1) pick = undefined;
+  if (pick) { b.evolveTo(pick.target.id); battleEvolutions++; }
   b.begin();
   while (!b.outcome) {
     const me = b.partner;
-    if (me.hp < me.stats.hp * 0.35) {
-      const card = ["parche-cura-total", "parche-cura", "parche-reinicio"].find((c) => b.hand.includes(c));
-      if (card) b.slash(card);
-    } else if (b.isBoss && b.turn === 0) {
-      const card = ["parche-espada-plasma", "parche-fuerza", "parche-muralla", "parche-coraza"].find((c) => b.hand.includes(c));
-      if (card) b.slash(card);
-    }
-    b.playTurn(chooseAttack("partner", b, rng));
+    const usable = (ids: string[]) => ids.find((c) => b.hand.includes(c) && b.dp >= b.cardCost(c) + (b.isBoss ? 0 : RESERVE));
+    let card: string | undefined;
+    if (me.hp < me.stats.hp * 0.35) card = usable(["parche-cura-total", "parche-cura"]);
+    else if (b.isBoss && b.turn === 0) card = usable(["parche-espada-plasma", "parche-fuerza"]);
+    b.playTurn(card ? { card } : chooseAttack("partner", b, rng));
   }
   const z = zones.get(b.regionOrder) ?? { wins: 0, losses: 0, fled: 0, left: 0, turns: 0, bossTries: 0, bossWins: 0 };
   z.turns += b.turn;
   if (b.outcome === "victory") z.wins++; else if (b.outcome === "defeat") z.losses++; else if (b.outcome === "fled") z.fled++; else z.left++;
   if (b.isBoss) {
     z.bossTries++;
+    const p = partnerOf(save)!;
     if (b.outcome === "victory") {
       z.bossWins++;
-      const p = partnerOf(save)!;
-      bossLines.push(`  Zona ${b.regionOrder}: ${name(b.enemy.speciesID)} vencido al intento ${z.bossTries} · compañero ${name(p.speciesID)} nv. ${p.level} (combate como ${name(b.partner.speciesID)}) en ${b.turn} turnos`);
+      bossLines.push(`  Zona ${String(b.regionOrder).padStart(2)}: ${name(b.enemy.speciesID)} nv. ${b.enemy.level} vencido al intento ${z.bossTries} · ${name(p.speciesID)} nv. ${p.level} (como ${name(b.partner.speciesID)}) en ${b.turn} turnos`);
     }
   }
   zones.set(b.regionOrder, z);
@@ -99,7 +106,15 @@ while (walked < totalSteps) {
       case "shrine": receiveBlessing(save, event.id, data); break;
     }
   }
-  if (save.map.bossReady && hpShare() >= 0.7) { fight(); maintain(); }
+  // Challenge the boss with HP ≥ 70 % and enough DP for the best unlocked form.
+  // Challenge the boss with HP ≥ 70 % and enough DP for the best unlocked form; after a defeat,
+  // only once the partner has gained a level (a sensible player trains first).
+  const level = partnerOf(save)!.level;
+  if (save.map.bossReady && hpShare() >= 0.7 && partnerOf(save)!.dp >= bestBossCost() && (save.map.bossDefeats === 0 || level > lastBossTryLevel)) {
+    lastBossTryLevel = level;
+    fight();
+    maintain();
+  }
 }
 
 const p = partnerOf(save)!;
@@ -108,8 +123,8 @@ const n = (x: number) => x.toLocaleString("es");
 console.log(`
 ${n(totalSteps)} pasos simulados (semilla ${seed}, compañero inicial ${starter})
 Zonas superadas: ${save.map.clearedRegions.length} · zona actual: ${save.map.regionID ? data.region.get(save.map.regionID)?.name : "—"} (faltan ${n(save.map.stepsLeft)} pasos${save.map.bossReady ? ", jefe esperando" : ""})
-Compañero: ${sp.name} (${STAGE_NAME[sp.stage]}) nivel ${p.level} · vínculo ${p.bond}/${data.rules.maxBond} · ${p.wins} victorias, ${p.losses} derrotas
-Evoluciones antes de combatir: ${battleEvolutions} (fallidas: ${evolutionFailures})
+Compañero: ${sp.name} (${STAGE_NAME[sp.stage]}) nivel ${p.level} · HP ${maxStats(p, data).hp} AP ${maxStats(p, data).ap} SP ${maxStats(p, data).sp} · vínculo ${p.bond}/${data.rules.maxBond} · ${p.wins} victorias, ${p.losses} derrotas
+Combates evolucionado: ${battleEvolutions} · formas desbloqueadas: ${p.unlocked.map(name).join(", ") || "ninguna"} · DP ${p.dp}
 Sucesos: ${Object.entries(counts).sort().map(([k, v]) => `${k} ${v}`).join(", ")}
 Equipo: ${save.squad.length} Ecos · bits: ${n(save.bits)} · objetos: ${Object.values(save.inventory).reduce((a, b) => a + b, 0)} · Parches: ${Object.values(save.parches).reduce((a, b) => a + b, 0)}
 

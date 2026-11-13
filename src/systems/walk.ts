@@ -19,16 +19,19 @@ export function walk(steps: number, save: GameSave, data: GameData, rng: Rng, no
 
   while (remaining > 0) {
     let chunk = remaining;
-    const walkingZone = !!save.map.regionID && !save.map.bossReady;
-    if (walkingZone) chunk = Math.min(chunk, Math.max(1, save.map.stepsLeft), Math.max(1, save.map.stepsToNextEvent));
+    // The road keeps giving encounters while the boss waits: that's where the partner trains for it.
+    const inZone = !!save.map.regionID;
+    const approaching = inZone && !save.map.bossReady;
+    if (inZone) chunk = Math.min(chunk, Math.max(1, save.map.stepsToNextEvent));
+    if (approaching) chunk = Math.min(chunk, Math.max(1, save.map.stepsLeft));
     for (const egg of save.eggs) if (egg.stepsLeft > 0) chunk = Math.min(chunk, egg.stepsLeft);
     remaining -= chunk;
 
     const region = save.map.regionID ? data.region.get(save.map.regionID) : undefined;
-    if (walkingZone && region) {
-      save.map.stepsLeft = Math.max(0, save.map.stepsLeft - chunk);
+    if (inZone && region) {
+      if (approaching) save.map.stepsLeft = Math.max(0, save.map.stepsLeft - chunk);
       save.map.stepsToNextEvent -= chunk;
-      if (save.map.stepsLeft === 0) {
+      if (approaching && save.map.stepsLeft === 0) {
         save.map.bossReady = true;
         if (!save.guide.seen.includes(region.boss.species)) save.guide.seen.push(region.boss.species);
         log("boss", `¡Has cruzado ${region.name}! ${data.eco.get(region.boss.species)?.name} (nivel ${region.boss.level}) te espera.`);
@@ -152,9 +155,11 @@ function hatchEggs(walked: number, save: GameSave, data: GameData, rng: Rng, log
     const species = entry && data.eco.get(entry.species);
     if (!species) continue;
     const variant: Variant = rng.int(1, 100) <= type.brillanteChance ? "brillante" : "normal";
-    save.squad.push(newEco(species.id, species.stage === "brote" ? 1 : 3, data, variant));
-    for (const list of [save.guide.seen, save.guide.owned]) if (!list.includes(species.id)) list.push(species.id);
-    log("hatch", `¡Tu ${type.name} se ha abierto! Ha nacido ${species.name}${variant === "brillante" ? " (¡Brillante!)" : ""}.`);
+    const born = newEco(species.id, 1, data, variant);
+    save.squad.push(born);
+    for (const id of new Set([species.id, born.speciesID])) for (const list of [save.guide.seen, save.guide.owned]) if (!list.includes(id)) list.push(id);
+    const name = data.eco.get(born.speciesID)?.name ?? species.name;
+    log("hatch", `¡Tu ${type.name} se ha abierto! Ha nacido ${name}${variant === "brillante" ? " (¡Brillante!)" : ""}, nivel 1.`);
   }
   save.eggs = kept;
 }
@@ -168,6 +173,20 @@ function recover(steps: number, save: GameSave, data: GameData) {
   partner.stepsWalked += steps;
   const max = maxStats(partner, data);
   partner.bond = Math.min(r.maxBond, partner.bond + bond);
-  partner.dp = Math.min(max.dp, partner.dp + dp);
+  partner.dp = Math.min(r.maxDP, partner.dp + dp);
   partner.hp = Math.min(max.hp, partner.hp + Math.ceil((max.hp * heal) / 100));
+}
+
+/** Resting: the partner recovers 1 DP every few hours of real time, even without walking. */
+export function rest(save: GameSave, data: GameData, now = Date.now()): number {
+  const every = data.rules.restHoursPerDP * 3_600_000;
+  if (!save.lastRest) { save.lastRest = now; return 0; }
+  const ticks = Math.floor((now - save.lastRest) / every);
+  if (ticks <= 0) return 0;
+  save.lastRest += ticks * every;
+  const partner = partnerOf(save);
+  if (!partner) return 0;
+  const before = partner.dp;
+  partner.dp = Math.min(data.rules.maxDP, partner.dp + ticks);
+  return partner.dp - before;
 }

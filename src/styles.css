@@ -171,3 +171,10 @@ details[open] summary { margin-bottom: 6px; }
 }
 @media (min-width: 560px) { .sync-banner { margin-left: auto; margin-right: auto; } }
 .sync-banner + .screen { padding-top: 12px; }
+
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 6px; }
+.form-option { display: flex; flex-direction: column; gap: 2px; padding: 8px; text-align: left; background: var(--ink); border: 2px solid var(--teal2); border-radius: 4px; color: var(--white); }
+.form-option:disabled { border-color: var(--slate); opacity: 0.6; }
+.pips { display: inline-flex; gap: 3px; }
+.pip { width: 10px; height: 10px; border: 2px solid var(--slate); background: var(--outline); }
+.pip.on { background: var(--red3); border-color: var(--red3); }

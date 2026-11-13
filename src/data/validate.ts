@@ -1,4 +1,4 @@
-import { DERIVED_METRICS, STAGES, stageOrder, type GameData, type Stage } from "./models";
+import { DERIVED_METRICS, stageOrder, type GameData, type Stage } from "./models";
 
 /** Every inconsistency in the content, as readable sentences. Empty means the data is sound. */
 export function validate(d: GameData): string[] {
@@ -16,11 +16,9 @@ export function validate(d: GameData): string[] {
   }
 
   for (const eco of d.ecos) {
-    const s = eco.stats;
     check(!!eco.name && !!eco.description, `${eco.id}: name and description are required`);
-    check(s.hp > 0 && s.atk > 0 && s.def > 0 && s.spd > 0 && s.dp > 0, `${eco.id}: every stat must be positive`);
-    check(eco.basic.dpCost === 0, `${eco.id}: the basic attack must cost 0 DP`);
-    check(eco.signature.dpCost > 0 && eco.signature.dpCost <= s.dp, `${eco.id}: signature DP cost must be between 1 and max DP`);
+    check(!!r.archetypes[eco.archetype], `${eco.id}: unknown archetype ${eco.archetype}`);
+    check(!!eco.basic.name && !!eco.signature.name, `${eco.id}: both attacks need a name`);
     for (const ev of eco.evolutions) {
       const target = d.eco.get(ev.to);
       if (!target) { issues.push(`${eco.id}: evolves into unknown Eco ${ev.to}`); continue; }
@@ -78,9 +76,13 @@ export function validate(d: GameData): string[] {
   for (const x of r.eggDrops) check(d.egg.has(x.egg), `rules: unknown egg drop ${x.egg}`);
   const b = r.battle;
   check(b.aiTierZones.length === 2 && b.aiRandomness.length === 4 && b.aiTemperature.length === 4, "battle: AI tier arrays have the wrong length");
-  check(STAGES.every((s) => b.xpStageMultiplier[s] !== undefined), "battle: xpStageMultiplier needs every stage");
-  for (const [stage, region] of Object.entries(b.evolutionUnlockBoss)) check(d.region.has(region) && b.evolutionCost[stage] !== undefined, `battle: bad unlock ${stage}`);
-  check(r.training.statGainByTier.length === 4 && r.training.xpByTier.length === 4 && r.training.tierScores.length === 3, "training: wrong tier arrays");
+  const ev = r.evolution;
+  check(ev.multiplier.length === 4 && ev.cost.length === 4 && ev.multiplier.every((m, i) => i === 0 || m > ev.multiplier[i - 1]), "evolution: multiplier/cost need 4 increasing tiers");
+  check(["2", "3", "4"].every((k) => ev.unlockZone[k] >= 1 && ev.unlockZone[k] <= d.regions.length), "evolution: unlockZone needs tiers 2–4 within the zones");
+  check(ev.cost.every((c) => c <= r.maxDP) && ev.awakenCost <= r.maxDP, "evolution: a cost exceeds maxDP");
+  check(Object.values(b.cardCost).every((c) => c <= r.maxDP), "battle: a Parche costs more than maxDP");
+  check(r.training.gainByTier.length === 4 && r.training.tierScores.length === 3, "training: wrong tier arrays");
+  check(r.maxDP > 0 && r.stepsPerDP > 0 && r.levelCap > 1, "rules: maxDP, stepsPerDP and levelCap must be positive");
 
   for (const c of d.challenges) {
     check(c.target > 0, `${c.id}: target must be positive`);

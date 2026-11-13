@@ -5,6 +5,7 @@ import { useGame } from "../game";
 import { sound } from "../audio/sound";
 import { PALETTE as P } from "../art/palette";
 import { AffinityTag, PixelButton, StatBar, Tag, VariantTag } from "../ui/common";
+import { statText } from "../systems/progression";
 import { RARITY_COLOUR } from "../ui/squad";
 import { BattleScene } from "./scene";
 
@@ -55,9 +56,10 @@ export function BattleView({ battle }: { battle: Battle }) {
       rerender((n) => n + 1);
     });
   };
-  const begin = () => { battle.begin(); setCaption("¿Básico o especial? El básico atraviesa al especial."); rerender((n) => n + 1); };
-  const offer = battle.evolutionOffer;
+  const begin = () => { battle.begin(); setCaption("¿Básico o especial? El básico atraviesa al especial; dos especiales chocan y gana el de más AP."); rerender((n) => n + 1); };
+  const forms = battle.formOptions();
   const partnerSpecies = battle.species("partner");
+  const t = battle.tuning;
 
   return (
     <div class="battle">
@@ -67,26 +69,34 @@ export function BattleView({ battle }: { battle: Battle }) {
       <div class="caption" aria-live="polite">{caption}</div>
       {battle.phase === "intro" && (
         <div class="stack">
-          {offer && (
+          {forms.length > 0 && (
             <div class="stack tight">
-              <PixelButton title={`¡EVOLUCIONAR! → ${offer.target.name}`} colour={P.teal2} disabled={!!offer.blocked || busy} onClick={() => perform(() => battle.evolveBeforeBattle())} />
-              <div class="muted tiny center">
-                {offer.blocked ?? `Cuesta ${offer.cost} DP${offer.failChance > 0.5 ? ` · riesgo de fallo ${Math.round(offer.failChance)} %` : ""} · solo durante este combate`}
+              <div class="muted tiny">Evolucionar para este combate (vuelve a su forma base al terminar). Tienes {battle.dp} DP.</div>
+              <div class="form-grid">
+                {forms.map((f) => (
+                  <button key={f.target.id} class="form-option" disabled={!!f.blocked || busy} onClick={() => perform(() => battle.evolveTo(f.target.id))}>
+                    <span class="strong small">{f.target.name}</span>
+                    <span class="tiny">×{f.multiplier} · {f.cost} DP</span>
+                    {f.blocked && <span class="tiny red">{f.blocked}</span>}
+                  </button>
+                ))}
               </div>
             </div>
           )}
-          <PixelButton title="¡A luchar!" disabled={busy} onClick={begin} />
-          <CardHand battle={battle} busy={busy} onSlash={(id) => perform(() => battle.slash(id))} />
+          {forms.length === 0 && !battle.formID && (
+            <div class="muted tiny">Sin evoluciones desbloqueadas: vence a un jefe con este Eco para desbloquear su siguiente fase.</div>
+          )}
+          <PixelButton title={battle.formID ? "¡A luchar!" : forms.length ? "Luchar sin evolucionar" : "¡A luchar!"} disabled={busy} onClick={begin} />
         </div>
       )}
       {battle.phase === "choosing" && (
         <div class="stack">
           <div class="buttons">
-            <AttackButton title="Básico" attack={partnerSpecies.basic} colour={P.amber2} disabled={busy} onClick={() => perform(() => battle.playTurn("basic"))} />
-            <AttackButton title="Especial" attack={partnerSpecies.signature} colour={P.red3} disabled={busy || !battle.canUseStrong()} onClick={() => perform(() => battle.playTurn("strong"))} />
+            <AttackButton title="Básico" attack={partnerSpecies.basic} note={`AP ×${t.basicAP} · libre`} colour={P.amber2} disabled={busy} onClick={() => perform(() => battle.playTurn("basic"))} />
+            <AttackButton title="Especial" attack={partnerSpecies.signature} note={`AP ×${t.strongAP} · 1 Carga`} colour={P.red3} disabled={busy || !battle.canUseStrong()} onClick={() => perform(() => battle.playTurn("strong"))} />
           </div>
           {!battle.isBoss && <button class="link-button center" disabled={busy} onClick={() => perform(() => battle.flee())}>Huir</button>}
-          <CardHand battle={battle} busy={busy} onSlash={(id) => perform(() => battle.slash(id))} />
+          <CardHand battle={battle} busy={busy} onUse={(id) => perform(() => battle.playTurn({ card: id }))} />
         </div>
       )}
       {battle.phase === "over" && <PixelButton title="Continuar" disabled={busy} onClick={() => g.endBattle()} />}
@@ -112,40 +122,49 @@ function FighterBar({ battle, side }: { battle: Battle; side: Side }) {
         <VariantTag variant={c.variant} />
       </div>
       <StatBar label="Vida" value={c.hp} max={c.stats.hp} colour={hpColour(c)} text={`${c.hp}/${c.stats.hp}`} />
-      {side === "partner" && <StatBar label="DP" value={c.dp} max={c.stats.dp} colour={P.amber2} text={`${c.dp}/${c.stats.dp}`} />}
+      <div class="row tiny">
+        <span class="muted">AP {statText(battle.effective("ap", side))} · SP {statText(battle.effective("sp", side))}</span>
+        <span class="grow" />
+        <span class="muted">Carga</span>
+        <span class="pips" aria-label={`Carga ${c.charge} de ${battle.tuning.chargeMax}`}>
+          {Array.from({ length: battle.tuning.chargeMax }, (_, i) => <span key={i} class={i < c.charge ? "pip on" : "pip"} />)}
+        </span>
+        {side === "partner" && <span class="amber">· DP {battle.dp}</span>}
+      </div>
     </div>
   );
 }
 
-function AttackButton({ title, attack, colour, disabled, onClick }: { title: string; attack: Attack; colour: string; disabled: boolean; onClick: () => void }) {
+function AttackButton({ title, attack, note, colour, disabled, onClick }: { title: string; attack: Attack; note: string; colour: string; disabled: boolean; onClick: () => void }) {
   return (
     <button class="attack-button" style={{ background: disabled ? P.slate : colour }} disabled={disabled} onClick={onClick}>
       <span class="strong">{title.toUpperCase()}</span>
       <span class="small ellipsis">{attack.name}</span>
-      <span class="tiny">Poder {attack.power} · {attack.dpCost > 0 ? `${attack.dpCost} DP` : "gratis"}</span>
+      <span class="tiny">{note}</span>
     </button>
   );
 }
 
-/** The deck's Parches: drag one sideways to slash it. One per turn; each card once per battle. */
-function CardHand({ battle, busy, onSlash }: { battle: Battle; busy: boolean; onSlash: (id: string) => void }) {
+/** The deck's Parches: slash one (drag it sideways, or tap and press Enter) to use it as this turn's action. */
+function CardHand({ battle, busy, onUse }: { battle: Battle; busy: boolean; onUse: (id: string) => void }) {
   const data = useGame().data;
-  const locked = battle.cardUsedThisTurn || busy || !!battle.outcome;
+  const locked = busy || !!battle.outcome;
   return (
     <div class="hand">
-      <div class="muted tiny">{battle.cardUsedThisTurn ? "Ya has usado un Parche este turno." : "Desliza un Parche hacia un lado para activarlo."}</div>
+      <div class="muted tiny">Parches: desliza uno hacia un lado para usarlo en lugar de atacar este turno. Cuestan DP (tienes {battle.dp}).</div>
       {battle.hand.length === 0 && <div class="muted tiny">No te quedan Parches en este combate.</div>}
       <div class="cards">
         {battle.hand.map((id, i) => {
           const p = data.parche.get(id);
-          return p ? <SlashCard key={`${id}-${i}`} parche={p} locked={locked} onSlash={() => onSlash(id)} /> : null;
+          const cost = battle.cardCost(id);
+          return p ? <SlashCard key={`${id}-${i}`} parche={p} cost={cost} locked={locked || battle.dp < cost} onSlash={() => onUse(id)} /> : null;
         })}
       </div>
     </div>
   );
 }
 
-function SlashCard({ parche, locked, onSlash }: { parche: Parche; locked: boolean; onSlash: () => void }) {
+function SlashCard({ parche, cost, locked, onSlash }: { parche: Parche; cost: number; locked: boolean; onSlash: () => void }) {
   const [offset, setOffset] = useState(0);
   const start = useRef<{ x: number; y: number; t: number; horizontal?: boolean }>();
   const threshold = 70;
@@ -177,7 +196,7 @@ function SlashCard({ parche, locked, onSlash }: { parche: Parche; locked: boolea
       onPointerCancel={() => { start.current = undefined; setOffset(0); }}
       onKeyDown={(e) => { if (!locked && (e.key === "Enter" || e.key === " ")) onSlash(); }}
     >
-      <div class="strong small" style={{ color: RARITY_COLOUR[parche.rarity] }}>{parche.name}</div>
+      <div class="strong small" style={{ color: RARITY_COLOUR[parche.rarity] }}>{parche.name} <span class="amber tiny">{cost} DP</span></div>
       <div class="tiny muted">{parche.description}</div>
     </div>
   );

@@ -4,8 +4,9 @@ import { other, type AttackKind, type Battle, type Side } from "./battle";
 /**
  * Chooses Basic or Strong for one side:
  * 1. predict how likely the opponent goes Strong (fixed mix at tier 0; recent choices from tier 1;
- *    repeats and alternations from tier 2; no DP for Strong means Basic for sure);
- * 2. score each option by expected damage dealt minus taken (shares of HP), with the clash rules;
+ *    repeats and alternations from tier 2; no Carga means Basic for sure);
+ * 2. score each option by expected damage dealt minus taken (shares of max HP) under the clash
+ *    rules: Basic pierces Strong, Strong vs Strong goes to the higher AP (then SP), Basics trade;
  * 3. softmax with the tier's temperature, plus the tier's chance of a purely random pick.
  */
 export function aiTier(side: Side, b: Battle): number {
@@ -21,13 +22,13 @@ export function chooseAttack(side: Side, b: Battle, rng: Rng): AttackKind {
   const t = b.tuning;
   if (rng.float() < t.aiRandomness[tier]) return rng.bool() ? "basic" : "strong";
   const opponentStrong = predictStrong(other(side), b, tier);
-  let basic = score("basic", side, opponentStrong, b) + 0.02;
+  // A small lean to Basic keeps Carga for later; an enraged boss leans into its Strong attack.
+  const basic = score("basic", side, opponentStrong, b) + 0.02;
   let strong = score("strong", side, opponentStrong, b);
   if (side === "enemy" && b.enemy.enraged) strong += 0.08;
   const temp = t.aiTemperature[tier];
   const a = Math.exp((basic / temp) * 10), c = Math.exp((strong / temp) * 10);
-  basic = a; strong = c;
-  return rng.float() * (basic + strong) < basic ? "basic" : "strong";
+  return rng.float() * (a + c) < a ? "basic" : "strong";
 }
 
 export function predictStrong(side: Side, b: Battle, tier: number): number {
@@ -42,26 +43,26 @@ export function predictStrong(side: Side, b: Battle, tier: number): number {
     if (last === before) estimate = 0.35 * estimate + 0.65 * (last === "strong" ? 1 : 0);
     else if (history.length >= 3 && history[history.length - 3] === last) estimate = 0.35 * estimate + 0.65 * (last === "strong" ? 0 : 1);
   }
+  // Full Carga makes a Strong attack more likely.
+  if (b.combatant(side).charge >= b.tuning.chargeMax) estimate = Math.min(1, estimate + 0.15);
   return Math.min(1, Math.max(0, estimate));
 }
 
 export function score(mine: AttackKind, side: Side, opponentStrong: number, b: Battle): number {
-  const t = b.tuning;
-  const hitValue = (attacker: Side, kind: AttackKind, share: number, dodgeable: boolean) => {
-    const dodge = dodgeable ? b.dodgeChance(attacker, kind) / 100 : 0;
-    const damage = b.expectedDamage(attacker, kind) * share * (1 - dodge);
+  const hitValue = (attacker: Side, kind: AttackKind, dodgeable: boolean) => {
+    const dodge = dodgeable ? b.dodgeChance(attacker) / 100 : 0;
+    const damage = b.expectedDamage(attacker, kind) * (1 - dodge);
     const target = b.combatant(other(attacker));
     const value = damage / Math.max(1, target.stats.hp);
     return target.hp <= damage ? value + 0.5 : value;
   };
   const outcome = (theirs: AttackKind) => {
-    if (mine !== theirs) return mine === "basic" ? hitValue(side, "basic", 1, false) : -hitValue(other(side), "basic", 1, false);
-    const win = b.clashWinChance(side, mine), tie = t.clashTieMargin;
-    const pWin = Math.max(0, win - tie / 2), pLose = Math.max(0, 1 - win - tie / 2);
-    const share = mine === "strong" ? t.strongClashWinnerDamage : t.basicClashWinnerDamage;
-    let value = pWin * hitValue(side, mine, share, true) - pLose * hitValue(other(side), theirs, share, true);
-    if (mine === "basic") value += tie * (hitValue(side, "basic", t.basicClashTieDamage, true) - hitValue(other(side), "basic", t.basicClashTieDamage, true));
-    return value;
+    if (mine !== theirs) return mine === "basic" ? hitValue(side, "basic", false) : -hitValue(other(side), "basic", false);
+    if (mine === "strong") {
+      const winner = b.strongClashWinner();
+      return winner === side ? hitValue(side, "strong", false) : winner === other(side) ? -hitValue(other(side), "strong", false) : 0;
+    }
+    return hitValue(side, "basic", true) - hitValue(other(side), "basic", true);
   };
   return (1 - opponentStrong) * outcome("basic") + opponentStrong * outcome("strong");
 }

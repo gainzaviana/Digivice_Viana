@@ -10,30 +10,30 @@
         "species": "bitbicho",
         "weight": 30,
         "minLevel": 1,
-        "maxLevel": 3
+        "maxLevel": 1
       },
       {
         "species": "pixelito",
         "weight": 30,
         "minLevel": 1,
-        "maxLevel": 3
+        "maxLevel": 1
       },
       {
         "species": "ranadin",
         "weight": 20,
-        "minLevel": 2,
-        "maxLevel": 4
+        "minLevel": 1,
+        "maxLevel": 1
       },
       {
         "species": "pajarrafaga",
         "weight": 20,
-        "minLevel": 2,
-        "maxLevel": 4
+        "minLevel": 1,
+        "maxLevel": 1
       }
     ],
     "boss": {
       "species": "cactuson",
-      "level": 3
+      "level": 1
     },
     "bossCard": "parche-fuerza"
   },
@@ -47,31 +47,31 @@
       {
         "species": "polillux",
         "weight": 30,
-        "minLevel": 3,
-        "maxLevel": 6
+        "minLevel": 4,
+        "maxLevel": 5
       },
       {
         "species": "hongolin",
         "weight": 25,
-        "minLevel": 3,
-        "maxLevel": 6
+        "minLevel": 4,
+        "maxLevel": 5
       },
       {
         "species": "topocable",
         "weight": 25,
         "minLevel": 4,
-        "maxLevel": 7
+        "maxLevel": 5
       },
       {
         "species": "murciclic",
         "weight": 20,
-        "minLevel": 4,
-        "maxLevel": 7
+        "minLevel": 5,
+        "maxLevel": 6
       }
     ],
     "boss": {
       "species": "buhoraculo",
-      "level": 6
+      "level": 5
     },
     "bossReward": "huevo-raro-cofre"
   },
@@ -85,37 +85,37 @@
       {
         "species": "cangrejal",
         "weight": 30,
-        "minLevel": 6,
-        "maxLevel": 9
+        "minLevel": 7,
+        "maxLevel": 8
       },
       {
         "species": "ranadin",
         "weight": 25,
         "minLevel": 6,
-        "maxLevel": 9
+        "maxLevel": 7
       },
       {
         "species": "caracolchon",
         "weight": 25,
-        "minLevel": 6,
-        "maxLevel": 10
+        "minLevel": 7,
+        "maxLevel": 8
       },
       {
         "species": "medusonica",
         "weight": 5,
-        "minLevel": 8,
-        "maxLevel": 10
+        "minLevel": 2,
+        "maxLevel": 3
       },
       {
         "species": "pajarrafaga",
         "weight": 15,
         "minLevel": 6,
-        "maxLevel": 9
+        "maxLevel": 7
       }
     ],
     "boss": {
       "species": "medusonica",
-      "level": 9
+      "level": 7
     },
     "bossCard": "parche-coraza"
   },
@@ -129,37 +129,37 @@
       {
         "species": "cangrejal",
         "weight": 25,
-        "minLevel": 9,
-        "maxLevel": 12
+        "minLevel": 7,
+        "maxLevel": 8
       },
       {
         "species": "topocable",
         "weight": 20,
-        "minLevel": 9,
-        "maxLevel": 12
+        "minLevel": 7,
+        "maxLevel": 8
       },
       {
         "species": "cactuson",
         "weight": 20,
-        "minLevel": 10,
-        "maxLevel": 13
+        "minLevel": 3,
+        "maxLevel": 4
       },
       {
         "species": "escorpiolag",
         "weight": 10,
-        "minLevel": 11,
-        "maxLevel": 13
+        "minLevel": 3,
+        "maxLevel": 4
       },
       {
         "species": "murciclic",
         "weight": 25,
-        "minLevel": 9,
-        "maxLevel": 12
+        "minLevel": 7,
+        "maxLevel": 8
       }
     ],
     "boss": {
       "species": "escorpiolag",
-      "level": 12
+      "level": 9
     }
   },
   {
@@ -172,37 +172,37 @@
       {
         "species": "ciervoltio",
         "weight": 25,
-        "minLevel": 12,
-        "maxLevel": 15
+        "minLevel": 4,
+        "maxLevel": 5
       },
       {
         "species": "sapotron",
         "weight": 20,
-        "minLevel": 12,
-        "maxLevel": 15
+        "minLevel": 4,
+        "maxLevel": 5
       },
       {
         "species": "golem-disco",
         "weight": 15,
-        "minLevel": 13,
-        "maxLevel": 16
+        "minLevel": 4,
+        "maxLevel": 5
       },
       {
         "species": "bitbicho",
         "weight": 20,
-        "minLevel": 12,
-        "maxLevel": 14
+        "minLevel": 9,
+        "maxLevel": 10
       },
       {
         "species": "pixelito",
         "weight": 20,
-        "minLevel": 12,
-        "maxLevel": 14
+        "minLevel": 10,
+        "maxLevel": 11
       }
     ],
     "boss": {
       "species": "golem-disco",
-      "level": 16
+      "level": 12
     },
     "bossReward": "cristal-de-sabana"
   },
@@ -216,43 +216,43 @@
       {
         "species": "sapotron",
         "weight": 25,
-        "minLevel": 15,
-        "maxLevel": 18
+        "minLevel": 5,
+        "maxLevel": 6
       },
       {
         "species": "hongolin",
         "weight": 20,
-        "minLevel": 15,
-        "maxLevel": 18
+        "minLevel": 11,
+        "maxLevel": 12
       },
       {
         "species": "escorpiolag",
         "weight": 20,
-        "minLevel": 16,
-        "maxLevel": 19
+        "minLevel": 5,
+        "maxLevel": 6
       },
       {
         "species": "medusonica",
         "weight": 20,
-        "minLevel": 16,
-        "maxLevel": 19
+        "minLevel": 5,
+        "maxLevel": 6
       },
       {
         "species": "serpiente-bucle",
         "weight": 5,
-        "minLevel": 18,
-        "maxLevel": 20
+        "minLevel": 3,
+        "maxLevel": 4
       },
       {
         "species": "ranadin",
         "weight": 10,
-        "minLevel": 15,
-        "maxLevel": 17
+        "minLevel": 11,
+        "maxLevel": 12
       }
     ],
     "boss": {
       "species": "serpiente-bucle",
-      "level": 21
+      "level": 13
     },
     "bossCard": "parche-obediencia"
   },
@@ -266,37 +266,37 @@
       {
         "species": "pixelito",
         "weight": 20,
-        "minLevel": 18,
-        "maxLevel": 21
+        "minLevel": 13,
+        "maxLevel": 14
       },
       {
         "species": "lobocifra",
         "weight": 25,
-        "minLevel": 19,
-        "maxLevel": 22
+        "minLevel": 7,
+        "maxLevel": 8
       },
       {
         "species": "buhoraculo",
         "weight": 20,
-        "minLevel": 19,
-        "maxLevel": 22
+        "minLevel": 6,
+        "maxLevel": 7
       },
       {
         "species": "aranared",
         "weight": 25,
-        "minLevel": 19,
-        "maxLevel": 22
+        "minLevel": 7,
+        "maxLevel": 8
       },
       {
         "species": "fantasma-cache",
         "weight": 10,
-        "minLevel": 21,
-        "maxLevel": 23
+        "minLevel": 3,
+        "maxLevel": 4
       }
     ],
     "boss": {
       "species": "fantasma-cache",
-      "level": 23
+      "level": 14
     }
   },
   {
@@ -309,37 +309,37 @@
       {
         "species": "gaviotaje",
         "weight": 25,
-        "minLevel": 21,
-        "maxLevel": 24
+        "minLevel": 8,
+        "maxLevel": 9
       },
       {
         "species": "ciervoltio",
         "weight": 25,
-        "minLevel": 21,
-        "maxLevel": 24
+        "minLevel": 8,
+        "maxLevel": 9
       },
       {
         "species": "pajarrafaga",
         "weight": 15,
-        "minLevel": 20,
-        "maxLevel": 23
+        "minLevel": 15,
+        "maxLevel": 16
       },
       {
         "species": "grifo-bus",
         "weight": 5,
-        "minLevel": 24,
-        "maxLevel": 26
+        "minLevel": 4,
+        "maxLevel": 5
       },
       {
         "species": "golem-disco",
         "weight": 30,
-        "minLevel": 21,
-        "maxLevel": 24
+        "minLevel": 9,
+        "maxLevel": 10
       }
     ],
     "boss": {
       "species": "grifo-bus",
-      "level": 27
+      "level": 17
     },
     "bossCard": "parche-velocidad"
   },
@@ -353,37 +353,37 @@
       {
         "species": "gaviotaje",
         "weight": 25,
-        "minLevel": 26,
-        "maxLevel": 29
+        "minLevel": 9,
+        "maxLevel": 10
       },
       {
         "species": "medusonica",
         "weight": 25,
-        "minLevel": 26,
-        "maxLevel": 29
+        "minLevel": 9,
+        "maxLevel": 10
       },
       {
         "species": "cangrejal",
         "weight": 15,
-        "minLevel": 25,
-        "maxLevel": 28
+        "minLevel": 17,
+        "maxLevel": 18
       },
       {
         "species": "kraken-paquete",
         "weight": 10,
-        "minLevel": 28,
-        "maxLevel": 31
+        "minLevel": 5,
+        "maxLevel": 6
       },
       {
         "species": "sapotron",
         "weight": 25,
-        "minLevel": 26,
-        "maxLevel": 29
+        "minLevel": 8,
+        "maxLevel": 9
       }
     ],
     "boss": {
       "species": "kraken-paquete",
-      "level": 32
+      "level": 20
     },
     "bossReward": "disco-total"
   },
@@ -397,37 +397,37 @@
       {
         "species": "tortuga-archivo",
         "weight": 10,
-        "minLevel": 33,
-        "maxLevel": 36
+        "minLevel": 6,
+        "maxLevel": 7
       },
       {
         "species": "lobocifra",
         "weight": 25,
-        "minLevel": 31,
-        "maxLevel": 34
+        "minLevel": 10,
+        "maxLevel": 11
       },
       {
         "species": "buhoraculo",
         "weight": 25,
-        "minLevel": 31,
-        "maxLevel": 34
+        "minLevel": 10,
+        "maxLevel": 11
       },
       {
         "species": "minotauro-kernel",
         "weight": 15,
-        "minLevel": 33,
-        "maxLevel": 36
+        "minLevel": 5,
+        "maxLevel": 6
       },
       {
         "species": "hongolin",
         "weight": 25,
-        "minLevel": 30,
-        "maxLevel": 33
+        "minLevel": 16,
+        "maxLevel": 17
       }
     ],
     "boss": {
       "species": "tortuga-archivo",
-      "level": 37
+      "level": 23
     },
     "bossCard": "parche-cura-total",
     "bossGivesPartnerCrystal": true
@@ -442,37 +442,37 @@
       {
         "species": "yeti-criptografico",
         "weight": 15,
-        "minLevel": 36,
-        "maxLevel": 40
+        "minLevel": 8,
+        "maxLevel": 9
       },
       {
         "species": "golem-disco",
         "weight": 25,
-        "minLevel": 35,
-        "maxLevel": 38
+        "minLevel": 12,
+        "maxLevel": 13
       },
       {
         "species": "ciervoltio",
         "weight": 25,
-        "minLevel": 35,
-        "maxLevel": 38
+        "minLevel": 11,
+        "maxLevel": 12
       },
       {
         "species": "grifo-bus",
         "weight": 15,
-        "minLevel": 37,
-        "maxLevel": 40
+        "minLevel": 7,
+        "maxLevel": 8
       },
       {
         "species": "polillux",
         "weight": 20,
-        "minLevel": 34,
-        "maxLevel": 37
+        "minLevel": 20,
+        "maxLevel": 21
       }
     ],
     "boss": {
       "species": "yeti-criptografico",
-      "level": 41
+      "level": 36
     }
   },
   {
@@ -485,37 +485,37 @@
       {
         "species": "golemagma",
         "weight": 15,
-        "minLevel": 40,
-        "maxLevel": 44
+        "minLevel": 8,
+        "maxLevel": 9
       },
       {
         "species": "fenix-reinicio",
         "weight": 10,
-        "minLevel": 41,
-        "maxLevel": 44
+        "minLevel": 7,
+        "maxLevel": 8
       },
       {
         "species": "minotauro-kernel",
         "weight": 20,
-        "minLevel": 40,
-        "maxLevel": 43
+        "minLevel": 8,
+        "maxLevel": 9
       },
       {
         "species": "cactuson",
         "weight": 25,
-        "minLevel": 39,
-        "maxLevel": 42
+        "minLevel": 14,
+        "maxLevel": 15
       },
       {
         "species": "aranared",
         "weight": 30,
-        "minLevel": 39,
-        "maxLevel": 42
+        "minLevel": 13,
+        "maxLevel": 14
       }
     ],
     "boss": {
       "species": "golemagma",
-      "level": 45
+      "level": 46
     },
     "bossCard": "parche-espada-plasma",
     "bossGivesPartnerCrystal": true
@@ -530,37 +530,37 @@
       {
         "species": "kraken-paquete",
         "weight": 20,
-        "minLevel": 43,
-        "maxLevel": 47
+        "minLevel": 9,
+        "maxLevel": 10
       },
       {
         "species": "hidra-fork",
         "weight": 15,
-        "minLevel": 44,
-        "maxLevel": 47
+        "minLevel": 9,
+        "maxLevel": 10
       },
       {
         "species": "serpiente-bucle",
         "weight": 20,
-        "minLevel": 43,
-        "maxLevel": 46
+        "minLevel": 8,
+        "maxLevel": 9
       },
       {
         "species": "gaviotaje",
         "weight": 25,
-        "minLevel": 42,
-        "maxLevel": 45
+        "minLevel": 15,
+        "maxLevel": 16
       },
       {
         "species": "fantasma-cache",
         "weight": 20,
-        "minLevel": 43,
-        "maxLevel": 46
+        "minLevel": 9,
+        "maxLevel": 10
       }
     ],
     "boss": {
       "species": "senor-del-lag",
-      "level": 48
+      "level": 29
     },
     "bossReward": "mapa-corrupto"
   },
@@ -574,37 +574,37 @@
       {
         "species": "minotauro-kernel",
         "weight": 25,
-        "minLevel": 46,
-        "maxLevel": 50
+        "minLevel": 10,
+        "maxLevel": 11
       },
       {
         "species": "golemagma",
         "weight": 20,
-        "minLevel": 47,
-        "maxLevel": 50
+        "minLevel": 11,
+        "maxLevel": 12
       },
       {
         "species": "fenix-reinicio",
         "weight": 15,
-        "minLevel": 47,
-        "maxLevel": 50
+        "minLevel": 9,
+        "maxLevel": 10
       },
       {
         "species": "tortuga-archivo",
         "weight": 20,
-        "minLevel": 46,
-        "maxLevel": 49
+        "minLevel": 11,
+        "maxLevel": 12
       },
       {
         "species": "manticora-spam",
         "weight": 20,
-        "minLevel": 47,
-        "maxLevel": 50
+        "minLevel": 10,
+        "maxLevel": 11
       }
     ],
     "boss": {
       "species": "titan-cortafuegos",
-      "level": 51
+      "level": 33
     },
     "bossCard": "parche-muralla",
     "bossGivesPartnerCrystal": true
@@ -619,43 +619,43 @@
       {
         "species": "hidra-fork",
         "weight": 25,
-        "minLevel": 50,
-        "maxLevel": 53
+        "minLevel": 11,
+        "maxLevel": 12
       },
       {
         "species": "manticora-spam",
         "weight": 25,
-        "minLevel": 50,
-        "maxLevel": 53
+        "minLevel": 11,
+        "maxLevel": 12
       },
       {
         "species": "serpiente-bucle",
         "weight": 20,
-        "minLevel": 50,
-        "maxLevel": 53
+        "minLevel": 11,
+        "maxLevel": 12
       },
       {
         "species": "yeti-criptografico",
         "weight": 20,
-        "minLevel": 49,
-        "maxLevel": 52
+        "minLevel": 12,
+        "maxLevel": 13
       },
       {
         "species": "emperatriz-virica",
         "weight": 2,
-        "minLevel": 53,
-        "maxLevel": 54
+        "minLevel": 7,
+        "maxLevel": 8
       },
       {
         "species": "lobocifra",
         "weight": 8,
-        "minLevel": 49,
-        "maxLevel": 51
+        "minLevel": 17,
+        "maxLevel": 18
       }
     ],
     "boss": {
       "species": "coloso-nulo",
-      "level": 54
+      "level": 35
     },
     "bossReward": "nucleo-fusion"
   },
@@ -669,49 +669,49 @@
       {
         "species": "manticora-spam",
         "weight": 15,
-        "minLevel": 53,
-        "maxLevel": 57
+        "minLevel": 12,
+        "maxLevel": 13
       },
       {
         "species": "grifo-bus",
         "weight": 15,
-        "minLevel": 53,
-        "maxLevel": 57
+        "minLevel": 11,
+        "maxLevel": 12
       },
       {
         "species": "minotauro-kernel",
         "weight": 15,
-        "minLevel": 53,
-        "maxLevel": 57
+        "minLevel": 11,
+        "maxLevel": 12
       },
       {
         "species": "hidra-fork",
         "weight": 15,
-        "minLevel": 53,
-        "maxLevel": 57
+        "minLevel": 12,
+        "maxLevel": 13
       },
       {
         "species": "fenix-reinicio",
         "weight": 15,
-        "minLevel": 53,
-        "maxLevel": 57
+        "minLevel": 10,
+        "maxLevel": 11
       },
       {
         "species": "kraken-paquete",
         "weight": 15,
-        "minLevel": 53,
-        "maxLevel": 57
+        "minLevel": 11,
+        "maxLevel": 12
       },
       {
         "species": "arcangel-checksum",
         "weight": 3,
-        "minLevel": 56,
-        "maxLevel": 58
+        "minLevel": 7,
+        "maxLevel": 8
       }
     ],
     "boss": {
       "species": "dragon-desbordamiento",
-      "level": 58
+      "level": 36
     },
     "bossCard": "parche-despertar",
     "bossReward": "llave-raiz"
@@ -726,31 +726,31 @@
       {
         "species": "bitbicho",
         "weight": 30,
-        "minLevel": 50,
-        "maxLevel": 54
+        "minLevel": 34,
+        "maxLevel": 35
       },
       {
         "species": "aranared",
         "weight": 30,
-        "minLevel": 51,
-        "maxLevel": 55
+        "minLevel": 20,
+        "maxLevel": 21
       },
       {
         "species": "manticora-spam",
         "weight": 25,
-        "minLevel": 52,
-        "maxLevel": 55
+        "minLevel": 12,
+        "maxLevel": 13
       },
       {
         "species": "emperatriz-virica",
         "weight": 5,
-        "minLevel": 54,
-        "maxLevel": 56
+        "minLevel": 8,
+        "maxLevel": 9
       }
     ],
     "boss": {
       "species": "reina-colmena",
-      "level": 56
+      "level": 37
     },
     "requiresItem": "mapa-corrupto",
     "bossCard": "parche-drenaje"
@@ -765,85 +765,85 @@
       {
         "species": "manticora-spam",
         "weight": 10,
-        "minLevel": 55,
-        "maxLevel": 60
+        "minLevel": 14,
+        "maxLevel": 15
       },
       {
         "species": "grifo-bus",
         "weight": 10,
-        "minLevel": 55,
-        "maxLevel": 60
+        "minLevel": 13,
+        "maxLevel": 14
       },
       {
         "species": "minotauro-kernel",
         "weight": 10,
-        "minLevel": 55,
-        "maxLevel": 60
+        "minLevel": 13,
+        "maxLevel": 14
       },
       {
         "species": "serpiente-bucle",
         "weight": 10,
-        "minLevel": 55,
-        "maxLevel": 60
+        "minLevel": 14,
+        "maxLevel": 15
       },
       {
         "species": "golemagma",
         "weight": 10,
-        "minLevel": 55,
-        "maxLevel": 60
+        "minLevel": 15,
+        "maxLevel": 16
       },
       {
         "species": "fenix-reinicio",
         "weight": 10,
-        "minLevel": 55,
-        "maxLevel": 60
+        "minLevel": 14,
+        "maxLevel": 15
       },
       {
         "species": "hidra-fork",
         "weight": 10,
-        "minLevel": 55,
-        "maxLevel": 60
+        "minLevel": 14,
+        "maxLevel": 15
       },
       {
         "species": "yeti-criptografico",
         "weight": 10,
-        "minLevel": 55,
-        "maxLevel": 60
+        "minLevel": 15,
+        "maxLevel": 16
       },
       {
         "species": "kraken-paquete",
         "weight": 10,
-        "minLevel": 55,
-        "maxLevel": 60
+        "minLevel": 13,
+        "maxLevel": 14
       },
       {
         "species": "tortuga-archivo",
         "weight": 10,
-        "minLevel": 55,
-        "maxLevel": 60
+        "minLevel": 15,
+        "maxLevel": 16
       },
       {
         "species": "arcangel-checksum",
         "weight": 4,
-        "minLevel": 58,
-        "maxLevel": 61
+        "minLevel": 8,
+        "maxLevel": 9
       },
       {
         "species": "gusano-mundial",
         "weight": 3,
-        "minLevel": 58,
-        "maxLevel": 61
+        "minLevel": 10,
+        "maxLevel": 11
       },
       {
         "species": "senor-del-lag",
         "weight": 3,
-        "minLevel": 58,
-        "maxLevel": 61
+        "minLevel": 8,
+        "maxLevel": 9
       }
     ],
     "boss": {
       "species": "emperatriz-virica",
-      "level": 62
+      "level": 43
     },
     "postGame": true,
     "bossCard": "parche-reinicio"
@@ -858,43 +858,43 @@
       {
         "species": "gusano-mundial",
         "weight": 15,
-        "minLevel": 62,
-        "maxLevel": 68
+        "minLevel": 11,
+        "maxLevel": 12
       },
       {
         "species": "arcangel-checksum",
         "weight": 15,
-        "minLevel": 62,
-        "maxLevel": 68
+        "minLevel": 10,
+        "maxLevel": 11
       },
       {
         "species": "coloso-nulo",
         "weight": 15,
-        "minLevel": 62,
-        "maxLevel": 68
+        "minLevel": 11,
+        "maxLevel": 12
       },
       {
         "species": "titan-cortafuegos",
         "weight": 15,
-        "minLevel": 62,
-        "maxLevel": 68
+        "minLevel": 11,
+        "maxLevel": 12
       },
       {
         "species": "reina-colmena",
         "weight": 15,
-        "minLevel": 62,
-        "maxLevel": 68
+        "minLevel": 10,
+        "maxLevel": 11
       },
       {
         "species": "dragon-desbordamiento",
         "weight": 5,
-        "minLevel": 66,
-        "maxLevel": 69
+        "minLevel": 10,
+        "maxLevel": 11
       }
     ],
     "boss": {
       "species": "guardian-raiz",
-      "level": 70
+      "level": 48
     },
     "requiresItem": "llave-raiz",
     "postGame": true,

@@ -1,8 +1,5 @@
 {
-  "levelCap": 70,
-  "xpBase": 12,
-  "xpExponent": 1.75,
-  "statGrowthPerLevel": 0.045,
+  "levelCap": 60,
   "maxBond": 100,
   "stepsPerBond": 600,
   "encounterEveryMinSteps": 80,
@@ -21,7 +18,7 @@
   "defeatPenaltyFraction": 0.15,
   "defeatPenaltyMin": 100,
   "deckSize": 6,
-  "startingLevel": 3,
+  "startingLevel": 1,
   "startingBits": 100,
   "startingItems": {
     "disco-vida-s": 3,
@@ -32,7 +29,7 @@
     "parche-cura",
     "parche-coraza"
   ],
-  "stepsPerDP": 8,
+  "stepsPerDP": 150,
   "stepsPerHealPercent": 15,
   "maxPendingEvents": 5,
   "maxEggs": 3,
@@ -179,70 +176,48 @@
     }
   ],
   "battle": {
-    "damageScale": 0.45,
-    "basicReferencePower": 35,
-    "statRatioExponent": 0.25,
-    "affinityAdvantage": 1.2,
-    "affinityDisadvantage": 0.85,
-    "critChance": 6,
+    "basicAP": 1.0,
+    "strongAP": 2.2,
+    "defenderAP": 0.3,
+    "basicMin": 1,
+    "strongMin": 2,
+    "dodgePerSP": 4,
+    "dodgeMin": 5,
+    "dodgeMax": 35,
+    "affinityAdvantage": 1.15,
+    "affinityDisadvantage": 0.9,
     "critMultiplier": 1.5,
-    "randomSpread": 0.1,
-    "clashTieMargin": 0.16,
-    "strongClashWinnerDamage": 1.0,
-    "basicClashWinnerDamage": 0.8,
-    "basicClashTieDamage": 0.4,
-    "dodgeBase": 6,
-    "dodgeSpeedFactor": 30,
-    "strongDodgeBonus": 5,
-    "dodgeMin": 3,
-    "dodgeMax": 25,
+    "chargeStart": 1,
+    "chargeMax": 3,
+    "chargePerTurn": 1,
+    "disobeyBelowBond": 30,
     "disobeyAtZeroBond": 15,
-    "disobeyAtMaxBond": 5,
+    "disobeyAtLimit": 10,
     "infectedDisobeyBonus": 5,
-    "disobeyLoafShare": 40,
-    "fleeBase": 55,
-    "fleeSpeedFactor": 60,
-    "fleeMin": 25,
+    "disobeyLoafShare": 50,
+    "fleeBase": 50,
+    "fleePerSP": 5,
+    "fleeMin": 20,
     "fleeMax": 90,
     "doubleStrikeSecondHit": 0.6,
     "wildTurnLimit": 25,
-    "bossHP": 1.3,
-    "bossAtk": 1.0,
-    "bossDef": 1.0,
-    "bossSpd": 1.0,
-    "bossDP": 1.0,
+    "bossHP": 1.8,
+    "bossAP": 1.0,
+    "bossSP": 1.0,
     "enrageThreshold": 0.4,
-    "enrageAtk": 1.2,
-    "infectedEnemyAtk": 1.1,
-    "xpPerLevel": 10,
-    "xpLevelExponent": 1.0,
-    "xpStageMultiplier": {
-      "brote": 0.6,
-      "novato": 1.0,
-      "avanzado": 1.5,
-      "elite": 2.0,
-      "supremo": 3.0,
-      "despertar": 3.5,
-      "fusion": 4.0
+    "enrageAP": 1.2,
+    "infectedEnemyAP": 1.1,
+    "bossWeakenPerDefeat": 5,
+    "bossWeakenMax": 25,
+    "cardCost": {
+      "comun": 3,
+      "rara": 6,
+      "epica": 10
     },
-    "xpBossMultiplier": 4,
-    "xpBrillanteMultiplier": 2,
     "bitsPerLevel": 1,
-    "winsPerBond": 3,
+    "winBond": 1,
     "bossWinBond": 3,
-    "lossBond": 1,
-    "evolutionCost": {
-      "avanzado": 15,
-      "elite": 25,
-      "supremo": 40
-    },
-    "evolutionUnlockBoss": {
-      "elite": "sabana-engranaje",
-      "supremo": "ruinas-legado"
-    },
-    "evolutionFailAtZeroBond": 15,
-    "evolutionFailFreeBond": 60,
-    "evolutionFailCostShare": 0.5,
+    "lossStreakBond": 5,
     "aiTierZones": [
       4,
       9
@@ -258,32 +233,138 @@
       1.0,
       0.5,
       0.3
-    ],
-    "clashExponent": 2,
-    "bossWeakenPerDefeat": 5,
-    "bossWeakenMax": 25
+    ]
   },
   "bossDefeatPenaltyFraction": 0.35,
   "training": {
     "sessionsPerDay": 5,
-    "statGainByTier": [
-      0,
-      1,
-      1,
-      2
-    ],
     "tierScores": [
       40,
       70,
       90
     ],
-    "bondGain": 1,
-    "xpByTier": [
-      5,
-      20,
-      40,
-      70
-    ]
+    "gainByTier": [
+      {
+        "hp": 0,
+        "ap": 0,
+        "sp": 0
+      },
+      {
+        "hp": 1,
+        "ap": 0.3,
+        "sp": 0.3
+      },
+      {
+        "hp": 2,
+        "ap": 0.5,
+        "sp": 0.5
+      },
+      {
+        "hp": 3,
+        "ap": 1,
+        "sp": 1
+      }
+    ],
+    "bondGain": 2
   },
-  "dailyChallenges": 3
+  "dailyChallenges": 3,
+  "maxDP": 50,
+  "restHoursPerDP": 2,
+  "startingDP": 10,
+  "archetypes": {
+    "equilibrado": {
+      "base": {
+        "hp": 20,
+        "ap": 4,
+        "sp": 3
+      },
+      "growth": {
+        "hp": 4,
+        "ap": 1.5,
+        "sp": 1
+      }
+    },
+    "atacante": {
+      "base": {
+        "hp": 17,
+        "ap": 5,
+        "sp": 3
+      },
+      "growth": {
+        "hp": 3.4,
+        "ap": 1.9,
+        "sp": 0.9
+      }
+    },
+    "tanque": {
+      "base": {
+        "hp": 25,
+        "ap": 3.5,
+        "sp": 2
+      },
+      "growth": {
+        "hp": 5,
+        "ap": 1.3,
+        "sp": 0.7
+      }
+    },
+    "veloz": {
+      "base": {
+        "hp": 18,
+        "ap": 3.5,
+        "sp": 5
+      },
+      "growth": {
+        "hp": 3.5,
+        "ap": 1.3,
+        "sp": 1.4
+      }
+    },
+    "mistico": {
+      "base": {
+        "hp": 19,
+        "ap": 4.5,
+        "sp": 3.5
+      },
+      "growth": {
+        "hp": 3.7,
+        "ap": 1.6,
+        "sp": 1.1
+      }
+    }
+  },
+  "xp": {
+    "perWin": 10,
+    "winsPerLevelStart": 3,
+    "winsPerLevelEvery": 5,
+    "winsPerLevelMax": 15,
+    "ratioMin": 0.5,
+    "ratioMax": 1.5,
+    "tierBonus": 0.25,
+    "bossMultiplier": 3,
+    "brillanteMultiplier": 2
+  },
+  "evolution": {
+    "multiplier": [
+      1,
+      1.6,
+      2.3,
+      3.2
+    ],
+    "cost": [
+      0,
+      5,
+      10,
+      15
+    ],
+    "awakenMultiplier": 3.6,
+    "awakenCost": 20,
+    "unlockZone": {
+      "2": 1,
+      "3": 5,
+      "4": 10
+    },
+    "fusionZone": 13,
+    "awakenZone": 16
+  }
 }

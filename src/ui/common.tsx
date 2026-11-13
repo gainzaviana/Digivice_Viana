@@ -1,5 +1,5 @@
 import type { ComponentChildren } from "preact";
-import { AFFINITY_NAME, ARCHETYPE_NAME, STAGE_NAME, type Affinity, type Attack, type EcoSpecies } from "../data/models";
+import { AFFINITY_NAME, ARCHETYPE_NAME, STAGE_NAME, STAGE_TIER, TIER_NAME, type Affinity, type Attack, type EcoSpecies } from "../data/models";
 import { VARIANT_NAME, type Variant } from "../core/save";
 import { ecoDataURL } from "../art/sprite";
 import { PALETTE as P } from "../art/palette";
@@ -32,7 +32,7 @@ export function VariantTag({ variant }: { variant?: Variant }) {
 export function SpeciesTags({ species, level, variant, archetype }: { species: EcoSpecies; level?: number; variant?: Variant; archetype?: boolean }) {
   return (
     <div class="tags">
-      <Tag text={STAGE_NAME[species.stage]} colour={P.amber2} />
+      <Tag text={`${TIER_NAME[STAGE_TIER[species.stage]]} · ${STAGE_NAME[species.stage]}`} colour={P.amber2} />
       <AffinityTag affinity={species.affinity} />
       {archetype && <Tag text={ARCHETYPE_NAME[species.archetype]} colour={P.slate} ink={P.white} />}
       {level !== undefined && <Tag text={`Nivel ${level}`} colour={P.slate} ink={P.white} />}
@@ -81,16 +81,35 @@ export function EcoImg({ id, variant = "normal", size = 96, flip, silhouette, di
   );
 }
 
-export function AttackRow({ attack, kind }: { attack: Attack; kind: string }) {
+/** An attack: Basic (AP × 1.0, fast, pierces Strong) or Strong (AP × 2.2, costs 1 Carga). */
+export function AttackRow({ attack, kind }: { attack: Attack; kind: "basic" | "strong" }) {
+  const b = game.data.rules.battle;
   return (
     <div class="row">
       <div class="grow">
         <div class="strong">{attack.name}</div>
-        <div class="muted small">{kind}</div>
+        <div class="muted small">{kind === "basic" ? "Básico · rápido, atraviesa al especial" : "Especial · choca con otros especiales"}</div>
       </div>
-      <span class="small">Poder {attack.power}</span>
-      <span class="small amber">{attack.dpCost > 0 ? `${attack.dpCost} DP` : "Gratis"}</span>
+      <span class="small">AP ×{kind === "basic" ? b.basicAP : b.strongAP}</span>
+      <span class="small amber">{kind === "basic" ? "Libre" : "1 Carga"}</span>
     </div>
+  );
+}
+
+/** A line's stat profile: level 1 values and growth per level. */
+export function ProfilePanel({ species }: { species: EcoSpecies }) {
+  const p = game.data.rules.archetypes[species.archetype];
+  const row = (label: string, base: number, growth: number, max: number, colour: string) => (
+    <StatBar label={label} value={base} max={max} colour={colour} text={`${base} (+${growth}/nv.)`} />
+  );
+  return (
+    <Panel>
+      <SectionTitle text={`Estadísticas a nivel 1 · ${ARCHETYPE_NAME[species.archetype]}`} />
+      {row("Vida (HP)", p.base.hp, p.growth.hp, 26, P.green2)}
+      {row("Ataque (AP)", p.base.ap, p.growth.ap, 6, P.red2)}
+      {row("Velocidad (SP)", p.base.sp, p.growth.sp, 6, P.teal2)}
+      <div class="muted tiny">El SP decide quién dispara antes y la probabilidad de esquivar. El DP (0–{game.data.rules.maxDP}) se gana caminando y sirve para evolucionar antes de un combate y usar Parches.</div>
+    </Panel>
   );
 }
 

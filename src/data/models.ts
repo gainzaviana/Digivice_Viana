@@ -19,9 +19,16 @@ export const ARCHETYPE_NAME: Record<Archetype, string> = {
 
 export type TimeOfDay = "dia" | "noche";
 
-export interface Stats { hp: number; atk: number; def: number; spd: number; dp: number }
-export const ZERO_STATS: Stats = { hp: 0, atk: 0, def: 0, spd: 0, dp: 0 };
-export const addStats = (a: Stats, b: Stats): Stats => ({ hp: a.hp + b.hp, atk: a.atk + b.atk, def: a.def + b.def, spd: a.spd + b.spd, dp: a.dp + b.dp });
+/** The three battle stats: HP (health), AP (attack power), SP (speed: priority and dodging). DP is a separate 0–50 pool. */
+export interface Stats { hp: number; ap: number; sp: number }
+export const ZERO_STATS: Stats = { hp: 0, ap: 0, sp: 0 };
+export const addStats = (a: Stats, b: Stats): Stats => ({ hp: a.hp + b.hp, ap: a.ap + b.ap, sp: a.sp + b.sp });
+export const scaleStats = (a: Stats, k: number): Stats => ({ hp: Math.round(a.hp * k), ap: round1(a.ap * k), sp: round1(a.sp * k) });
+export const round1 = (v: number) => Math.round(v * 10) / 10;
+
+/** D-Ark tiers: Stage 1 (base) … Stage 4 (Supremo / Fusión). Despertar sits above Stage 4. */
+export const STAGE_TIER: Record<Stage, number> = { brote: 1, novato: 1, avanzado: 2, elite: 3, supremo: 4, despertar: 5, fusion: 4 };
+export const TIER_NAME = ["", "Fase 1", "Fase 2", "Fase 3", "Fase 4", "Despertar"];
 
 export interface Attack { name: string; power: number; dpCost: number; accuracy: number }
 
@@ -34,7 +41,9 @@ export interface Evolution { to: string; conditions: EvolutionCondition }
 export interface EcoSpecies {
   id: string; name: string; stage: Stage; affinity: Affinity; archetype: Archetype;
   line?: string; starter?: boolean; recruitable: boolean;
-  stats: Stats; basic: Attack; signature: Attack; description: string; evolutions: Evolution[];
+  /** Legacy per-species numbers, kept in the JSON for reference; battle stats come from the archetype. */
+  stats?: unknown;
+  basic: Attack; signature: Attack; description: string; evolutions: Evolution[];
 }
 
 export interface Fusion { id: string; parts: string[]; result: string; item?: string; minBond: number }
@@ -46,14 +55,15 @@ export interface Region {
 }
 
 export type ItemKind = "recuperacion" | "fruta" | "cristal" | "fusion" | "entrenamiento" | "amuleto" | "radar" | "antivirus" | "sobre" | "clave";
-export interface ItemEffect { healPercent?: number; dp?: number; atk?: number; def?: number; spd?: number; hp?: number; bond?: number; steps?: number }
+export interface ItemEffect { healPercent?: number; dp?: number; ap?: number; sp?: number; hp?: number; bond?: number; steps?: number }
 export interface Item { id: string; name: string; kind: ItemKind; description: string; effect?: ItemEffect; price?: number }
 
 export interface EggType { id: string; name: string; steps: number; description: string; pool: { species: string; weight: number }[]; brillanteChance: number }
 
 export type CardRarity = "comun" | "rara" | "epica";
-export type CardEffectType = "buff" | "heal" | "dp" | "shield" | "sureHit" | "obey" | "doubleStrike" | "crit" | "convert" | "evolve" | "revive" | "awaken" | "drain" | "stun";
-export type StatKind = "atk" | "def" | "spd";
+export type CardEffectType = "buff" | "heal" | "charge" | "shield" | "sureHit" | "obey" | "doubleStrike" | "crit" | "convert" | "evolve" | "revive" | "awaken" | "drain" | "stun";
+/** Parche buffs: AP, SP, or "guard" (less damage taken). */
+export type StatKind = "ap" | "sp" | "guard";
 export interface CardEffect { type: CardEffectType; stat?: StatKind; value?: number; turns?: number; affinity?: Affinity }
 export interface Parche { id: string; name: string; rarity: CardRarity; description: string; effect: CardEffect; price?: number }
 
@@ -67,36 +77,58 @@ export interface Challenge {
   reward: { bits: number; item?: string; parche?: string };
 }
 
+export interface ArchetypeProfile { base: Stats; growth: Stats }
+
 export interface BattleTuning {
-  damageScale: number; basicReferencePower: number; statRatioExponent: number; affinityAdvantage: number; affinityDisadvantage: number;
-  critChance: number; critMultiplier: number; randomSpread: number;
-  clashExponent: number; clashTieMargin: number; strongClashWinnerDamage: number; basicClashWinnerDamage: number; basicClashTieDamage: number;
-  dodgeBase: number; dodgeSpeedFactor: number; strongDodgeBonus: number; dodgeMin: number; dodgeMax: number;
-  disobeyAtZeroBond: number; disobeyAtMaxBond: number; infectedDisobeyBonus: number; disobeyLoafShare: number;
-  fleeBase: number; fleeSpeedFactor: number; fleeMin: number; fleeMax: number;
+  /** Basic: AP × basicAP − defender AP × defenderAP (min basicMin). Strong: AP × strongAP − … (min strongMin). */
+  basicAP: number; strongAP: number; defenderAP: number; basicMin: number; strongMin: number;
+  /** Dodge % = (defender SP − attacker SP) × dodgePerSP, clamped to dodgeMin…dodgeMax. */
+  dodgePerSP: number; dodgeMin: number; dodgeMax: number;
+  affinityAdvantage: number; affinityDisadvantage: number; critMultiplier: number;
+  /** Strong attacks cost 1 Carga; each side starts with chargeStart and gains chargePerTurn up to chargeMax. */
+  chargeStart: number; chargeMax: number; chargePerTurn: number;
+  /** Below disobeyBelowBond, disobedience goes from disobeyAtZeroBond % down to disobeyAtLimit %. */
+  disobeyBelowBond: number; disobeyAtZeroBond: number; disobeyAtLimit: number; infectedDisobeyBonus: number; disobeyLoafShare: number;
+  fleeBase: number; fleePerSP: number; fleeMin: number; fleeMax: number;
   doubleStrikeSecondHit: number; wildTurnLimit: number;
-  bossHP: number; bossAtk: number; bossDef: number; bossSpd: number; bossDP: number; enrageThreshold: number; enrageAtk: number;
-  bossWeakenPerDefeat: number; bossWeakenMax: number; infectedEnemyAtk: number;
-  xpPerLevel: number; xpLevelExponent: number; xpStageMultiplier: Record<string, number>; xpBossMultiplier: number; xpBrillanteMultiplier: number;
-  bitsPerLevel: number; winsPerBond: number; bossWinBond: number; lossBond: number;
-  evolutionCost: Record<string, number>; evolutionUnlockBoss: Record<string, string>; evolutionFailAtZeroBond: number; evolutionFailFreeBond: number; evolutionFailCostShare: number;
+  bossHP: number; bossAP: number; bossSP: number; enrageThreshold: number; enrageAP: number; infectedEnemyAP: number;
+  bossWeakenPerDefeat: number; bossWeakenMax: number;
+  cardCost: Record<CardRarity, number>;
+  bitsPerLevel: number; winBond: number; bossWinBond: number; lossStreakBond: number;
   aiTierZones: number[]; aiRandomness: number[]; aiTemperature: number[];
 }
 
+export interface XPRules {
+  perWin: number; winsPerLevelStart: number; winsPerLevelEvery: number; winsPerLevelMax: number;
+  ratioMin: number; ratioMax: number; tierBonus: number; bossMultiplier: number; brillanteMultiplier: number;
+}
+
+export interface EvolutionRules {
+  /** By steps above the base form: 0 = base. */
+  multiplier: number[]; cost: number[];
+  awakenMultiplier: number; awakenCost: number;
+  /** Lowest zone whose boss unlocks each tier (keys "2", "3", "4"), fusions and Despertar. */
+  unlockZone: Record<string, number>; fusionZone: number; awakenZone: number;
+}
+
 export interface GameRules {
-  levelCap: number; xpBase: number; xpExponent: number; statGrowthPerLevel: number; maxBond: number; stepsPerBond: number;
+  levelCap: number; maxBond: number; stepsPerBond: number;
+  maxDP: number; stepsPerDP: number; restHoursPerDP: number;
+  archetypes: Record<Archetype, ArchetypeProfile>;
+  xp: XPRules;
+  evolution: EvolutionRules;
   encounterEveryMinSteps: number; encounterEveryMaxSteps: number;
   events: { battle: number; recruit: number; item: number; egg: number; merchant: number; shrine: number; nothing: number };
   brillanteChance: number; infectadoChance: number;
   defeatPenaltyFraction: number; bossDefeatPenaltyFraction: number; defeatPenaltyMin: number;
-  deckSize: number; startingLevel: number; startingBits: number; startingItems: Record<string, number>; startingCards: string[];
-  stepsPerDP: number; stepsPerHealPercent: number; maxPendingEvents: number; maxEggs: number; squadCap: number;
+  deckSize: number; startingLevel: number; startingDP: number; startingBits: number; startingItems: Record<string, number>; startingCards: string[];
+  stepsPerHealPercent: number; maxPendingEvents: number; maxEggs: number; squadCap: number;
   bossBitsPerOrder: number; foundBitsMin: number; foundBitsMax: number; merchantOffers: number;
   shrineBaseCost: number; shrineCostPerOrder: number; shrineEpicChance: number;
   itemDrops: { item: string; weight: number; minRegion: number }[];
   eggDrops: { egg: string; weight: number; minRegion: number }[];
   battle: BattleTuning;
-  training: { sessionsPerDay: number; statGainByTier: number[]; tierScores: number[]; bondGain: number; xpByTier: number[] };
+  training: { sessionsPerDay: number; tierScores: number[]; gainByTier: Stats[]; bondGain: number };
   dailyChallenges: number;
 }
 

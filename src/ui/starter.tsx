@@ -1,8 +1,7 @@
 import { useState } from "preact/hooks";
-import { STAGE_NAME, type EcoSpecies } from "../data/models";
+import { STAGE_NAME, STAGE_TIER, TIER_NAME, type EcoSpecies } from "../data/models";
 import { game } from "../game";
-import { PALETTE as P } from "../art/palette";
-import { AttackRow, Confirm, EcoImg, Panel, PixelButton, SectionTitle, Sheet, SpeciesTags, StatBar } from "./common";
+import { AttackRow, Confirm, EcoImg, Panel, PixelButton, ProfilePanel, SectionTitle, Sheet, SpeciesTags } from "./common";
 
 /** Choosing the partner that starts the adventure. */
 export function StarterSelect() {
@@ -41,18 +40,11 @@ function StarterDetail({ species, onBack }: { species: EcoSpecies; onBack: () =>
         <SpeciesTags species={species} archetype />
         <p class="muted">{species.description}</p>
       </div>
-      <Panel>
-        <SectionTitle text="Estadísticas" />
-        <StatBar label="Vida" value={species.stats.hp} max={90} colour={P.green2} />
-        <StatBar label="Ataque" value={species.stats.atk} max={30} colour={P.red2} />
-        <StatBar label="Defensa" value={species.stats.def} max={30} colour={P.blue2} />
-        <StatBar label="Velocidad" value={species.stats.spd} max={30} colour={P.teal2} />
-        <StatBar label="DP" value={species.stats.dp} max={60} colour={P.amber2} />
-      </Panel>
+      <ProfilePanel species={species} />
       <Panel>
         <SectionTitle text="Ataques" />
-        <AttackRow attack={species.basic} kind="Básico" />
-        <AttackRow attack={species.signature} kind="Especial" />
+        <AttackRow attack={species.basic} kind="basic" />
+        <AttackRow attack={species.signature} kind="strong" />
       </Panel>
       {forms.length > 0 && (
         <Panel>
@@ -62,7 +54,7 @@ function StarterDetail({ species, onBack }: { species: EcoSpecies; onBack: () =>
               <EcoImg id={f.id} size={48} silhouette={f.id !== species.id} />
               <div class="grow">
                 <div class="strong">{f.id === species.id ? f.name : "???"}</div>
-                <div class="muted small">{STAGE_NAME[f.stage]}{isAlternative(f) ? " · forma alternativa" : ""}</div>
+                <div class="muted small">{TIER_NAME[STAGE_TIER[f.stage]]} · {STAGE_NAME[f.stage]}{isAlternative(f) ? " · rama alternativa" : ""}</div>
               </div>
             </div>
           ))}

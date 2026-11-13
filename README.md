@@ -24,6 +24,26 @@ them ever counts twice:
 The counter switch decides whether steps count. Giving the current Health total when switching marks
 exactly where counting starts or stops.
 
+## Rules (D-Ark style)
+
+- **Stats:** HP, AP (attack), SP (speed: who fires first and dodge chance), and a DP pool of 0–50 (+1 per 150 steps,
+  +1 every 2 h resting; spent on evolutions and Parches). Each line has an archetype profile (`reglas.json › archetypes`)
+  and grows every level.
+- **Individual progression:** XP, level, bond, bonuses and unlocked evolutions belong to the Eco that earned them.
+  About 3 wins per level early, up to 15 late. Partners start at level 1 in their Stage 1 form.
+- **Evolution:** an Eco never changes form permanently. Beating a boss unlocks its next stage for that Eco only
+  (Stage 2 from any boss, Stage 3 from zone 5, Stage 4 from zone 10; branches need their bond/wins/losses conditions;
+  Fusions from zone 13 and Despertar from zone 16). Before a battle it can spend DP to fight evolved:
+  Stage 2 ×1.6 for 5 DP, Stage 3 ×2.3 for 10, Stage 4/Fusión ×3.2 for 15, Despertar ×3.6 for 20.
+- **Combat:** each turn, Basic shot, Strong attack (1 Carga; Carga refills +1 a turn, max 3) or a Parche (costs DP,
+  takes the turn). Basic pierces a charging Strong. Strong vs Strong: higher AP wins (SP breaks ties). Basic vs Basic:
+  both fire, faster first. Damage: Basic `max(1, AP − enemy AP × 0.3)`, Strong `max(2, AP × 2.2 − enemy AP × 0.3)`,
+  then a mild affinity factor (×1.15 / ×0.9). Dodge: `clamp((defender SP − attacker SP) × 4, 5, 35) %`.
+  Bond under 30 means a 10–15 % chance of disobeying (doing nothing or a random move).
+- **Difficulty:** `tools/tune-zones.ts` sets every zone's levels by simulating battles: wild Ecos winnable without
+  evolving, bosses that need levels and the evolutions available by then (a level 1 partner can't beat the first one).
+  `tools/archetype-matrix.ts` checks the archetypes against each other.
+
 ## Develop
 
 ```sh
@@ -34,6 +54,7 @@ npm test            # data, steps, motion detector, battles, sprites
 npm run build       # → dist/ (relative paths, works under any subfolder)
 npm run validate    # data coherence report
 npm run simulate -- 120000 1 ajolin [--log] [--save=partida.json]
+npx tsx tools/tune-zones.ts [--write]      # re-derive zone/boss levels from simulated battles
 ```
 
 The project's `.npmrc` uses the public npm registry.

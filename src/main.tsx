@@ -30,6 +30,7 @@ function App() {
     const onVisible = () => {
       if (document.visibilityState !== "visible") return;
       refreshDaily(g.save, g.data);
+      g.rest();
       g.changed();
     };
     window.addEventListener("hashchange", onHash);

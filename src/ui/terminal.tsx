@@ -5,7 +5,7 @@ import { trainingSessionsLeft } from "../systems/training";
 import { useGame } from "../game";
 import { sound } from "../audio/sound";
 import { PALETTE as P } from "../art/palette";
-import { AttackRow, EcoImg, Panel, PixelButton, SectionTitle, Sheet, SpeciesTags, StatBar, Tag, fmt } from "./common";
+import { AttackRow, EcoImg, Panel, ProfilePanel, PixelButton, SectionTitle, Sheet, SpeciesTags, StatBar, Tag, fmt } from "./common";
 import { TrainingMenu } from "./training";
 import { SettingsScreen } from "./settings";
 
@@ -163,10 +163,11 @@ function GuideEntry({ species, onClose }: { species: EcoSpecies; onClose: () => 
         <SpeciesTags species={species} archetype />
         <p class="muted small">{species.description}</p>
       </div>
+      <ProfilePanel species={species} />
       <Panel>
         <SectionTitle text="Ataques" />
-        <AttackRow attack={species.basic} kind="Básico" />
-        <AttackRow attack={species.signature} kind="Especial" />
+        <AttackRow attack={species.basic} kind="basic" />
+        <AttackRow attack={species.signature} kind="strong" />
       </Panel>
       {(from.length > 0 || into.length > 0 || fusions.length > 0) && (
         <Panel>

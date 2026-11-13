@@ -1,7 +1,7 @@
 import type { CardRarity, GameData, Region } from "../data/models";
 import type { Rng } from "../core/random";
 import { addLog, newID, newSave, partnerOf, type GameSave, type LogKind, type PendingEvent } from "../core/save";
-import { evolutionStatus, maxStats, newEco } from "./progression";
+import { maxStats, newEco } from "./progression";
 import { record, refreshDaily } from "./challenges";
 import { done, refused, type ActionResult } from "./result";
 
@@ -95,14 +95,14 @@ export function leave(save: GameSave, id: string): ActionResult {
   return take(save, id) ? done("Seguiste tu camino.") : refused("Ese suceso ya no está.");
 }
 
-/** Shrine, option 1: a free blessing (full HP and DP, bond +3). */
+/** Shrine, option 1: a free blessing (full HP and DP, bond +3) for the partner. */
 export function receiveBlessing(save: GameSave, id: string, data: GameData): ActionResult {
   const partner = partnerOf(save);
   if (!partner || !save.pending.some((e) => e.id === id && e.kind === "shrine")) return refused("Ese suceso ya no está.");
   take(save, id);
   const max = maxStats(partner, data);
   partner.hp = max.hp;
-  partner.dp = max.dp;
+  partner.dp = data.rules.maxDP;
   partner.bond = Math.min(data.rules.maxBond, partner.bond + 3);
   record(save, "shrineVisits");
   return logged(save, "shrine", done("El santuario te bendice: vida y DP al máximo, vínculo +3."));
@@ -202,16 +202,20 @@ export function useItem(save: GameSave, itemID: string, data: GameData, rng: Rng
     case "recuperacion": {
       if (!eco || !item.effect) return refused("Elige a quién dárselo.");
       const max = maxStats(eco, data);
-      if (eco.hp >= max.hp && eco.dp >= max.dp) return refused("Ya está en plena forma.");
+      const maxDP = data.rules.maxDP;
+      const heals = !!item.effect.healPercent && eco.hp < max.hp, charges = !!item.effect.dp && eco.dp < maxDP;
+      if (!heals && !charges) return refused(item.effect.dp && !item.effect.healPercent ? "Ya tiene el DP al máximo." : "Ya está en plena forma.");
       if (item.effect.healPercent) eco.hp = Math.min(max.hp, eco.hp + Math.ceil((max.hp * item.effect.healPercent) / 100));
-      if (item.effect.dp) eco.dp = Math.min(max.dp, eco.dp + item.effect.dp);
+      if (item.effect.dp) eco.dp = Math.min(maxDP, eco.dp + item.effect.dp);
       consume();
-      return done(`Usaste ${item.name}. Vida ${eco.hp}/${max.hp}, DP ${eco.dp}/${max.dp}.`);
+      return done(`Usaste ${item.name}. Vida ${eco.hp}/${max.hp}, DP ${eco.dp}/${maxDP}.`);
     }
     case "fruta": {
       if (!eco || !item.effect) return refused("Elige a quién dárselo.");
       const e = item.effect;
-      eco.bonus.atk += e.atk ?? 0; eco.bonus.def += e.def ?? 0; eco.bonus.spd += e.spd ?? 0; eco.bonus.hp += e.hp ?? 0;
+      eco.bonus.ap = Math.round((eco.bonus.ap + (e.ap ?? 0)) * 10) / 10;
+      eco.bonus.sp = Math.round((eco.bonus.sp + (e.sp ?? 0)) * 10) / 10;
+      eco.bonus.hp += e.hp ?? 0;
       eco.hp += e.hp ?? 0;
       eco.bond = Math.min(data.rules.maxBond, eco.bond + (e.bond ?? 0));
       consume();
@@ -254,41 +258,19 @@ export function useItem(save: GameSave, itemID: string, data: GameData, rng: Rng
     }
     case "cristal":
     case "fusion":
-      return refused("Se usa al evolucionar, cuando se cumplen el resto de condiciones.");
+      return refused("No se gasta: basta con tenerlo cuando tu Eco vence al jefe que desbloquea esa evolución.");
     case "clave":
       return refused("Es un objeto clave: abre caminos en el mapa.");
   }
 }
 
-// MARK: Squad and evolution
+// MARK: Squad
 
 export function makePartner(save: GameSave, ecoID: string, data: GameData): ActionResult {
   const eco = save.squad.find((e) => e.id === ecoID);
   if (!eco) return refused("Ese Eco no está en tu equipo.");
   save.partnerID = eco.id;
   return done(`${eco.nickname ?? data.eco.get(eco.speciesID)?.name ?? "Tu Eco"} es ahora tu compañero.`);
-}
-
-/** Permanent evolution outside battle, when every condition is met. */
-export function evolve(save: GameSave, ecoID: string, targetID: string, data: GameData, now = new Date()): ActionResult {
-  const eco = save.squad.find((e) => e.id === ecoID);
-  if (!eco) return refused("Ese Eco no está en tu equipo.");
-  const status = evolutionStatus(eco, save, data, now).find((s) => s.target.id === targetID);
-  if (!status) return refused("No puede evolucionar en eso.");
-  if (status.evolution.conditions.inBattleOnly) return refused("Esa forma solo se alcanza en combate.");
-  if (!status.ready) return refused(`Le falta: ${status.missing.join(", ")}.`);
-  const item = status.evolution.conditions.item;
-  if (item) { save.inventory[item] -= 1; if (save.inventory[item] <= 0) delete save.inventory[item]; }
-  const before = data.eco.get(eco.speciesID)?.name ?? eco.speciesID;
-  eco.speciesID = targetID;
-  eco.history.push(targetID);
-  const max = maxStats(eco, data);
-  eco.hp = max.hp;
-  eco.dp = max.dp;
-  addOnce(save.guide.seen, targetID);
-  addOnce(save.guide.owned, targetID);
-  record(save, "evolutions");
-  return logged(save, "evolution", done(`¡${before} ha evolucionado en ${status.target.name}!`));
 }
 
 // MARK: Deck

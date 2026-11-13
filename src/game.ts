@@ -5,7 +5,8 @@ import { validate } from "./data/validate";
 import { Rng } from "./core/random";
 import { dayKey, loadSave, newSave, storeSave, type GameSave, type PendingEvent } from "./core/save";
 import { applyHealthImport, creditLiveSteps, MAX_SIMULATED, parseImport, setTrackingWithoutImport, type HealthImport } from "./core/steps";
-import { walk } from "./systems/walk";
+import { rest, walk } from "./systems/walk";
+import { upgradeSave } from "./systems/upgrade";
 import { refreshDaily } from "./systems/challenges";
 import { newGame } from "./systems/actions";
 import type { ActionResult } from "./systems/result";
@@ -33,8 +34,10 @@ export class Game {
       if (issues.length) console.error(`Datos del juego con ${issues.length} problema(s):\n${issues.join("\n")}`);
     }
     this.save = loadSave();
+    if (upgradeSave(this.save, this.data)) storeSave(this.save);
     sound.enabled = this.save.settings.sound;
     refreshDaily(this.save, this.data);
+    this.rest();
   }
 
   get started() { return !!this.save.partnerID; }
@@ -58,6 +61,11 @@ export class Game {
     if (result.message) this.show(result.message);
     else this.changed();
     return result;
+  }
+
+  /** Resting DP (every time the game opens or comes back to the screen). */
+  rest() {
+    if (rest(this.save, this.data) > 0) storeSave(this.save);
   }
 
   // MARK: Steps

@@ -4,19 +4,31 @@ import { ZERO_STATS } from "../data/models";
 export type Variant = "normal" | "brillante" | "infectado";
 export const VARIANT_NAME: Record<Variant, string> = { normal: "", brillante: "Brillante", infectado: "Infectado" };
 
+/**
+ * One creature. Everything here is its own: XP, level, stats, DP, bond and unlocked evolutions
+ * never pass to another Eco.
+ */
 export interface EcoInstance {
   id: string;
+  /** Its Stage 1 (base) form. It stays in this form outside battle. */
   speciesID: string;
   nickname?: string;
   variant: Variant;
   level: number;
   xp: number;
+  /** Current health (max comes from its level and bonuses). */
   hp: number;
+  /** Energy for pre-battle evolution and Parches, 0 … rules.maxDP. */
   dp: number;
   bond: number;
+  /** Permanent extra HP/AP/SP from training and fruits. */
   bonus: Stats;
   wins: number;
   losses: number;
+  /** Losses in a row (bond drops from the second one). */
+  lossStreak: number;
+  /** Evolutions this Eco has unlocked by beating bosses (species ids), usable before a battle for DP. */
+  unlocked: string[];
   trainingSessions: number;
   stepsWalked: number;
   history: string[];
@@ -109,9 +121,12 @@ export interface GameSave {
   trainingDay: { day: string; count: number };
   settings: Settings;
   createdAt: number;
+  /** When resting DP was last added (time-based DP recovery). */
+  lastRest?: number;
 }
 
-export const SAVE_VERSION = 1;
+/** 2: D-Ark stats (HP/AP/SP + DP pool), temporary evolutions unlocked by bosses. */
+export const SAVE_VERSION = 2;
 
 export function newSave(): GameSave {
   return {
@@ -152,8 +167,9 @@ export function migrate(raw: unknown): GameSave {
     daily: { ...fresh.daily, ...s.daily },
     trainingDay: { ...fresh.trainingDay, ...s.trainingDay },
     settings: { ...fresh.settings, ...s.settings },
-    squad: (s.squad ?? []).map((e) => ({ ...e, bonus: { ...ZERO_STATS, ...e.bonus } })),
-    version: SAVE_VERSION,
+    squad: (s.squad ?? []).map((e) => ({ ...e, lossStreak: e.lossStreak ?? 0, unlocked: e.unlocked ?? [], bonus: { ...ZERO_STATS, ...e.bonus } })),
+    // Older saves keep their number so the game can convert them (systems/upgrade.ts).
+    version: typeof s.version === "number" ? s.version : SAVE_VERSION,
   };
 }
 

@@ -33,9 +33,9 @@
     "id": "disco-energia",
     "name": "Disco Energía",
     "kind": "recuperacion",
-    "description": "Recupera 40 DP.",
+    "description": "Recupera 15 DP.",
     "effect": {
-      "dp": 40
+      "dp": 15
     },
     "price": 60
   },
@@ -43,7 +43,7 @@
     "id": "disco-total",
     "name": "Disco Total",
     "kind": "recuperacion",
-    "description": "Recupera toda la vida y todos los DP.",
+    "description": "Vida y DP al máximo.",
     "effect": {
       "healPercent": 100,
       "dp": 999
@@ -54,9 +54,9 @@
     "id": "fruta-fuerza",
     "name": "Fruta Fuerza",
     "kind": "fruta",
-    "description": "Ataque +2 para siempre.",
+    "description": "AP +1 para siempre.",
     "effect": {
-      "atk": 2
+      "ap": 1
     },
     "price": 200
   },
@@ -64,9 +64,9 @@
     "id": "fruta-coraza",
     "name": "Fruta Coraza",
     "kind": "fruta",
-    "description": "Defensa +2 para siempre.",
+    "description": "Vida máxima +4 para siempre.",
     "effect": {
-      "def": 2
+      "hp": 4
     },
     "price": 200
   },
@@ -74,9 +74,9 @@
     "id": "fruta-viento",
     "name": "Fruta Viento",
     "kind": "fruta",
-    "description": "Velocidad +2 para siempre.",
+    "description": "SP +1 para siempre.",
     "effect": {
-      "spd": 2
+      "sp": 1
     },
     "price": 200
   },
@@ -84,9 +84,9 @@
     "id": "fruta-vida",
     "name": "Fruta Vida",
     "kind": "fruta",
-    "description": "Vida máxima +5 para siempre.",
+    "description": "Vida máxima +6 para siempre.",
     "effect": {
-      "hp": 5
+      "hp": 6
     },
     "price": 200
   },
@@ -104,7 +104,7 @@
     "id": "nucleo-fusion",
     "name": "Núcleo de Fusión",
     "kind": "fusion",
-    "description": "Permite fusionar a dos Supremos con un vínculo muy fuerte."
+    "description": "Hace falta tenerlo para desbloquear una Fusión."
   },
   {
     "id": "pesas-entrenamiento",
@@ -172,48 +172,48 @@
     "id": "cristal-forja",
     "name": "Cristal Solforja",
     "kind": "cristal",
-    "description": "Lo necesita un Élite de la línea de Brasko para alcanzar su forma Suprema."
+    "description": "Lo necesita un Élite de la línea de Brasko para alcanzar su forma Suprema. Hace falta tenerlo para desbloquear la Fase 4 de su línea."
   },
   {
     "id": "cristal-eco",
     "name": "Cristal Sinfonía Titán",
     "kind": "cristal",
-    "description": "Lo necesita un Élite de la línea de Ecolí para alcanzar su forma Suprema."
+    "description": "Lo necesita un Élite de la línea de Ecolí para alcanzar su forma Suprema. Hace falta tenerlo para desbloquear la Fase 4 de su línea."
   },
   {
     "id": "cristal-pliegue",
     "name": "Cristal Arcanorigami",
     "kind": "cristal",
-    "description": "Lo necesita un Élite de la línea de Origamín para alcanzar su forma Suprema."
+    "description": "Lo necesita un Élite de la línea de Origamín para alcanzar su forma Suprema. Hace falta tenerlo para desbloquear la Fase 4 de su línea."
   },
   {
     "id": "cristal-glitch",
     "name": "Cristal Rey del Error",
     "kind": "cristal",
-    "description": "Lo necesita un Élite de la línea de Glitchín para alcanzar su forma Suprema."
+    "description": "Lo necesita un Élite de la línea de Glitchín para alcanzar su forma Suprema. Hace falta tenerlo para desbloquear la Fase 4 de su línea."
   },
   {
     "id": "cristal-quitina",
     "name": "Cristal Paladín Quitina",
     "kind": "cristal",
-    "description": "Lo necesita un Élite de la línea de Corazita para alcanzar su forma Suprema."
+    "description": "Lo necesita un Élite de la línea de Corazita para alcanzar su forma Suprema. Hace falta tenerlo para desbloquear la Fase 4 de su línea."
   },
   {
     "id": "cristal-telurico",
     "name": "Cristal Coloso Telúrico",
     "kind": "cristal",
-    "description": "Lo necesita un Élite de la línea de Rodacorno para alcanzar su forma Suprema."
+    "description": "Lo necesita un Élite de la línea de Rodacorno para alcanzar su forma Suprema. Hace falta tenerlo para desbloquear la Fase 4 de su línea."
   },
   {
     "id": "cristal-engranaje",
     "name": "Cristal Deus Máquina",
     "kind": "cristal",
-    "description": "Lo necesita un Élite de la línea de Tuerkín para alcanzar su forma Suprema."
+    "description": "Lo necesita un Élite de la línea de Tuerkín para alcanzar su forma Suprema. Hace falta tenerlo para desbloquear la Fase 4 de su línea."
   },
   {
     "id": "cristal-abisal",
     "name": "Cristal Leviatán Glacial",
     "kind": "cristal",
-    "description": "Lo necesita un Élite de la línea de Ajolín para alcanzar su forma Suprema."
+    "description": "Lo necesita un Élite de la línea de Ajolín para alcanzar su forma Suprema. Hace falta tenerlo para desbloquear la Fase 4 de su línea."
   }
 ]
