@@ -2,7 +2,7 @@ import { useState } from "preact/hooks";
 import type { CardRarity, Item } from "../data/models";
 import { addToDeck, makePartner, removeFromDeck, useItem } from "../systems/actions";
 import { useGame } from "../game";
-import { PALETTE as P } from "../art/palette";
+import { P, T } from "./theme";
 import { EcoImg, Panel, PixelButton, SectionTitle, StatBar, Tag, VariantTag, fmt } from "./common";
 import { STAGE_NAME } from "../data/models";
 
@@ -106,7 +106,8 @@ function ItemsList() {
   );
 }
 
-export const RARITY_COLOUR: Record<CardRarity, string> = { comun: P.white, rara: P.blue3, epica: P.purple2 };
+/** Text colour of a Parche by rarity. */
+export const RARITY_COLOUR: Record<CardRarity, string> = { comun: T.text, rara: T.blue, epica: T.purple };
 
 function DeckEditor() {
   const g = useGame();

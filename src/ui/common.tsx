@@ -1,13 +1,13 @@
 import type { ComponentChildren } from "preact";
+import { useEffect, useState } from "preact/hooks";
 import { AFFINITY_NAME, ARCHETYPE_NAME, STAGE_NAME, STAGE_TIER, TIER_NAME, type Affinity, type Attack, type EcoSpecies } from "../data/models";
 import { VARIANT_NAME, type Variant } from "../core/save";
-import { ecoDataURL } from "../art/sprite";
-import { PALETTE as P } from "../art/palette";
+import { P } from "./theme";
 import { game } from "../game";
 import { sound } from "../audio/sound";
 
-// Shared interface pieces in the game's pixel style: palette colours, 2px borders,
-// small corner radius, monospaced type.
+// Shared interface pieces in the game's cozy style: frosted rounded panels, soft pills and
+// tactile buttons. Colours are CSS variables (./theme), so they follow the light/dark theme.
 
 export const AFFINITY_COLOUR: Record<Affinity, string> = { pulso: P.pulso, senal: P.senal, ruido: P.ruido };
 export const fmt = (n: number) => n.toLocaleString("es");
@@ -52,11 +52,13 @@ export function StatBar({ label, value, max, colour = P.amber2, text }: { label:
   );
 }
 
+/** A tactile pill button. Quiet (secondary) when its colour is the neutral one. */
 export function PixelButton({ title, colour = P.amber2, onClick, disabled, small }: { title: string; colour?: string; onClick: () => void; disabled?: boolean; small?: boolean }) {
+  const quiet = colour === P.mist || colour === P.slate;
   return (
     <button
-      class={`pixel-button${small ? " small" : ""}`}
-      style={{ background: disabled ? P.slate : colour }}
+      class={`pixel-button${small ? " small" : ""}${quiet ? " quiet" : ""}`}
+      style={{ backgroundColor: disabled ? P.slate : colour }}
       disabled={disabled}
       onClick={() => { sound.play("tap"); onClick(); }}
     >
@@ -65,19 +67,32 @@ export function PixelButton({ title, colour = P.amber2, onClick, disabled, small
   );
 }
 
-/** An Eco's sprite, pixel-crisp. Silhouette for not-yet-seen ones. */
+type Thumbs = typeof import("../three/thumbs");
+let thumbs: Thumbs | undefined;
+let loadingThumbs: Promise<Thumbs> | undefined;
+/** Three.js and the portrait renderer load on first use, so the first paint never waits for them. */
+const loadThumbs = () => (loadingThumbs ??= import("../three/thumbs").then((m) => (thumbs = m)));
+
+/** An Eco's soft 3D portrait. Silhouette for not-yet-seen ones; a shimmering placeholder while it renders. */
 export function EcoImg({ id, variant = "normal", size = 96, flip, silhouette, dim }: { id: string; variant?: Variant; size?: number; flip?: boolean; silhouette?: boolean; dim?: boolean }) {
   const species = game.data.eco.get(id);
+  const px = size <= 64 ? 128 : 256;
+  const cached = thumbs?.cachedThumbnail(id, variant, px, !!silhouette);
+  const [src, setSrc] = useState<string | undefined>(cached);
+  useEffect(() => {
+    if (cached) { setSrc(cached); return; }
+    let alive = true;
+    setSrc(undefined);
+    loadThumbs()
+      .then((m) => m.creatureThumbnail(id, variant, game.data, px, !!silhouette))
+      .then((url) => { if (alive) setSrc(url); })
+      .catch(() => { /* leave the placeholder */ });
+    return () => { alive = false; };
+  }, [id, variant, silhouette, px]);
+  const style = { width: `${size}px`, height: `${size}px`, transform: flip ? "scaleX(-1)" : undefined, opacity: dim ? 0.4 : 1 };
+  if (!src) return <span class="eco-img eco-loading" style={style} role="img" aria-label={silhouette ? "Eco desconocido" : species?.name ?? id} />;
   return (
-    <img
-      class={`eco-img${silhouette ? " silhouette" : ""}`}
-      src={ecoDataURL(id, variant, game.data)}
-      width={size}
-      height={size}
-      alt={silhouette ? "Eco desconocido" : species?.name ?? id}
-      style={{ transform: flip ? "scaleX(-1)" : undefined, opacity: dim ? 0.35 : 1 }}
-      draggable={false}
-    />
+    <img class="eco-img" src={src} width={size} height={size} alt={silhouette ? "Eco desconocido" : species?.name ?? id} style={style} draggable={false} />
   );
 }
 

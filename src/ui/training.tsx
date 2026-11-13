@@ -3,7 +3,7 @@ import { partnerOf } from "../core/save";
 import { TRAINING, train, trainingSessionsLeft, type TrainingKind } from "../systems/training";
 import { useGame } from "../game";
 import { sound } from "../audio/sound";
-import { PALETTE as P } from "../art/palette";
+import { P } from "./theme";
 import { EcoImg, Panel, PixelButton, Sheet } from "./common";
 
 const KINDS = Object.keys(TRAINING) as TrainingKind[];

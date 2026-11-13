@@ -2,7 +2,7 @@ import { useEffect, useState } from "preact/hooks";
 import { game, useGame } from "../game";
 import { parseHealthText, stepsToday } from "../core/steps";
 import { requestMotionPermission, startMotion, type MotionPermission } from "../core/motion";
-import { PALETTE as P } from "../art/palette";
+import { P } from "./theme";
 import { Panel, PixelButton, fmt } from "./common";
 
 let motionPermission: MotionPermission = "unknown";

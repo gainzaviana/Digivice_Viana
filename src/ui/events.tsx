@@ -2,7 +2,7 @@ import type { MerchantOffer, PendingEvent } from "../core/save";
 import { partnerOf } from "../core/save";
 import { acceptRecruit, buy, declineRecruit, flee, leave, makeOffering, receiveBlessing } from "../systems/actions";
 import { useGame } from "../game";
-import { PALETTE as P } from "../art/palette";
+import { P, T } from "./theme";
 import { EcoImg, Panel, PixelButton, SectionTitle, SpeciesTags, fmt } from "./common";
 
 export function EventsScreen() {
@@ -118,7 +118,7 @@ function ShrineCard({ event }: { event: PendingEvent }) {
       <p class="muted small">Una voz te ofrece dos caminos: una bendición gratuita, o un Parche a cambio de una ofrenda.</p>
       {parche && (
         <div>
-          <div class="strong" style={{ color: parche.rarity === "epica" ? P.purple2 : P.blue3 }}>{parche.name}{parche.rarity === "epica" ? " · épica" : " · rara"}</div>
+          <div class="strong" style={{ color: parche.rarity === "epica" ? T.purple : T.blue }}>{parche.name}{parche.rarity === "epica" ? " · épica" : " · rara"}</div>
           <div class="muted small">{parche.description}</div>
         </div>
       )}

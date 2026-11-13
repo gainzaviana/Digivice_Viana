@@ -4,7 +4,7 @@ import { TIER_NAME, STAGE_TIER } from "../data/models";
 import { maxStats, statText, winsPerLevel, xpToNext } from "../systems/progression";
 import { evolutionTree, type EvolutionNode } from "../systems/evolution";
 import { useGame } from "../game";
-import { PALETTE as P } from "../art/palette";
+import { P, T } from "./theme";
 import { AttackRow, EcoImg, Panel, SectionTitle, SpeciesTags, StatBar, Tag, fmt } from "./common";
 import { StepsPanel } from "./steps";
 
@@ -90,7 +90,7 @@ export function EvolutionTree({ eco }: { eco: EcoInstance }) {
           <EcoImg id={n.target.id} size={56} silhouette={!known(n)} />
           <div class="grow">
             <div class="tags">
-              <span class="strong" style={{ color: n.unlocked ? P.green2 : P.white }}>{known(n) ? n.target.name : "???"}</span>
+              <span class="strong" style={{ color: n.unlocked ? T.green : T.text }}>{known(n) ? n.target.name : "???"}</span>
               <Tag text={n.kind === "fusion" ? "Fusión" : n.kind === "awaken" ? "Despertar" : TIER_NAME[STAGE_TIER[n.target.stage]]} colour={n.unlocked ? P.green2 : P.slate} ink={n.unlocked ? P.outline : P.white} />
               <span class="tiny amber">{n.cost} DP · ×{n.multiplier}</span>
             </div>
@@ -98,7 +98,7 @@ export function EvolutionTree({ eco }: { eco: EcoInstance }) {
               ? <div class="small green">✓ Desbloqueada: elígela antes de un combate.</div>
               : n.requirements.map((r) => {
                 const met = !n.missing.includes(r);
-                return <div key={r} class="small" style={{ color: met ? P.green2 : P.mist }}>{met ? "✓ " : "· "}{r}</div>;
+                return <div key={r} class="small" style={{ color: met ? T.green : T.muted }}>{met ? "✓ " : "· "}{r}</div>;
               })}
           </div>
         </div>

@@ -3,11 +3,11 @@ import type { Battle, Beat, Combatant, Outcome, Side } from "../systems/battle/b
 import type { Attack, Parche } from "../data/models";
 import { useGame } from "../game";
 import { sound } from "../audio/sound";
-import { PALETTE as P } from "../art/palette";
+import { P } from "../ui/theme";
 import { AffinityTag, PixelButton, StatBar, Tag, VariantTag } from "../ui/common";
 import { statText } from "../systems/progression";
 import { RARITY_COLOUR } from "../ui/squad";
-import { BattleScene } from "./scene";
+import type { BattleStage } from "./stage3d";
 
 const summary = (o: Outcome, b: Battle) => {
   const enemy = b.species("enemy").name;
@@ -19,7 +19,8 @@ export function BattleView({ battle }: { battle: Battle }) {
   const g = useGame();
   const canvas = useRef<HTMLCanvasElement>(null);
   const box = useRef<HTMLDivElement>(null);
-  const scene = useRef<BattleScene>();
+  const scene = useRef<BattleStage>();
+  const ready = useRef<Promise<BattleStage>>();
   const [, rerender] = useState(0);
   const [busy, setBusy] = useState(false);
   const enemyName = battle.species("enemy").name;
@@ -30,14 +31,23 @@ export function BattleView({ battle }: { battle: Battle }) {
   );
 
   useEffect(() => {
-    const s = new BattleScene(canvas.current!, battle, g.save.settings.graphicsEffects);
-    s.onCaption = setCaption;
-    scene.current = s;
-    const fit = () => { const r = box.current!.getBoundingClientRect(); s.resize(r.width, r.height); };
-    fit();
-    const ro = new ResizeObserver(fit);
-    ro.observe(box.current!);
-    return () => { ro.disconnect(); s.destroy(); };
+    // Three.js and the 3D stage load only when a battle opens.
+    let ro: ResizeObserver | undefined;
+    let stage: BattleStage | undefined;
+    let cancelled = false;
+    ready.current = import("./stage3d").then(({ BattleStage }) => {
+      const s = new BattleStage(canvas.current!, box.current!, battle, g.save.settings.graphicsEffects);
+      if (cancelled) { s.destroy(); return s; }
+      stage = s;
+      s.onCaption = setCaption;
+      scene.current = s;
+      const fit = () => { const r = box.current!.getBoundingClientRect(); s.resize(r.width, r.height); };
+      fit();
+      ro = new ResizeObserver(fit);
+      ro.observe(box.current!);
+      return s;
+    });
+    return () => { cancelled = true; ro?.disconnect(); stage?.destroy(); };
   }, []);
 
   const perform = (action: () => Beat[]) => {
@@ -46,7 +56,7 @@ export function BattleView({ battle }: { battle: Battle }) {
     rerender((n) => n + 1);
     if (!beats.length) return;
     setBusy(true);
-    void scene.current!.play(beats).then(() => {
+    void ready.current!.then((s) => s.play(beats)).then(() => {
       setBusy(false);
       if (battle.outcome) {
         setCaption(summary(battle.outcome, battle));
@@ -64,7 +74,7 @@ export function BattleView({ battle }: { battle: Battle }) {
   return (
     <div class="battle">
       <FighterBar battle={battle} side="enemy" />
-      <div class="battle-stage" ref={box}><canvas ref={canvas} aria-label="Combate" /></div>
+      <div class="battle-stage" ref={box} style={{ position: "relative" }}><canvas ref={canvas} aria-label="Combate" /></div>
       <FighterBar battle={battle} side="partner" />
       <div class="caption" aria-live="polite">{caption}</div>
       {battle.phase === "intro" && (

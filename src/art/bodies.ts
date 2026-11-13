@@ -20,8 +20,13 @@ function stride(from: number, end: number, by: number, through: boolean): number
 /** Builds an Eco's sprite: shape, look and seams. */
 export function buildSprite(species: EcoSpecies, n: number): { forge: SpriteForge; look: Look } {
   const f = new SpriteForge(n);
+  drawBody(f, species);
+  return { forge: f, look: lookFor(species) };
+}
+
+/** Runs an Eco's body plan on a forge (the pixel forge, or a recorder that builds it in 3D). */
+export function drawBody(f: SpriteForge, species: EcoSpecies): void {
   const s = stageOrder(species.stage);
-  const look = lookFor(species);
   switch (species.line ?? fusionLine(species.id) ?? "") {
     case "forja": salamander(f, s, species.id === "escoria"); break;
     case "eco": hare(f, s); break;
@@ -35,7 +40,6 @@ export function buildSprite(species: EcoSpecies, n: number): { forge: SpriteForg
   }
   if (species.stage === "fusion") fusionTrim(f, species.id);
   if (species.stage === "despertar") awakening(f);
-  return { forge: f, look };
 }
 
 /** Which partner line's body a fusion is built on. */

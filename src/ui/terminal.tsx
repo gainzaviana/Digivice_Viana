@@ -4,7 +4,7 @@ import { canClaim, claim, claimableCount, isClaimed, progress } from "../systems
 import { trainingSessionsLeft } from "../systems/training";
 import { useGame } from "../game";
 import { sound } from "../audio/sound";
-import { PALETTE as P } from "../art/palette";
+import { P } from "./theme";
 import { AttackRow, EcoImg, Panel, ProfilePanel, PixelButton, SectionTitle, Sheet, SpeciesTags, StatBar, Tag, fmt } from "./common";
 import { TrainingMenu } from "./training";
 import { SettingsScreen } from "./settings";
@@ -25,15 +25,16 @@ export function TerminalScreen() {
     ["entreno", "Entrenamiento", `${trainingSessionsLeft(g.save, g.data)} sesiones hoy`, P.red3],
     ["retos", "Retos", ready > 0 ? `${ready} recompensa${ready === 1 ? "" : "s"} por recoger` : "Retos del día y logros", P.amber2, ready],
     ["guia", "Guía de Ecos", `${g.save.guide.seen.length} de ${g.data.ecos.length} vistos`, P.teal2],
-    ["ajustes", "Ajustes", "Sonido, pasos, copia de seguridad y partida", P.mist],
+    ["ajustes", "Ajustes", "Sonido, pasos, copia de seguridad y partida", P.slate],
   ];
   return (
     <div class="screen">
       <h1 class="logo small-logo">TERMINAL</h1>
       {rows.map(([id, title, subtitle, accent, badge]) => (
-        <button class="panel nav-row" key={id} onClick={() => setPage(id)} style={{ borderLeftColor: accent }}>
+        <button class="panel nav-row" key={id} onClick={() => setPage(id)}>
+          <span class="nav-dot" style={{ background: accent }} aria-hidden="true" />
           <div class="grow">
-            <div class="title" style={{ color: accent }}>{title}</div>
+            <div class="title">{title}</div>
             <div class="muted small">{subtitle}</div>
           </div>
           {!!badge && <Tag text={String(badge)} colour={P.amber2} />}

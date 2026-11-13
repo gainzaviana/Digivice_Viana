@@ -5,5 +5,5 @@ export default defineConfig({
   plugins: [preact()],
   // Relative paths: the game works from any folder or subpath it's hosted under.
   base: "./",
-  build: { target: "es2022", assetsInlineLimit: 0 },
+  build: { target: "es2022", assetsInlineLimit: 0, chunkSizeWarningLimit: 700 },
 });

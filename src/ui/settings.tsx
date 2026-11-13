@@ -3,7 +3,7 @@ import { migrate } from "../core/save";
 import { storeSave } from "../core/save";
 import { useGame } from "../game";
 import { sound } from "../audio/sound";
-import { PALETTE as P } from "../art/palette";
+import { P } from "./theme";
 import { Confirm, Panel, PixelButton, SectionTitle, Sheet, fmt } from "./common";
 
 function Toggle({ label, detail, on, onChange }: { label: string; detail: string; on: boolean; onChange: (v: boolean) => void }) {
@@ -100,7 +100,7 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
         </div>
         <div class="buttons">
           <PixelButton small title="Descargar copia" colour={P.teal2} onClick={download} />
-          <label class="pixel-button small file-button" style={{ background: P.mist }}>
+          <label class="pixel-button small quiet file-button">
             Restaurar copia
             <input type="file" accept="application/json,.json" onChange={pick} hidden />
           </label>

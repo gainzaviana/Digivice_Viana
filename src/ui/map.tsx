@@ -1,12 +1,12 @@
 import type { Region } from "../data/models";
 import { travel, unlockedRegions } from "../systems/actions";
 import { useGame } from "../game";
-import { PALETTE as P } from "../art/palette";
+import { P, T } from "./theme";
 import { EcoImg, Panel, PixelButton, SectionTitle, StatBar, Tag, fmt } from "./common";
 import { StepsPanel } from "./steps";
 
 type RowState = "current" | "cleared" | "open" | "locked";
-const ICON: Record<RowState, [string, string]> = { current: ["▶", P.amber2], cleared: ["✓", P.green2], open: ["•", P.white], locked: ["▪", P.slate] };
+const ICON: Record<RowState, [string, string]> = { current: ["▶", T.amber], cleared: ["✓", T.green], open: ["•", T.muted], locked: ["•", T.faint] };
 
 export function MapScreen() {
   const g = useGame();
@@ -27,7 +27,7 @@ export function MapScreen() {
             <div class="row" key={r.id}>
               <span class="icon" style={{ color: ICON[st][1] }}>{ICON[st][0]}</span>
               <div class="grow">
-                <div class="strong" style={{ color: st === "locked" ? P.slate : P.white }}>Zona {r.order} · {st === "locked" ? "???" : r.name}</div>
+                <div class="strong" style={{ color: st === "locked" ? T.faint : T.text }}>Zona {r.order} · {st === "locked" ? "???" : r.name}</div>
                 <div class="muted small">{subtitle(r, st)}</div>
               </div>
               {(st === "cleared" || st === "open") && <PixelButton small title="Ir" colour={P.mist} onClick={() => g.perform((s, d) => travel(s, r.id, d))} />}
@@ -62,7 +62,7 @@ function CurrentRegion({ region }: { region: Region }) {
         <div class="row">
           <EcoImg id={boss.id} size={72} flip dim={!map.bossReady} />
           <div class="grow">
-            <div class="strong" style={{ color: map.bossReady ? P.red3 : P.white }}>{map.bossReady ? `¡${boss.name} te espera!` : `Jefe: ${boss.name}`}</div>
+            <div class="strong" style={{ color: map.bossReady ? T.red : T.text }}>{map.bossReady ? `¡${boss.name} te espera!` : `Jefe: ${boss.name}`}</div>
             <div class="muted small">
               Nivel {region.boss.level}. {map.bossReady ? "Hasta vencerlo no habrá más sucesos en esta zona." : "Aparecerá al final del camino."}
             </div>
