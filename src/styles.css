@@ -163,3 +163,11 @@ details[open] summary { margin-bottom: 6px; }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+.sync-banner {
+  display: flex; align-items: center; gap: 10px;
+  max-width: 528px; margin: calc(env(safe-area-inset-top) + 8px) var(--gutter) 0;
+  padding: 10px 12px; background: var(--ink); border: 2px solid var(--teal2); border-radius: 4px;
+}
+@media (min-width: 560px) { .sync-banner { margin-left: auto; margin-right: auto; } }
+.sync-banner + .screen { padding-top: 12px; }

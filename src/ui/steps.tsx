@@ -5,11 +5,15 @@ import { requestMotionPermission, startMotion, type MotionPermission } from "../
 import { PALETTE as P } from "../art/palette";
 import { Panel, PixelButton, fmt } from "./common";
 
-let motionPermission: MotionPermission | "unknown" = "unknown";
+let motionPermission: MotionPermission = "unknown";
+/** Steps the sensor counted since the game opened. */
+let sensorSession = 0;
 const permissionListeners = new Set<() => void>();
-async function askMotion() {
-  motionPermission = await requestMotionPermission();
-  for (const fn of permissionListeners) fn();
+const notify = () => { for (const fn of permissionListeners) fn(); };
+/** Must run inside a click/touchend handler, or iOS won't show its prompt. */
+function askMotion() {
+  if (motionPermission === "granted" || motionPermission === "unsupported") return;
+  void requestMotionPermission().then((p) => { motionPermission = p; notify(); });
 }
 
 /**
@@ -28,15 +32,17 @@ export function useMotionSensor() {
   }, []);
   useEffect(() => {
     if (!wanted || motionPermission !== "unknown") return;
-    const once = () => { void askMotion(); };
-    window.addEventListener("pointerdown", once, { once: true });
-    return () => window.removeEventListener("pointerdown", once);
+    // "click" and "touchend" count as a tap for iOS; "pointerdown" doesn't.
+    const once = () => askMotion();
+    window.addEventListener("click", once, true);
+    window.addEventListener("touchend", once, true);
+    return () => { window.removeEventListener("click", once, true); window.removeEventListener("touchend", once, true); };
   }, [wanted]);
   useEffect(() => {
     if (!wanted || motionPermission !== "granted") return;
     let stop: (() => void) | undefined;
     const update = () => {
-      if (document.visibilityState === "visible") stop ??= startMotion((n) => game.liveSteps(n));
+      if (document.visibilityState === "visible") stop ??= startMotion((n) => { sensorSession += n; game.liveSteps(n); notify(); });
       else { stop?.(); stop = undefined; }
     };
     update();
@@ -68,16 +74,12 @@ export function StepsPanel() {
       <div class="muted small">
         {last ? `Última lectura de Salud: ${last.toLocaleString("es", { dateStyle: "short", timeStyle: "short" })}` : "Aún no has sincronizado con Salud."}
       </div>
+      <SensorStatus tracking={tracking} enabled={s.settings.motionSensor} />
       <div class="buttons">
-        <PixelButton small title="Sincronizar pasos" colour={P.teal2} onClick={() => setDialog({ kind: "sync" })} />
-        <PixelButton small title="Simular actividad" colour={P.mist} disabled={!tracking} onClick={() => setDialog({ kind: "simulate" })} />
+        <PixelButton small title="Pegar de Salud" colour={P.teal2} onClick={() => void pasteHealth()} />
+        <PixelButton small title="Escribir pasos" colour={P.teal2} onClick={() => setDialog({ kind: "sync" })} />
       </div>
-      {tracking && s.settings.motionSensor && motionPermission === "denied" && (
-        <div class="small red">Sin permiso de movimiento: el sensor no contará. Usa «Sincronizar pasos».</div>
-      )}
-      {tracking && s.settings.motionSensor && motionPermission === "unknown" && (
-        <button class="link-button small" onClick={() => void askMotion()}>Contar también con el sensor mientras juegas</button>
-      )}
+      <PixelButton small title="Simular actividad" colour={P.mist} disabled={!tracking} onClick={() => setDialog({ kind: "simulate" })} />
       {dialog?.kind === "sync" && <HealthDialog title="Sincronizar con Salud" ok="Sincronizar" onClose={() => setDialog(undefined)}
         onSteps={(n, day) => g.importHealth({ steps: n, day })} />}
       {dialog?.kind === "switch" && (
@@ -87,13 +89,39 @@ export function StepsPanel() {
           optional
           note={dialog.on ? "Con los pasos que marca Salud ahora, solo contarán los que des a partir de este momento." : "Con los pasos que marca Salud ahora, se cuentan los que diste hasta este momento."}
           onClose={() => setDialog(undefined)}
-          onSteps={(n) => g.switchCounter(dialog.on, n)}
-          onSkip={() => g.switchCounter(dialog.on)}
+          onSteps={(n) => { g.switchCounter(dialog.on, n); if (dialog.on) askMotion(); }}
+          onSkip={() => { g.switchCounter(dialog.on); if (dialog.on) askMotion(); }}
         />
       )}
       {dialog?.kind === "simulate" && <SimulateDialog onClose={() => setDialog(undefined)} />}
     </Panel>
   );
+}
+
+/** One tap: reads what the Health Shortcut copied and syncs it. */
+export async function pasteHealth() {
+  try {
+    const imp = parseHealthText(await navigator.clipboard.readText());
+    if (imp) game.importHealth(imp);
+    else game.show("No hay pasos copiados. Ejecuta antes tu atajo de Salud (o usa «Escribir pasos»).");
+  } catch {
+    game.show("No se pudo leer el portapapeles. Usa «Escribir pasos».");
+  }
+}
+
+function SensorStatus({ tracking, enabled }: { tracking: boolean; enabled: boolean }) {
+  if (!tracking) return null;
+  if (!enabled) return <div class="muted small">Sensor de movimiento desactivado en Ajustes.</div>;
+  switch (motionPermission) {
+    case "granted":
+      return <div class="small green">Sensor activo mientras el juego está abierto · {fmt(sensorSession)} pasos ahora.</div>;
+    case "denied":
+      return <div class="small red">iOS no permite el sensor. Actívalo en Ajustes › Apps › Safari › Movimiento y orientación, y vuelve a abrir el juego.</div>;
+    case "unsupported":
+      return <div class="muted small">Este navegador no tiene sensor de movimiento.</div>;
+    default:
+      return <button class="link-button small" onClick={askMotion}>Activar el sensor de movimiento (toca aquí)</button>;
+  }
 }
 
 /** Asks for today's step total in Health: typed, or pasted from what the Shortcut copied. */
@@ -158,6 +186,37 @@ function SimulateDialog({ onClose }: { onClose: () => void }) {
         </div>
         <PixelButton title="Cancelar" colour={P.mist} onClick={onClose} />
       </div>
+    </div>
+  );
+}
+
+/** Hours without a Health reading before the game reminds you to sync. */
+const REMIND_AFTER_HOURS = 3;
+
+/**
+ * A banner at the top while the counter is on and Health hasn't been read for a while: one tap
+ * pastes what the Shortcut copied.
+ */
+export function SyncBanner() {
+  const g = useGame();
+  const [hidden, setHidden] = useState(false);
+  const s = g.save.steps;
+  const due = s.tracking && (!s.lastImport || Date.now() - s.lastImport > REMIND_AFTER_HOURS * 3_600_000);
+  useEffect(() => {
+    // Show again each time the game comes back to the screen.
+    const onVisible = () => { if (document.visibilityState === "visible") setHidden(false); };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, []);
+  if (!due || hidden) return null;
+  return (
+    <div class="sync-banner" role="region" aria-label="Sincronizar con Salud">
+      <div class="grow small">
+        <div class="strong">¿Pasos nuevos en Salud?</div>
+        <div class="tiny">Ejecuta tu atajo y pulsa Pegar.</div>
+      </div>
+      <PixelButton small title="Pegar" colour={P.teal2} onClick={() => { setHidden(true); void pasteHealth(); }} />
+      <button class="link-button tiny" aria-label="Ocultar" onClick={() => setHidden(true)}>✕</button>
     </div>
   );
 }

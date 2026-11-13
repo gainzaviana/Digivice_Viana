@@ -76,8 +76,8 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
       <Panel>
         <SectionTitle text="Atajo de Salud (opcional)" />
         <div class="muted small">
-          Safari no puede leer Salud. Puedes escribir los pasos a mano en «Sincronizar pasos», o crear un atajo que los copie
-          por ti y luego pulsar «Pegar del atajo».
+          Safari no puede leer Salud. Puedes escribir los pasos a mano («Escribir pasos»), o crear un atajo que los copie
+          por ti y luego pulsar «Pegar de Salud».
         </div>
         <details class="small">
           <summary class="strong">Cómo crear el atajo (una vez)</summary>
@@ -89,7 +89,8 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
             <li>Añade <b>Texto</b>: <code>enlace pasos=</code>[Número redondeado] <code>fecha=</code>[Fecha formateada]</li>
             <li>Añade <b>Copiar al portapapeles</b> con ese texto. La primera vez, permite el acceso a Salud (solo pasos).</li>
           </ol>
-          <p>Ejecútalo (desde Atajos o un widget), abre Enlace y pulsa Sincronizar pasos › Pegar del atajo.</p>
+          <p>Uso: ejecuta el atajo, abre Enlace y pulsa <b>Pegar de Salud</b>. iOS te pedirá permiso para pegar: pulsa «Permitir pegar».</p>
+          <p>Más rápido: Ajustes › Accesibilidad › Tocar › <b>Tocar atrás</b> › Doble toque › elige tu atajo. Así das dos golpecitos en la parte de atrás del iPhone y los pasos quedan copiados.</p>
         </details>
       </Panel>
 

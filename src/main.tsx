@@ -9,7 +9,7 @@ import { MapScreen } from "./ui/map";
 import { EventsScreen } from "./ui/events";
 import { SquadScreen } from "./ui/squad";
 import { TerminalScreen } from "./ui/terminal";
-import { useMotionSensor } from "./ui/steps";
+import { SyncBanner, useMotionSensor } from "./ui/steps";
 import { BattleView } from "./battle/view";
 
 const TABS = [
@@ -43,6 +43,7 @@ function App() {
   return (
     <div class="app">
       <main>
+        <SyncBanner />
         {tab === 0 && <PartnerScreen />}
         {tab === 1 && <MapScreen />}
         {tab === 2 && <EventsScreen />}

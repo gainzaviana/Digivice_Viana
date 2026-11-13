@@ -15,8 +15,9 @@ The browser can't read Health or count steps in the background, so steps arrive 
 them ever counts twice:
 
 - **Motion sensor:** counts while the game is open on screen (iOS asks for permission once).
-- **Sincronizar pasos:** type today's total from the Health app, or tap *Pegar del atajo* after running an
-  optional Shortcut that copies it (recipe in Terminal › Ajustes). Only the growth since the last reading
+- **Pegar de Salud / Escribir pasos:** run the optional Shortcut that copies today's Health total (recipe in
+  Terminal › Ajustes; Back Tap makes it a double tap on the back of the phone) and tap *Pegar de Salud*,
+  or type the number from the Health app. Only the growth since the last reading
   counts, minus what the sensor or simulator already credited that day.
 - **Simular actividad:** adds 100–2,500 steps right away; a later Health sync the same day subtracts them.
 

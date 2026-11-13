@@ -7,7 +7,8 @@
  * row, so shaking or picking the phone up doesn't add steps.
  */
 
-export type MotionPermission = "granted" | "denied" | "unsupported";
+/** "unknown": not asked yet, or iOS refused to ask because the request didn't come from a tap. */
+export type MotionPermission = "granted" | "denied" | "unsupported" | "unknown";
 
 interface IOSMotion { requestPermission?: () => Promise<"granted" | "denied"> }
 
@@ -19,7 +20,8 @@ export async function requestMotionPermission(): Promise<MotionPermission> {
   try {
     return (await ctor.requestPermission()) === "granted" ? "granted" : "denied";
   } catch {
-    return "denied";
+    // Not called from a tap: iOS didn't ask. Try again on the next one.
+    return "unknown";
   }
 }
 
