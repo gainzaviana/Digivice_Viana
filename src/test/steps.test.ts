@@ -201,3 +201,23 @@ describe("a raw Health sample as the Shortcut's output", () => {
     expect(parseSyncReturn("?sync=ok&result=3.250%20pasos", now)).toMatchObject({ ok: true, imp: { steps: 3250 } });
   });
 });
+
+describe("Health samples on several lines and a wrong earlier reading", () => {
+  const now = new Date(2026, 10, 16, 20);
+  it("never glues lines into one number", () => {
+    for (const [t, n] of [["1074\n0", 1074], ["1074\r\n0", 1074], ["600\n474", 1074], ["1.074 pasos\n0 pasos", 1074],
+      ["16 nov 2026, 0:00\n1074 pasos", 1074], ["1 074 pasos", 1074], ["1074", 1074], ["enlace pasos=1074 fecha=2026-11-16", 1074]] as [string, number][]) {
+      expect([t, parseHealthText(t, now)?.steps]).toEqual([t, n]);
+    }
+    expect(parseSyncReturn("?sync=ok&result=1074%0A0", now)).toMatchObject({ ok: true, imp: { steps: 1074 } });
+  });
+  it("trusts a lower Health total, then counts new steps again", () => {
+    const save = newSave();
+    save.steps.tracking = true;
+    applyHealthImport(save, { steps: 10740, day: "2026-11-16" }, now); // the old ×10 misreading
+    const fix = applyHealthImport(save, { steps: 1124, day: "2026-11-16" }, now);
+    expect(fix).toMatchObject({ corrected: 9616, credited: 0 });
+    expect(save.steps.days["2026-11-16"]).toMatchObject({ healthCounted: 1124, credited: 1124 });
+    expect(applyHealthImport(save, { steps: 1174, day: "2026-11-16" }, now).credited).toBe(50);
+  });
+});

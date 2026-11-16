@@ -124,7 +124,10 @@ export class Game {
     const out = applyHealthImport(this.save, imp);
     const n = (x: number) => x.toLocaleString("es");
     const parts: string[] = [];
-    if (out.credited > 0) parts.push(`+${n(out.credited)} pasos desde Salud.`);
+    if (out.corrected) {
+      this.save.totalSteps = Math.max(0, this.save.totalSteps - out.corrected);
+      parts.push(`Salud marca ${n(imp.steps)}, menos que lo guardado (${n(out.before)}): una lectura anterior era errónea. Corregido (−${n(out.corrected)}); desde aquí cuentan tus pasos nuevos.`);
+    } else if (out.credited > 0) parts.push(`+${n(out.credited)} pasos desde Salud.`);
     else if (out.baseline) parts.push(`Salud marca ${n(imp.steps)}: como activaste el contador hoy sin leer Salud, esta lectura es el punto de partida y cuentan los pasos desde ahora.`);
     else if (out.skipped > 0) parts.push(`Salud: ${n(out.skipped)} pasos con el contador apagado (no cuentan).`);
     else if (out.matched > 0) parts.push(`Salud: ${n(out.matched)} pasos que el sensor ya había contado.`);

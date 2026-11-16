@@ -55,6 +55,8 @@ export interface ImportOutcome {
   before: number;
   /** This reading only marked where counting starts (first one after switching on without Health). */
   baseline?: boolean;
+  /** Health's total was below what had been recorded (an earlier wrong reading): steps taken back. */
+  corrected?: number;
   /** Health growth seen while the counter was off (recorded, not credited). */
   skipped: number;
   /** Growth already credited by the motion sensor. */
@@ -65,6 +67,14 @@ export interface ImportOutcome {
 export function applyHealthImport(save: GameSave, imp: HealthImport, now = new Date()): ImportOutcome {
   const d = stepDay(save, imp.day);
   const before = d.healthCounted;
+  // Health is the truth: a lower total means an earlier reading was wrong (e.g. misread ×10).
+  // Bring the day back to Health's figure, so new steps count again from there.
+  let corrected = 0;
+  if (imp.steps < d.healthCounted) {
+    corrected = Math.min(d.credited, d.healthCounted - imp.steps);
+    d.credited -= corrected;
+    d.healthCounted = imp.steps;
+  }
   const growth = Math.max(0, imp.steps - d.healthCounted);
   d.healthCounted = Math.max(d.healthCounted, imp.steps);
   save.steps.lastImport = now.getTime();
@@ -90,7 +100,7 @@ export function applyHealthImport(save: GameSave, imp: HealthImport, now = new D
     save.steps.baselineDay = undefined;
   }
   prune(save, now);
-  return outcome;
+  return corrected > 0 ? { ...outcome, corrected } : outcome;
 }
 
 /** Steps from the motion sensor while the game is open. Returns the steps credited. */
@@ -119,12 +129,17 @@ export function parseHealthText(text: string, now = new Date()): HealthImport | 
   const t = text.trim();
   const link = t.indexOf("#importar?");
   if (link >= 0) return parseImport(t.slice(link), now);
-  const tagged = /pasos\s*[=:]\s*([\d.,\s]+)/i.exec(t)?.[1];
-  // A Health sample as text: "3.250 pasos", "3250 count", "3,250 steps" (maybe next to its dates).
-  const unit = /(?<![\d.,:])(\d{1,3}(?:[.,\s\u00a0\u202f]\d{3})+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)\s*(pasos|steps|count|recuento|cuenta)\b/i.exec(t)?.[1];
   const day = /fecha\s*[=:]\s*(\d{4}-\d{2}-\d{2})/i.exec(t)?.[1];
-  const steps = tagged !== undefined ? toInteger(tagged) : unit !== undefined ? toInteger(unit) : loneNumber(t);
-  if (steps === undefined) return undefined;
+  // Several Health samples arrive one per line ("1074⏎0"): read each line and add them up, like
+  // Health's own total. A number never continues onto the next line.
+  // Lines with a unit ("1.074 pasos") win; otherwise each line's lone number. Lines with no
+  // readable count (a date on its own) are skipped.
+  const lines = t.replace(/fecha\s*[=:]\s*\d{4}-\d{2}-\d{2}/gi, " ").split(/[\r\n]+/).map((l) => l.trim()).filter((l) => /\d/.test(l));
+  const read = lines.map(lineSteps);
+  const withUnit = read.filter((r) => r?.unit);
+  const counted = (withUnit.length ? withUnit : read).filter((r): r is { steps: number; unit: boolean } => r !== undefined);
+  if (counted.length === 0) return undefined;
+  const steps = counted.reduce((a, r) => a + r.steps, 0);
   return parseImport(`#importar?pasos=${steps}${day ? `&fecha=${day}` : ""}`, now);
 }
 
@@ -143,13 +158,24 @@ export function toInteger(raw: string): number | undefined {
   return undefined;
 }
 
-/** The only number in a text, ignoring dates and times (a Health sample copied as text). */
+/** Thousands may be grouped with "." "," or a space on the same line, never across lines. */
+const NUMBER = "\\d{1,3}(?:[.,\\u0020\\u00a0\\u202f]\\d{3})+(?:[.,]\\d+)?|\\d+(?:[.,]\\d+)?";
+
+/** The steps in one line: "pasos=8421", "3.250 pasos" / "3250 count" (next to dates), or a lone number. */
+function lineSteps(line: string): { steps: number; unit: boolean } | undefined {
+  const tagged = new RegExp(`pasos\\s*[=:]\\s*(${NUMBER})`, "i").exec(line)?.[1]
+    ?? new RegExp(`(?<![\\d.,:])(${NUMBER})\\s*(pasos|steps|count|recuento|cuenta)\\b`, "i").exec(line)?.[1];
+  const steps = tagged !== undefined ? toInteger(tagged) : loneNumber(line);
+  return steps === undefined ? undefined : { steps, unit: tagged !== undefined };
+}
+
+/** The only number in a line, ignoring dates and times (a Health sample as text). */
 function loneNumber(text: string): number | undefined {
   const cleaned = text
     .replace(/\d{4}-\d{2}-\d{2}(T[\d:.+-Z]+)?/g, " ")
     .replace(/\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}/g, " ")
     .replace(/\d{1,2}:\d{2}(:\d{2})?/g, " ");
-  const numbers = cleaned.match(/\d[\d.,\s]*\d|\d/g)?.map((n) => n.trim()) ?? [];
+  const numbers = cleaned.match(new RegExp(`(?<![\\d.,])(?:${NUMBER})`, "g")) ?? [];
   if (numbers.length !== 1) return undefined;
   return toInteger(numbers[0]);
 }
