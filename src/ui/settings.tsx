@@ -77,10 +77,8 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
       <Panel>
         <SectionTitle text="Atajo de Salud" />
         <div class="muted small">
-          Ninguna web puede leer Salud por sí misma. Con este atajo, el botón «Cargar pasos de Salud» lo ejecuta:
-          {isStandaloneApp()
-            ? " al terminar, vuelve a Enlace (arriba a la izquierda «◀ Enlace», o desliza) y toca «Pegar»."
-            : " el juego vuelve a abrirse con tus pasos de hoy ya cargados."}
+          Ninguna web puede leer Salud por sí misma. «Cargar pasos de Salud» ejecuta este atajo, que lee el total de hoy y vuelve
+          a abrir el juego con él (<code>?syncSteps=</code>). Se suma solo lo nuevo, sin copiar ni pegar nada.
         </div>
         <label class="small">
           Nombre del atajo
@@ -89,19 +87,28 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
         <details class="small">
           <summary class="strong">Cómo crear (o cambiar) el atajo · una vez</summary>
           <ol class="recipe">
-            <li>App <b>Atajos</b> › «+» (o abre el tuyo). Su nombre debe ser igual al de arriba: <b>{s.shortcutName}</b>.</li>
-            <li><b>Buscar muestras de salud</b>: Tipo <i>Pasos</i> · añade el filtro Fecha de inicio <i>es hoy</i> · Agrupar por <i>Día</i> (así Salud no suma dos veces los del reloj y los del iPhone).</li>
-            <li><b>Calcular estadísticas</b>: <i>Suma</i> de <i>Muestras de salud</i>. Convierte los pasos en un número (por ejemplo 3250).</li>
-            <li><b>Copiar al portapapeles</b>: <i>Estadísticas</i>. Es lo que pega la app de la pantalla de inicio.</li>
-            <li>Opcional, solo si juegas en Safari: <b>Detener y generar salida</b> con <i>Estadísticas</i>.</li>
-            <li>Pruébalo con ▶ y permite el acceso a Salud (solo Pasos). Debe acabar mostrando un número.</li>
+            <li>App <b>Atajos</b> › abre <b>{s.shortcutName}</b> (o créalo con «+» con ese nombre exacto) y borra lo que tenga.</li>
+            <li><b>Buscar muestras de salud</b>: Tipo <i>Pasos</i> · filtro Fecha de inicio <i>es hoy</i> · Agrupar por <i>Día</i>.</li>
+            <li><b>Calcular estadísticas</b>: <i>Suma</i> de <i>Muestras de salud</i>.</li>
+            <li><b>Abrir URLs</b>: escribe <code>{location.origin + location.pathname}?syncSteps=</code> y justo detrás inserta la variable <i>Estadísticas</i>.</li>
+            <li>Pruébalo con ▶ y permite el acceso a Salud (solo Pasos). Debe abrirse el juego y decir «+N pasos desde Salud».</li>
           </ol>
-          <p>Uso: <b>Cargar pasos de Salud</b> › se abre Atajos › vuelve a Enlace › <b>Pegar pasos</b> (y la burbuja «Pegar» de iOS). Se suma solo lo que haya crecido el total de hoy desde la última lectura: sincronizar varias veces nunca duplica.</p>
-          <p>
-            También vale un enlace con el total de hoy: <code>{location.origin + location.pathname}?syncSteps=8421</code>.
-            Ojo: iOS abre los enlaces en Safari, no en la app de la pantalla de inicio (cada una tiene su propia partida).
-          </p>
+          <p>Uso: <b>Cargar pasos de Salud</b> (o ejecuta el atajo desde un widget o una automatización). Se suma solo lo que haya crecido el total de hoy desde la última lectura: sincronizar varias veces nunca duplica.</p>
+
         </details>
+      </Panel>
+
+      <Panel>
+        <SectionTitle text="Jugar desde Safari" />
+        <div class="muted small">
+          iOS abre los enlaces de Atajos en Safari, nunca en una app a pantalla completa, y cada una guarda su propia partida.
+          {isStandaloneApp() ? " Ahora estás en la app a pantalla completa: los pasos del atajo no llegarán aquí." : " Estás en Safari: los pasos llegan solos."}
+        </div>
+        <ol class="recipe small">
+          <li>Aquí: «Descargar copia» (abajo).</li>
+          <li>En Safari abre <code>{location.origin + location.pathname}</code> › Compartir › <b>Añadir a pantalla de inicio</b> con <b>«Abrir como app web» desactivado</b>. Borra el icono antiguo.</li>
+          <li>Abre el icono nuevo (se abre en Safari) › Terminal › Ajustes › «Restaurar copia».</li>
+        </ol>
       </Panel>
 
       <Panel>

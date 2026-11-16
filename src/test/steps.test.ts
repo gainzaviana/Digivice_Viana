@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { newSave } from "../core/save";
-import { applyHealthImport, creditLiveSteps, parseHealthText, parseImport, parseSyncReturn, setTrackingWithoutImport, shortcutRunURL, shortcutSyncURL, withoutSyncParams } from "../core/steps";
+import { applyHealthImport, creditLiveSteps, parseHealthText, parseImport, parseSyncReturn, setPendingAction, setTrackingWithoutImport, shortcutRunURL, takePendingAction, shortcutSyncURL, withoutSyncParams } from "../core/steps";
 import { StepDetector } from "../core/motion";
 
 const now = new Date(2026, 10, 13, 18, 0);
@@ -129,5 +129,17 @@ describe("syncing the same day several times", () => {
     // The first reading after switching the counter on is the starting point.
     const credited = ["1.000", "3.250", "3.250", "4,000"].map((t) => applyHealthImport(save, parseHealthText(t, now)!, now).credited);
     expect(credited).toEqual([0, 2250, 0, 750]);
+  });
+});
+
+describe("a counter switch waiting for the Shortcut", () => {
+  it("is used once and expires after 15 minutes", () => {
+    const store = new Map<string, string>();
+    const storage = { getItem: (k: string) => store.get(k) ?? null, setItem: (k: string, v: string) => void store.set(k, v), removeItem: (k: string) => void store.delete(k) } as unknown as Storage;
+    setPendingAction("activar", storage, 1000);
+    expect(takePendingAction(storage, 2000)).toBe("activar");
+    expect(takePendingAction(storage, 3000)).toBeUndefined();
+    setPendingAction("desactivar", storage, 0);
+    expect(takePendingAction(storage, 16 * 60_000)).toBeUndefined();
   });
 });

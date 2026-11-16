@@ -152,9 +152,8 @@ export function shortcutSyncURL(shortcutName: string, gameURL: string, action?: 
 }
 
 /**
- * Runs the Shortcut without a return link: from the home-screen app, iOS would send the
- * x-callback return to Safari (a different save). The Shortcut copies the steps instead, and the
- * app pastes them when you come back.
+ * Runs the Shortcut. Its own last action («Abrir URLs») opens the game with `?syncSteps=`, so no
+ * x-callback return is needed (it would open the game a second time).
  */
 export function shortcutRunURL(shortcutName: string): string {
   return `shortcuts://run-shortcut?name=${encodeURIComponent(shortcutName)}`;
@@ -194,4 +193,24 @@ export function withoutSyncParams(href: string): string {
 export function isStandaloneApp(): boolean {
   if (typeof window === "undefined") return false;
   return (navigator as Navigator & { standalone?: boolean }).standalone === true || matchMedia("(display-mode: standalone)").matches;
+}
+
+/**
+ * A counter switch waiting for the Shortcut's reading («Leer Salud y cambiar»). Kept in
+ * localStorage for 15 minutes, because iOS may open the Shortcut's link in another Safari tab.
+ */
+const PENDING_KEY = "enlace.pendingAction";
+const PENDING_MS = 15 * 60_000;
+export function setPendingAction(action?: "activar" | "desactivar", storage: Storage = localStorage, now = Date.now()) {
+  try {
+    if (action) storage.setItem(PENDING_KEY, JSON.stringify({ action, at: now }));
+    else storage.removeItem(PENDING_KEY);
+  } catch { /* storage blocked */ }
+}
+export function takePendingAction(storage: Storage = localStorage, now = Date.now()): "activar" | "desactivar" | undefined {
+  try {
+    const p = JSON.parse(storage.getItem(PENDING_KEY) ?? "null") as { action: "activar" | "desactivar"; at: number } | null;
+    storage.removeItem(PENDING_KEY);
+    return p && now - p.at < PENDING_MS ? p.action : undefined;
+  } catch { return undefined; }
 }

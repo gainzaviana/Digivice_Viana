@@ -129,10 +129,10 @@ public         manifest, service worker, icons, robots.txt
 tools          validate-data, simulate-walk, make-icon
 ```
 
-## App de la pantalla de inicio (iOS)
+## Sincronizar con Salud (iOS)
 
-- Se abre a pantalla completa (`display: standalone`). iOS le da **su propia partida**, separada de la de Safari: para pasarla, Terminal › Ajustes › «Descargar copia» en una y «Restaurar copia» en la otra.
-- **Cargar pasos de Salud**: en la app ejecuta el atajo sin enlace de vuelta (iOS lo abriría en Safari). El atajo copia los pasos; al volver aparece «¿Ya terminó el atajo? · Pegar».
-- Atajo: «Buscar muestras de salud» (Pasos, inicio hoy) → «Calcular estadísticas» (Suma) → «Copiar al portapapeles» (opcional para Safari: «Detener y generar salida» con Estadísticas).
-- Enlace directo: `…/Digivice_Viana/?syncSteps=8421[&date=AAAA-MM-DD]` = total de Salud de ese día (se suma solo lo nuevo). iOS abre los enlaces en Safari.
+- **Cargar pasos de Salud** ejecuta el atajo (`shortcuts://run-shortcut?name=…`). El atajo: «Buscar muestras de salud» (Pasos, hoy, por día) → «Calcular estadísticas» (Suma) → «Abrir URLs» `https://gainzaviana.github.io/Digivice_Viana/?syncSteps=[Estadísticas]`.
+- El juego lee `?syncSteps=N[&date=AAAA-MM-DD]` al abrir, al volver (`pageshow`, `visibilitychange`, `popstate`, `hashchange`), suma solo lo que creció el total del día, guarda y limpia la dirección. Sin portapapeles.
+- iOS abre los enlaces en **Safari**, nunca en una app web a pantalla completa (que además tiene su propia partida). Por eso el juego se usa en Safari: icono con «Abrir como app web» desactivado. Si iOS abre otra pestaña, las pestañas comparten la partida (evento `storage`) y ninguna pisa a otra.
 - **Modo paseo**: pantalla negra con contador grande; mantiene la pantalla encendida (Wake Lock) para que el sensor siga contando. Se sale con doble toque.
+- Solo pasos reales: no hay forma de escribir ni sumar pasos a mano.

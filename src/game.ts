@@ -4,7 +4,7 @@ import { loadGameData } from "./data/load";
 import { validate } from "./data/validate";
 import { Rng } from "./core/random";
 import { loadSave, newSave, storeSave, type GameSave, type PendingEvent } from "./core/save";
-import { applyHealthImport, creditLiveSteps, parseImport, parseSyncReturn, setTrackingWithoutImport, withoutSyncParams, type HealthImport } from "./core/steps";
+import { applyHealthImport, creditLiveSteps, parseImport, parseSyncReturn, takePendingAction, setTrackingWithoutImport, withoutSyncParams, type HealthImport } from "./core/steps";
 import { rest, walk } from "./systems/walk";
 import { upgradeSave } from "./systems/upgrade";
 import { refreshDaily } from "./systems/challenges";
@@ -85,12 +85,30 @@ export class Game {
     if (back || location.hash) history.replaceState(null, "", withoutSyncParams(location.href));
     if (back && !back.ok) {
       this.show(back.reason === "cancel" ? "Sincronización cancelada."
-        : back.reason === "empty" ? "No llegaron pasos válidos. Revisa que el último bloque del atajo sea «Detener y generar salida» con las muestras de salud (o que el enlace lleve ?syncSteps=número)."
+        : back.reason === "empty" ? "No llegaron pasos válidos. Revisa que el atajo abra el juego con ?syncSteps= seguido de las Estadísticas (la suma de pasos)."
         : "El atajo falló. Comprueba que se llama igual que en Ajustes y que tiene permiso para leer los pasos.");
       return;
     }
-    if (imp) this.importHealth(imp);
+    if (imp) {
+      if (!imp.action) imp.action = takePendingAction();
+      this.importHealth(imp);
+    }
   }
+
+  /**
+   * Another tab of the game (iOS may open the Shortcut's link in a new Safari tab) saved newer
+   * progress: take it, so this tab never writes its older copy over it.
+   */
+  reloadFromStorage() {
+    if (this.battle) { this.reloadAfterBattle = true; return; }
+    const fresh = loadSave();
+    if (JSON.stringify(fresh) === JSON.stringify(this.save)) return;
+    upgradeSave(fresh, this.data);
+    this.save = fresh;
+    sound.enabled = fresh.settings.sound;
+    this.changed();
+  }
+  private reloadAfterBattle = false;
 
   importHealth(imp: HealthImport) {
     const out = applyHealthImport(this.save, imp);
@@ -177,6 +195,7 @@ export class Game {
     if (!this.battle) return;
     const b = this.battle;
     this.battle = undefined;
+    if (this.reloadAfterBattle) { this.reloadAfterBattle = false; this.reloadFromStorage(); }
     this.perform((save, data) => finishBattle(save, b, data));
   }
 

@@ -516,5 +516,3 @@ details[open] summary { margin-bottom: 6px; }
 .walk-label { font-size: 15px; opacity: .8; }
 .walk-sub { font-size: 13px; opacity: .55; max-width: 320px; }
 .walk-hint { position: absolute; bottom: calc(20px + env(safe-area-inset-bottom)); font-size: 12px; opacity: .4; }
-
-.paste-box { min-height: 48px; display: flex; align-items: center; justify-content: center; color: var(--muted); -webkit-user-select: text; user-select: text; }

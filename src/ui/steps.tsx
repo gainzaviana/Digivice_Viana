@@ -1,7 +1,7 @@
 import { useEffect, useState } from "preact/hooks";
 import { createPortal } from "preact/compat";
 import { game, useGame } from "../game";
-import { isStandaloneApp, parseHealthText, shortcutRunURL, shortcutSyncURL, stepsToday } from "../core/steps";
+import { isStandaloneApp, setPendingAction, shortcutRunURL, stepsToday } from "../core/steps";
 import { sound } from "../audio/sound";
 import { requestMotionPermission, startMotion, type MotionPermission } from "../core/motion";
 import { P } from "./theme";
@@ -71,7 +71,6 @@ export function StepsPanel() {
     return () => { permissionListeners.delete(fn); };
   }, []);
   const last = s.steps.lastImport ? new Date(s.steps.lastImport) : undefined;
-  const wait = awaiting();
   return (
     <Panel>
       <div class="row">
@@ -87,7 +86,8 @@ export function StepsPanel() {
         {last ? `Última lectura de Salud: ${last.toLocaleString("es", { dateStyle: "short", timeStyle: "short" })}` : "Aún no has sincronizado con Salud."}
       </div>
       <SensorStatus tracking={tracking} enabled={s.settings.motionSensor} />
-      {wait ? <PasteSteps action={wait.action} /> : <PixelButton title="Cargar pasos de Salud" colour={P.teal2} onClick={() => loadFromHealth(s.settings.shortcutName)} />}
+      {isStandaloneApp() && <StandaloneNote />}
+      <PixelButton title="Cargar pasos de Salud" colour={P.teal2} onClick={() => loadFromHealth(s.settings.shortcutName)} />
       {s.settings.motionSensor && <PixelButton small title="Modo paseo" colour={P.green2} disabled={!tracking} onClick={() => { askMotion(); setDialog({ kind: "walk" }); }} />}
       {dialog?.kind === "switch" && (
         <SwitchDialog on={dialog.on} onClose={() => setDialog(undefined)}
@@ -100,39 +100,14 @@ export function StepsPanel() {
 }
 
 /**
- * After the Shortcut copied today's steps: «Pegar pasos» reads the clipboard (iOS shows its own
- * «Pegar» bubble the first time; tap it). If iOS refuses, a paste-only box appears: hold on it
- * and choose «Pegar». It accepts pasting only, never typing.
+ * iOS opens the Shortcut's link in Safari, never in a home-screen web app, and each keeps its own
+ * save. So automatic sync needs the game in Safari (an icon with «Abrir como app web» off).
  */
-function PasteSteps({ action }: { action?: "activar" | "desactivar" }) {
-  const [box, setBox] = useState(false);
-  const [error, setError] = useState<string>();
-  const tryRead = async () => {
-    const r = await pasteHealth(action);
-    if (r === "denied") { setBox(true); setError("iOS no dejó leer el portapapeles. Mantén el dedo en el recuadro y elige «Pegar»."); }
-    else if (r === "empty") setError("El portapapeles no tiene pasos. Ejecuta el atajo otra vez (debe terminar en «Copiar al portapapeles»).");
-  };
-  const onPaste = (e: ClipboardEvent) => {
-    e.preventDefault();
-    const text = e.clipboardData?.getData("text/plain") || e.clipboardData?.getData("text") || "";
-    if (applyPasted(text, action) === "empty") setError("Lo pegado no son pasos de Salud. Ejecuta el atajo otra vez.");
-  };
+function StandaloneNote() {
   return (
-    <div class="stack">
-      <div class="strong small">El atajo ha copiado tus pasos de Salud:</div>
-      <PixelButton title="Pegar pasos" colour={P.teal2} onClick={() => void tryRead()} />
-      {box && (
-        <div class="input paste-box" contentEditable role="textbox" aria-label="Pega aquí los pasos de Salud" inputMode="none"
-          onPaste={onPaste} onBeforeInput={(e) => { if ((e as InputEvent).inputType !== "insertFromPaste") e.preventDefault(); }}
-          onKeyDown={(e) => { if (!(e.metaKey || e.ctrlKey)) e.preventDefault(); }}>
-          Mantén pulsado aquí › Pegar
-        </div>
-      )}
-      {error && <div class="small red">{error}</div>}
-      <div class="buttons">
-        <PixelButton small title="Volver a ejecutar el atajo" colour={P.mist} onClick={() => loadFromHealth(game.save.settings.shortcutName, action)} />
-        <PixelButton small title="Cancelar" colour={P.mist} onClick={() => setAwaiting(undefined)} />
-      </div>
+    <div class="small red">
+      Estás en la app a pantalla completa: iOS abrirá Safari al volver del atajo y los pasos irían a la partida de Safari, no a esta.
+      Para que se carguen solos, juega desde Safari (Terminal › Ajustes › «Jugar desde Safari» te dice cómo).
     </div>
   );
 }
@@ -156,69 +131,15 @@ function SwitchDialog({ on, onHealth, onSkip, onClose }: { on: boolean; onHealth
   );
 }
 
-/** When the home-screen app ran the Shortcut and waits for its copied steps (ms timestamp). */
-const AWAIT_KEY = "enlace.awaitingShortcut";
-const AWAIT_MINUTES = 15;
-type Awaiting = { at: number; action?: "activar" | "desactivar" };
-function awaiting(): Awaiting | undefined {
-  try {
-    const a = JSON.parse(localStorage.getItem(AWAIT_KEY) ?? "null") as Awaiting | null;
-    return a && Date.now() - a.at < AWAIT_MINUTES * 60_000 ? a : undefined;
-  } catch { return undefined; }
-}
-function setAwaiting(a?: Awaiting) {
-  try { if (a) localStorage.setItem(AWAIT_KEY, JSON.stringify(a)); else localStorage.removeItem(AWAIT_KEY); } catch { /* storage blocked */ }
-  notify();
-}
-
 /**
- * Runs the Health Shortcut. In Safari, iOS reopens the game with today's steps, which load by
- * themselves (see Game.handleLocation). In the home-screen app, iOS can't return to it, so the
- * Shortcut copies the steps and a «Pegar pasos» button waits here. `action` also switches the
- * counter at that reading.
+ * Runs the Health Shortcut. Its last action opens the game's address with `?syncSteps=<today's
+ * total>`, which Game.handleLocation reads by itself (in Safari: iOS opens links there). `action`
+ * also switches the counter at that reading.
  */
 export function loadFromHealth(shortcutName: string, action?: "activar" | "desactivar") {
   sound.play("tap");
-  if (isStandaloneApp()) {
-    setAwaiting({ at: Date.now(), action });
-    location.href = shortcutRunURL(shortcutName);
-    return;
-  }
-  location.href = shortcutSyncURL(shortcutName, location.origin + location.pathname, action);
-}
-
-/** Applies pasted text if it holds a Health step total. */
-function applyPasted(text: string, action?: "activar" | "desactivar"): "ok" | "empty" {
-  const imp = parseHealthText(text);
-  if (!imp) return "empty";
-  setAwaiting(undefined);
-  if (action) imp.action = action;
-  game.importHealth(imp);
-  return "ok";
-}
-
-/**
- * Must run from a tap. Reads plain text, or failing that any text-like item the Shortcut copied
- * (a Health sample can arrive as rich text). "denied": iOS refused (bubble dismissed or blocked).
- */
-export async function pasteHealth(action?: "activar" | "desactivar"): Promise<"ok" | "empty" | "denied"> {
-  const clip = navigator.clipboard;
-  if (!clip) return "denied";
-  let texts: string[] = [];
-  try {
-    if (clip.read) {
-      for (const item of await clip.read()) {
-        for (const type of item.types.filter((t) => t.startsWith("text/"))) {
-          const raw = await (await item.getType(type)).text();
-          texts.push(type === "text/html" ? new DOMParser().parseFromString(raw, "text/html").body.textContent ?? "" : raw);
-        }
-      }
-    } else texts = [await clip.readText()];
-  } catch {
-    try { texts = [await clip.readText()]; } catch { return "denied"; }
-  }
-  for (const t of texts) if (applyPasted(t, action) === "ok") return "ok";
-  return "empty";
+  setPendingAction(action);
+  location.href = shortcutRunURL(shortcutName);
 }
 
 function SensorStatus({ tracking, enabled }: { tracking: boolean; enabled: boolean }) {
@@ -313,22 +234,6 @@ export function SyncBanner() {
     document.addEventListener("visibilitychange", onVisible);
     return () => document.removeEventListener("visibilitychange", onVisible);
   }, []);
-  const wait = awaiting();
-  if (wait) {
-    return (
-      <div class="sync-banner" role="region" aria-label="Pegar pasos de Salud">
-        <div class="grow small">
-          <div class="strong">¿Ya terminó el atajo?</div>
-          <div class="tiny">Toca «Pegar» y luego la burbuja «Pegar» de iOS.</div>
-        </div>
-        <PixelButton small title="Pegar" colour={P.teal2} onClick={() => void pasteHealth(wait.action).then((r) => {
-          if (r === "denied") game.show("iOS no dejó leer el portapapeles: toca «Pegar» en la burbuja que aparece, o usa el recuadro de Contador de pasos.");
-          else if (r === "empty") game.show("El portapapeles no tiene pasos. Ejecuta el atajo otra vez (debe terminar en «Copiar al portapapeles»).");
-        })} />
-        <button class="link-button tiny" aria-label="Ocultar" onClick={() => setAwaiting(undefined)}>✕</button>
-      </div>
-    );
-  }
   if (!due || hidden) return null;
   return (
     <div class="sync-banner" role="region" aria-label="Sincronizar con Salud">

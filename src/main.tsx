@@ -42,18 +42,23 @@ function App() {
   useMotionSensor();
   useEffect(() => {
     g.handleLocation();
-    const onHash = () => g.handleLocation();
+    // Load, wake-up and address changes: take any newer save another tab wrote, then read a
+    // `?syncSteps=` the Shortcut opened (it's removed from the address once applied).
+    const onHash = () => { g.reloadFromStorage(); g.handleLocation(); };
+    const onStorage = (e: StorageEvent) => { if (e.key === null || e.key === "enlace.partida") g.reloadFromStorage(); };
     const onVisible = () => {
       if (document.visibilityState !== "visible") return;
-      g.handleLocation(); // a ?syncSteps= / Shortcut return that arrived while away
+      onHash();
       refreshDaily(g.save, g.data);
       g.rest();
       g.changed();
     };
     window.addEventListener("hashchange", onHash);
     window.addEventListener("pageshow", onHash);
+    window.addEventListener("popstate", onHash);
+    window.addEventListener("storage", onStorage);
     document.addEventListener("visibilitychange", onVisible);
-    return () => { window.removeEventListener("hashchange", onHash); window.removeEventListener("pageshow", onHash); document.removeEventListener("visibilitychange", onVisible); };
+    return () => { window.removeEventListener("hashchange", onHash); window.removeEventListener("pageshow", onHash); window.removeEventListener("popstate", onHash); window.removeEventListener("storage", onStorage); document.removeEventListener("visibilitychange", onVisible); };
   }, []);
 
   if (g.battle) return <BattleView battle={g.battle} />;
