@@ -1,7 +1,7 @@
 import { useEffect, useState } from "preact/hooks";
 import { createPortal } from "preact/compat";
 import { game, useGame } from "../game";
-import { isStandaloneApp, setPendingAction, shortcutRunURL, stepsToday } from "../core/steps";
+import { isStandaloneApp, readSyncLog, setPendingAction, shortcutRunURL, stepsToday, writeSyncLog } from "../core/steps";
 import { sound } from "../audio/sound";
 import { requestMotionPermission, startMotion, type MotionPermission } from "../core/motion";
 import { P } from "./theme";
@@ -86,6 +86,7 @@ export function StepsPanel() {
         {last ? `Última lectura de Salud: ${last.toLocaleString("es", { dateStyle: "short", timeStyle: "short" })}` : "Aún no has sincronizado con Salud."}
       </div>
       <SensorStatus tracking={tracking} enabled={s.settings.motionSensor} />
+      <SyncStatus />
       {isStandaloneApp() && <StandaloneNote />}
       <PixelButton title="Cargar pasos de Salud" colour={P.teal2} onClick={() => loadFromHealth(s.settings.shortcutName)} />
       {s.settings.motionSensor && <PixelButton small title="Modo paseo" colour={P.green2} disabled={!tracking} onClick={() => { askMotion(); setDialog({ kind: "walk" }); }} />}
@@ -96,6 +97,51 @@ export function StepsPanel() {
       )}
       {dialog?.kind === "walk" && <WalkMode onClose={() => setDialog(undefined)} />}
     </Panel>
+  );
+}
+
+const safeDecode = (t: string) => { try { return decodeURIComponent(t); } catch { return t; } };
+const ago = (t: number) => {
+  const m = Math.round((Date.now() - t) / 60_000);
+  return m < 1 ? "ahora mismo" : m < 60 ? `hace ${m} min` : `hace ${Math.round(m / 60)} h`;
+};
+
+/**
+ * What this window last received from the Shortcut: the exact address and its result, or a
+ * warning when the Shortcut ran from here but nothing came back (iOS opened it elsewhere).
+ */
+function SyncStatus() {
+  const [, tick] = useState(0);
+  useEffect(() => {
+    const fn = () => { if (document.visibilityState === "visible") tick((n) => n + 1); };
+    document.addEventListener("visibilitychange", fn);
+    const id = setInterval(fn, 30_000);
+    return () => { document.removeEventListener("visibilitychange", fn); clearInterval(id); };
+  }, []);
+  useGame();
+  const log = readSyncLog();
+  const where = isStandaloneApp() ? "esta app a pantalla completa" : "Safari";
+  const lost = log.launched && (!log.signal || log.signal.at < log.launched);
+  return (
+    <details class="sync-status small" open={!!lost}>
+      <summary class={lost ? "red" : "muted"}>
+        {lost ? `Atajo abierto ${ago(log.launched!)}: no ha llegado nada a ${where}.` : log.signal ? `Atajo: recibido ${ago(log.signal.at)}.` : `Aún no ha llegado nada del atajo a ${where}.`}
+      </summary>
+      {lost && (
+        <div class="muted">
+          {isStandaloneApp()
+            ? "iOS abre el enlace del atajo en Safari, no aquí: esos pasos están en la partida de Safari. Mira Ajustes › «Jugar desde Safari»."
+            : "Comprueba que el último bloque del atajo sea «Abrir URLs» con la dirección del juego y ?syncSteps=Estadísticas. Si Safari abrió otra pestaña, esta se pone al día sola."}
+        </div>
+      )}
+      {log.signal && (
+        <div class="muted">
+          Recibido: <code class="raw">{safeDecode(log.signal.raw)}</code><br />
+          Resultado: {log.signal.outcome}
+        </div>
+      )}
+      <div class="muted tiny">Ventana: {where}</div>
+    </details>
   );
 }
 
@@ -139,6 +185,7 @@ function SwitchDialog({ on, onHealth, onSkip, onClose }: { on: boolean; onHealth
 export function loadFromHealth(shortcutName: string, action?: "activar" | "desactivar") {
   sound.play("tap");
   setPendingAction(action);
+  writeSyncLog({ launched: Date.now() });
   location.href = shortcutRunURL(shortcutName);
 }
 

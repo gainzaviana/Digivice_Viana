@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { newSave } from "../core/save";
-import { applyHealthImport, creditLiveSteps, parseHealthText, parseImport, parseSyncReturn, setPendingAction, setTrackingWithoutImport, shortcutRunURL, takePendingAction, shortcutSyncURL, withoutSyncParams } from "../core/steps";
+import { applyHealthImport, creditLiveSteps, parseHealthText, parseImport, parseSyncReturn, setPendingAction, setTrackingWithoutImport, shortcutRunURL, takePendingAction, toInteger, shortcutSyncURL, withoutSyncParams } from "../core/steps";
 import { StepDetector } from "../core/motion";
 
 const now = new Date(2026, 10, 13, 18, 0);
@@ -141,5 +141,22 @@ describe("a counter switch waiting for the Shortcut", () => {
     expect(takePendingAction(storage, 3000)).toBeUndefined();
     setPendingAction("desactivar", storage, 0);
     expect(takePendingAction(storage, 16 * 60_000)).toBeUndefined();
+  });
+});
+
+describe("step totals from Shortcuts, any format", () => {
+  const now = new Date(2026, 10, 16, 12);
+  it("reads whole numbers, decimals and thousands separators", () => {
+    const cases: [string, number][] = [["3250", 3250], ["3250.0", 3250], ["3250,0", 3250], ["3250.000000", 3250], ["3.250", 3250], ["3,250", 3250],
+      ["3 250", 3250], ["3 250", 3250], ["12.345,6", 12346], ["12,345.4", 12345], ["1.234.567", 1234567], ["3250,6", 3251]];
+    for (const [raw, n] of cases) expect([raw, toInteger(raw)]).toEqual([raw, n]);
+    expect(toInteger("abc")).toBeUndefined();
+  });
+  it("accepts ?syncSteps= and #syncSteps=, with units or decimals", () => {
+    for (const [search, hash] of [["?syncSteps=3250.0", ""], ["?syncSteps=3.250%20pasos", ""], ["", "#syncSteps=3,250"], ["?x=1", "#syncSteps=3250&date=2026-11-16"]]) {
+      expect(parseSyncReturn(search, now, hash)).toMatchObject({ ok: true, imp: { steps: 3250, day: "2026-11-16" } });
+    }
+    expect(parseSyncReturn("?syncSteps=", now)).toEqual({ ok: false, reason: "empty" });
+    expect(withoutSyncParams("https://x.io/g/#syncSteps=3250")).toBe("/g/");
   });
 });

@@ -4,7 +4,7 @@ import { loadGameData } from "./data/load";
 import { validate } from "./data/validate";
 import { Rng } from "./core/random";
 import { loadSave, newSave, storeSave, type GameSave, type PendingEvent } from "./core/save";
-import { applyHealthImport, creditLiveSteps, parseImport, parseSyncReturn, takePendingAction, setTrackingWithoutImport, withoutSyncParams, type HealthImport } from "./core/steps";
+import { applyHealthImport, creditLiveSteps, parseImport, parseSyncReturn, takePendingAction, writeSyncLog, setTrackingWithoutImport, withoutSyncParams, type HealthImport } from "./core/steps";
 import { rest, walk } from "./systems/walk";
 import { upgradeSave } from "./systems/upgrade";
 import { refreshDaily } from "./systems/challenges";
@@ -18,6 +18,8 @@ import { sound } from "./audio/sound";
  * The running game: owns the content and the save, applies every credited step, runs the
  * player's actions and tells the interface when anything changed.
  */
+const safeDecode = (t: string) => { try { return decodeURIComponent(t); } catch { return t; } };
+
 export class Game {
   readonly data: GameData;
   save: GameSave;
@@ -79,19 +81,26 @@ export class Game {
 
   /** Reads the Shortcut's return, a `?syncSteps=` link or an old `#importar?…` link, applies it and clears it. */
   handleLocation(): void {
-    // The Health Shortcut's return (?sync=ok&result=…), or an older #importar link.
-    const back = parseSyncReturn(location.search);
+    // `?syncSteps=` / `#syncSteps=` from the Shortcut's «Abrir URLs», an x-callback return
+    // (?sync=ok&result=…), or an older #importar link.
+    const raw = location.search + location.hash;
+    const back = parseSyncReturn(location.search, new Date(), location.hash);
     const imp = back?.ok ? back.imp : parseImport(location.hash);
-    if (back || location.hash) history.replaceState(null, "", withoutSyncParams(location.href));
+    if (!back && !imp) return;
+    history.replaceState(null, "", withoutSyncParams(location.href));
     if (back && !back.ok) {
-      this.show(back.reason === "cancel" ? "Sincronización cancelada."
-        : back.reason === "empty" ? "No llegaron pasos válidos. Revisa que el atajo abra el juego con ?syncSteps= seguido de las Estadísticas (la suma de pasos)."
-        : "El atajo falló. Comprueba que se llama igual que en Ajustes y que tiene permiso para leer los pasos.");
+      const text = back.reason === "cancel" ? "Sincronización cancelada."
+        : back.reason === "empty" ? `Llegó «${safeDecode(raw)}» pero sin un número de pasos. En el atajo, detrás de ?syncSteps= va la variable Estadísticas (la suma).`
+        : "El atajo falló. Comprueba que se llama igual que en Ajustes y que tiene permiso para leer los pasos.";
+      writeSyncLog({ signal: { at: Date.now(), raw, outcome: text } });
+      this.show(text);
       return;
     }
     if (imp) {
       if (!imp.action) imp.action = takePendingAction();
-      this.importHealth(imp);
+      const text = this.importHealth(imp);
+      writeSyncLog({ signal: { at: Date.now(), raw, outcome: `${imp.steps.toLocaleString("es")} pasos en Salud · ${text}` } });
+      this.changed();
     }
   }
 
@@ -118,8 +127,10 @@ export class Game {
     else if (out.matched === 0) parts.push("Salud: sin pasos nuevos.");
     if (imp.action) parts.push(imp.action === "activar" ? "Contador activado." : "Contador desactivado.");
     storeSave(this.save);
-    if (out.credited > 0) this.applySteps(out.credited, parts.join(" "));
-    else this.show(parts.join(" ") || "Pasos sincronizados.");
+    const text = parts.join(" ") || "Pasos sincronizados.";
+    if (out.credited > 0) this.applySteps(out.credited, text);
+    else this.show(text);
+    return text;
   }
 
   liveSteps(n: number, note?: string) {

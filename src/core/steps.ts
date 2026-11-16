@@ -121,12 +121,18 @@ export function parseHealthText(text: string, now = new Date()): HealthImport | 
   return parseImport(`#importar?pasos=${steps}${day ? `&fecha=${day}` : ""}`, now);
 }
 
-/** "6.240" / "6,240" (thousands) → 6240; "6240,6" / "6240.6" (decimals) → 6241. */
-function toInteger(raw: string): number | undefined {
-  const v = raw.replace(/\s/g, "");
+/**
+ * A step count however Shortcuts or a locale wrote it: "6240", "6.240" / "6,240" / "6 240"
+ * (thousands) → 6240; "6240.0" / "6240,6" / "6.240,5" / "6,240.0" (decimals) → 6240 / 6241 / 6241 / 6240.
+ * A single separator followed by exactly 3 digits after 1–3 digits is read as thousands (steps are
+ * whole numbers, so "3.250" is never three and a quarter).
+ */
+export function toInteger(raw: string): number | undefined {
+  const v = raw.replace(/[\s'’]/g, "");
+  if (/^\d+$/.test(v)) return Number(v);
   if (/^\d{1,3}([.,]\d{3})+$/.test(v)) return Number(v.replace(/[.,]/g, ""));
-  if (/^\d+([.,]\d{1,2})?$/.test(v)) return Math.round(Number(v.replace(",", ".")));
-  if (/^\d{1,3}([.,]\d{3})+[.,]\d{1,2}$/.test(v)) return Math.round(Number(v.slice(0, -3).replace(/[.,]/g, "") + "." + v.slice(-2).replace(/\D/g, "")));
+  const m = /^(\d+|\d{1,3}(?:[.,]\d{3})+)[.,](\d+)$/.exec(v);
+  if (m) return Math.round(Number(`${m[1].replace(/[.,]/g, "")}.${m[2]}`));
   return undefined;
 }
 
@@ -162,14 +168,17 @@ export function shortcutRunURL(shortcutName: string): string {
 export type SyncReturn = { ok: true; imp: HealthImport } | { ok: false; reason: "cancel" | "error" | "empty" };
 
 /** Reads the Shortcut's return (`?sync=ok&result=…`). Undefined if the page wasn't opened by it. */
-export function parseSyncReturn(search: string, now = new Date()): SyncReturn | undefined {
+export function parseSyncReturn(search: string, now = new Date(), hash = ""): SyncReturn | undefined {
   const params = new URLSearchParams(search);
+  // The same parameters may come after "#" (`#syncSteps=3250`): add them.
+  if (/^#(syncSteps|sync)=/.test(hash)) for (const [k, v] of new URLSearchParams(hash.slice(1))) if (!params.has(k)) params.set(k, v);
   const state = params.get("sync");
   // A direct link: `?syncSteps=8421` (optionally `&date=2026-11-16`), today's total in Health.
   const direct = params.get("syncSteps");
   if (!state && direct !== null) {
     const date = params.get("date");
-    const imp = parseHealthText(`pasos=${direct}${date ? ` fecha=${date}` : ""}`, now);
+    const value = /\d[\d.,\s'’]*/.exec(direct)?.[0].trim();
+    const imp = value === undefined ? undefined : parseImport(`#importar?pasos=${toInteger(value) ?? "x"}${date ? `&fecha=${date}` : ""}`, now);
     return imp ? { ok: true, imp } : { ok: false, reason: "empty" };
   }
   if (!state) return undefined;
@@ -213,4 +222,22 @@ export function takePendingAction(storage: Storage = localStorage, now = Date.no
     storage.removeItem(PENDING_KEY);
     return p && now - p.at < PENDING_MS ? p.action : undefined;
   } catch { return undefined; }
+}
+
+/**
+ * What this window last heard from the Shortcut, for the sync status line. Kept in localStorage
+ * (per window type: Safari and a full-screen web app each have their own).
+ */
+export interface SyncLog {
+  /** When «Cargar pasos de Salud» last opened the Shortcut from here. */
+  launched?: number;
+  /** The last address with sync parameters that reached this window, and what came of it. */
+  signal?: { at: number; raw: string; outcome: string };
+}
+const LOG_KEY = "enlace.syncLog";
+export function readSyncLog(storage: Storage = localStorage): SyncLog {
+  try { return JSON.parse(storage.getItem(LOG_KEY) ?? "{}") as SyncLog; } catch { return {}; }
+}
+export function writeSyncLog(change: Partial<SyncLog>, storage: Storage = localStorage) {
+  try { storage.setItem(LOG_KEY, JSON.stringify({ ...readSyncLog(storage), ...change })); } catch { /* storage blocked */ }
 }

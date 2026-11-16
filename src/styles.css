@@ -516,3 +516,6 @@ details[open] summary { margin-bottom: 6px; }
 .walk-label { font-size: 15px; opacity: .8; }
 .walk-sub { font-size: 13px; opacity: .55; max-width: 320px; }
 .walk-hint { position: absolute; bottom: calc(20px + env(safe-area-inset-bottom)); font-size: 12px; opacity: .4; }
+
+.sync-status summary { cursor: pointer; }
+.sync-status .raw { word-break: break-all; font-size: 12px; }
