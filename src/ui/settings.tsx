@@ -1,4 +1,5 @@
 import { isStandaloneApp } from "../core/steps";
+import { ShortcutAddress } from "./steps";
 import { useState } from "preact/hooks";
 import { migrate } from "../core/save";
 import { storeSave } from "../core/save";
@@ -77,8 +78,8 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
       <Panel>
         <SectionTitle text="Atajo de Salud" />
         <div class="muted small">
-          Ninguna web puede leer Salud por sí misma. «Cargar pasos de Salud» ejecuta este atajo, que lee el total de hoy y vuelve
-          a abrir el juego con él (<code>?syncSteps=</code>). Se suma solo lo nuevo, sin copiar ni pegar nada.
+          Ninguna web puede leer Salud por sí misma. «Cargar pasos de Salud» ejecuta este atajo y, al terminar, iOS vuelve a abrir
+          el juego en Safari con el total de hoy. Se suma solo lo nuevo, sin copiar ni pegar nada.
         </div>
         <label class="small">
           Nombre del atajo
@@ -87,12 +88,16 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
         <details class="small">
           <summary class="strong">Cómo crear (o cambiar) el atajo · una vez</summary>
           <ol class="recipe">
-            <li>App <b>Atajos</b> › abre <b>{s.shortcutName}</b> (o créalo con «+» con ese nombre exacto) y borra lo que tenga.</li>
+            <li>App <b>Atajos</b> › abre <b>{s.shortcutName}</b> (el nombre debe coincidir con el de arriba) y borra todos sus bloques.</li>
             <li><b>Buscar muestras de salud</b>: Tipo <i>Pasos</i> · filtro Fecha de inicio <i>es hoy</i> · Agrupar por <i>Día</i>.</li>
             <li><b>Calcular estadísticas</b>: <i>Suma</i> de <i>Muestras de salud</i>.</li>
-            <li><b>Abrir URLs</b>: escribe <code>{location.origin + location.pathname}?syncSteps=</code> y justo detrás inserta la variable <i>Estadísticas</i>.</li>
-            <li>Pruébalo con ▶ y permite el acceso a Salud (solo Pasos). Debe abrirse el juego y decir «+N pasos desde Salud».</li>
+            <li><b>Detener y generar salida</b>: <i>Estadísticas</i>. (Si iOS pregunta qué hacer si no hay salida, deja «No hacer nada».)</li>
+            <li>Pruébalo desde el juego con «Cargar pasos de Salud»: la primera vez permite el acceso a Salud (solo Pasos).</li>
           </ol>
+          <p>
+            Alternativa al bloque 4 (usa solo uno de los dos): <b>Abrir URLs</b> con esta dirección y, pegada detrás, la variable <i>Estadísticas</i>.
+          </p>
+          <ShortcutAddress />
           <p>Uso: <b>Cargar pasos de Salud</b> (o ejecuta el atajo desde un widget o una automatización). Se suma solo lo que haya crecido el total de hoy desde la última lectura: sincronizar varias veces nunca duplica.</p>
 
         </details>

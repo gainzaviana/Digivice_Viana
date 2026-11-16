@@ -1,7 +1,7 @@
 import { useEffect, useState } from "preact/hooks";
 import { createPortal } from "preact/compat";
 import { game, useGame } from "../game";
-import { isStandaloneApp, readSyncLog, setPendingAction, shortcutRunURL, stepsToday, writeSyncLog } from "../core/steps";
+import { isStandaloneApp, readSyncLog, setPendingAction, shortcutSyncURL, stepsToday, writeSyncLog } from "../core/steps";
 import { sound } from "../audio/sound";
 import { requestMotionPermission, startMotion, type MotionPermission } from "../core/motion";
 import { P } from "./theme";
@@ -131,7 +131,7 @@ function SyncStatus() {
         <div class="muted">
           {isStandaloneApp()
             ? "iOS abre el enlace del atajo en Safari, no aquí: esos pasos están en la partida de Safari. Mira Ajustes › «Jugar desde Safari»."
-            : "Comprueba que el último bloque del atajo sea «Abrir URLs» con la dirección del juego y ?syncSteps=Estadísticas. Si Safari abrió otra pestaña, esta se pone al día sola."}
+            : "El atajo no devolvió nada. Su último bloque debe ser «Detener y generar salida» con Estadísticas (o «Abrir URLs» con la dirección de abajo y la variable Estadísticas detrás). Otra pestaña de Safari también contaría: esta se pone al día sola."}
         </div>
       )}
       {log.signal && (
@@ -141,7 +141,25 @@ function SyncStatus() {
         </div>
       )}
       <div class="muted tiny">Ventana: {where}</div>
+      <ShortcutAddress />
     </details>
+  );
+}
+
+/** The exact address for the Shortcut's «Abrir URLs» block, with a copy button (no typos). */
+export function ShortcutAddress() {
+  const [copied, setCopied] = useState<boolean>();
+  const url = `${gameAddress()}?syncSteps=`;
+  let input: HTMLInputElement | null = null;
+  return (
+    <div class="stack">
+      <label class="tiny muted">
+        Dirección para «Abrir URLs» (detrás va la variable Estadísticas):
+        <input class="input raw" readOnly value={url} ref={(el) => { input = el; }} onFocus={(e) => (e.target as HTMLInputElement).select()} />
+      </label>
+      <PixelButton small title={copied ? "¡Copiada!" : "Copiar dirección"} colour={P.mist} onClick={() => void copyText(url, input).then(setCopied)} />
+      {copied === false && <div class="tiny muted">Seleccionada: toca «Copiar» en el menú de iOS.</div>}
+    </div>
   );
 }
 
@@ -177,16 +195,28 @@ function SwitchDialog({ on, onHealth, onSkip, onClose }: { on: boolean; onHealth
   );
 }
 
+/** The game's own address, as the Shortcut's «Abrir URLs» needs it. */
+export const gameAddress = () => location.origin + location.pathname;
+
 /**
- * Runs the Health Shortcut. Its last action opens the game's address with `?syncSteps=<today's
- * total>`, which Game.handleLocation reads by itself (in Safari: iOS opens links there). `action`
- * also switches the counter at that reading.
+ * Runs the Health Shortcut through x-callback-url. When it ends, iOS opens x-success
+ * (`<game>?sync=ok`) and appends `&result=<the Shortcut's output>`; if the Shortcut instead ends
+ * with «Abrir URLs» `<game>?syncSteps=…`, that link is read the same way. Both land in Safari
+ * (iOS never opens links in a full-screen web app); `action` also switches the counter.
  */
 export function loadFromHealth(shortcutName: string, action?: "activar" | "desactivar") {
   sound.play("tap");
   setPendingAction(action);
   writeSyncLog({ launched: Date.now() });
-  location.href = shortcutRunURL(shortcutName);
+  location.href = shortcutSyncURL(shortcutName, gameAddress(), action);
+}
+
+/** Copies a text on a tap; if the clipboard can't be written, selects it for a manual copy. */
+async function copyText(text: string, select?: HTMLInputElement | null): Promise<boolean> {
+  try { await navigator.clipboard.writeText(text); return true; } catch {
+    select?.focus(); select?.select();
+    return false;
+  }
 }
 
 function SensorStatus({ tracking, enabled }: { tracking: boolean; enabled: boolean }) {

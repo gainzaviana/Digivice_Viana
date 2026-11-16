@@ -81,8 +81,8 @@ export class Game {
 
   /** Reads the Shortcut's return, a `?syncSteps=` link or an old `#importar?…` link, applies it and clears it. */
   handleLocation(): void {
-    // `?syncSteps=` / `#syncSteps=` from the Shortcut's «Abrir URLs», an x-callback return
-    // (?sync=ok&result=…), or an older #importar link.
+    // The x-callback return (?sync=ok&result=… or a bare ?result=…), `?syncSteps=` /
+    // `#syncSteps=` from the Shortcut's «Abrir URLs», or an older #importar link.
     const raw = location.search + location.hash;
     const back = parseSyncReturn(location.search, new Date(), location.hash);
     const imp = back?.ok ? back.imp : parseImport(location.hash);
@@ -90,7 +90,7 @@ export class Game {
     history.replaceState(null, "", withoutSyncParams(location.href));
     if (back && !back.ok) {
       const text = back.reason === "cancel" ? "Sincronización cancelada."
-        : back.reason === "empty" ? `Llegó «${safeDecode(raw)}» pero sin un número de pasos. En el atajo, detrás de ?syncSteps= va la variable Estadísticas (la suma).`
+        : back.reason === "empty" ? `Llegó «${safeDecode(raw)}» pero sin un número de pasos. El atajo debe terminar en «Detener y generar salida» con Estadísticas (o, en «Abrir URLs», la variable Estadísticas detrás de ?syncSteps=).`
         : "El atajo falló. Comprueba que se llama igual que en Ajustes y que tiene permiso para leer los pasos.";
       writeSyncLog({ signal: { at: Date.now(), raw, outcome: text } });
       this.show(text);

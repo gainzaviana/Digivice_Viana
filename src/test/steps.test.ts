@@ -160,3 +160,15 @@ describe("step totals from Shortcuts, any format", () => {
     expect(withoutSyncParams("https://x.io/g/#syncSteps=3250")).toBe("/g/");
   });
 });
+
+describe("x-callback returns", () => {
+  const now = new Date(2026, 10, 16, 12);
+  it("reads ?sync=ok&result= and a bare ?result=, in any number format", () => {
+    expect(parseSyncReturn("?sync=ok&result=3250.0", now)).toMatchObject({ ok: true, imp: { steps: 3250 } });
+    expect(parseSyncReturn("?result=3.250", now)).toMatchObject({ ok: true, imp: { steps: 3250 } });
+    expect(parseSyncReturn("?sync=ok", now)).toEqual({ ok: false, reason: "empty" });
+    expect(shortcutSyncURL("enlace pasos", "https://g.io/Digivice_Viana/")).toBe(
+      "shortcuts://x-callback-url/run-shortcut?name=enlace%20pasos&x-success=" + encodeURIComponent("https://g.io/Digivice_Viana/?sync=ok")
+      + "&x-cancel=" + encodeURIComponent("https://g.io/Digivice_Viana/?sync=cancel") + "&x-error=" + encodeURIComponent("https://g.io/Digivice_Viana/?sync=error"));
+  });
+});

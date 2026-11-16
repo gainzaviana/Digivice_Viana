@@ -157,10 +157,7 @@ export function shortcutSyncURL(shortcutName: string, gameURL: string, action?: 
     + `&x-success=${encodeURIComponent(back("ok"))}&x-cancel=${encodeURIComponent(back("cancel"))}&x-error=${encodeURIComponent(back("error"))}`;
 }
 
-/**
- * Runs the Shortcut. Its own last action («Abrir URLs») opens the game with `?syncSteps=`, so no
- * x-callback return is needed (it would open the game a second time).
- */
+/** Runs the Shortcut with no return (kept for reference; the game uses shortcutSyncURL). */
 export function shortcutRunURL(shortcutName: string): string {
   return `shortcuts://run-shortcut?name=${encodeURIComponent(shortcutName)}`;
 }
@@ -179,6 +176,11 @@ export function parseSyncReturn(search: string, now = new Date(), hash = ""): Sy
     const date = params.get("date");
     const value = /\d[\d.,\s'’]*/.exec(direct)?.[0].trim();
     const imp = value === undefined ? undefined : parseImport(`#importar?pasos=${toInteger(value) ?? "x"}${date ? `&fecha=${date}` : ""}`, now);
+    return imp ? { ok: true, imp } : { ok: false, reason: "empty" };
+  }
+  // A bare `?result=` (x-success without our `sync=ok` marker) is a return too.
+  if (!state && params.has("result")) {
+    const imp = parseHealthText(params.get("result") ?? "", now);
     return imp ? { ok: true, imp } : { ok: false, reason: "empty" };
   }
   if (!state) return undefined;
