@@ -90,6 +90,7 @@ export class Game {
     history.replaceState(null, "", withoutSyncParams(location.href));
     if (back && !back.ok) {
       const text = back.reason === "cancel" ? "Sincronización cancelada."
+        : back.reason === "zero" ? `El atajo devolvió 0 pasos (recibido «${safeDecode(raw)}»), así que no se ha guardado nada. Casi siempre es que Atajos no tiene permiso para leer Pasos: iOS no avisa, solo devuelve vacío. Ajustes › Salud › Acceso a datos y dispositivos › Atajos › activa Pasos.`
         : back.reason === "empty" ? `Llegó «${safeDecode(raw)}» pero sin un número de pasos. El atajo debe terminar en «Detener y generar salida» con Estadísticas (o, en «Abrir URLs», la variable Estadísticas detrás de ?syncSteps=).`
         : "El atajo falló. Comprueba que se llama igual que en Ajustes y que tiene permiso para leer los pasos.";
       writeSyncLog({ signal: { at: Date.now(), raw, outcome: text } });
@@ -99,7 +100,7 @@ export class Game {
     if (imp) {
       if (!imp.action) imp.action = takePendingAction();
       const text = this.importHealth(imp);
-      writeSyncLog({ signal: { at: Date.now(), raw, outcome: `${imp.steps.toLocaleString("es")} pasos en Salud · ${text}` } });
+      writeSyncLog({ signal: { at: Date.now(), raw, outcome: text } });
       this.changed();
     }
   }
@@ -121,10 +122,13 @@ export class Game {
 
   importHealth(imp: HealthImport) {
     const out = applyHealthImport(this.save, imp);
+    const n = (x: number) => x.toLocaleString("es");
     const parts: string[] = [];
-    if (out.credited > 0) parts.push(`+${out.credited.toLocaleString("es")} pasos desde Salud.`);
-    else if (out.skipped > 0) parts.push(`Salud: ${out.skipped.toLocaleString("es")} pasos con el contador apagado (no cuentan).`);
-    else if (out.matched === 0) parts.push("Salud: sin pasos nuevos.");
+    if (out.credited > 0) parts.push(`+${n(out.credited)} pasos desde Salud.`);
+    else if (out.baseline) parts.push(`Salud marca ${n(imp.steps)}: como activaste el contador hoy sin leer Salud, esta lectura es el punto de partida y cuentan los pasos desde ahora.`);
+    else if (out.skipped > 0) parts.push(`Salud: ${n(out.skipped)} pasos con el contador apagado (no cuentan).`);
+    else if (out.matched > 0) parts.push(`Salud: ${n(out.matched)} pasos que el sensor ya había contado.`);
+    else parts.push(`Salud marca ${n(imp.steps)} y ya estaban contados (${n(out.before)}): sin pasos nuevos.`);
     if (imp.action) parts.push(imp.action === "activar" ? "Contador activado." : "Contador desactivado.");
     storeSave(this.save);
     const text = parts.join(" ") || "Pasos sincronizados.";

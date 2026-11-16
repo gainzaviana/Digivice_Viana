@@ -51,6 +51,10 @@ function prune(save: GameSave, now: Date) {
 export interface ImportOutcome {
   /** Steps credited to the game now. */
   credited: number;
+  /** Health's total already counted for that day before this reading. */
+  before: number;
+  /** This reading only marked where counting starts (first one after switching on without Health). */
+  baseline?: boolean;
   /** Health growth seen while the counter was off (recorded, not credited). */
   skipped: number;
   /** Growth already credited by the motion sensor. */
@@ -60,24 +64,25 @@ export interface ImportOutcome {
 /** Applies a Health total for a day. The toggle action, if any, happens after it. */
 export function applyHealthImport(save: GameSave, imp: HealthImport, now = new Date()): ImportOutcome {
   const d = stepDay(save, imp.day);
+  const before = d.healthCounted;
   const growth = Math.max(0, imp.steps - d.healthCounted);
   d.healthCounted = Math.max(d.healthCounted, imp.steps);
   save.steps.lastImport = now.getTime();
-  let outcome: ImportOutcome = { credited: 0, skipped: 0, matched: 0 };
+  let outcome: ImportOutcome = { credited: 0, before, skipped: 0, matched: 0 };
   if (save.steps.baselineDay === imp.day && save.steps.tracking) {
     // First reading after switching on without one: it only marks where counting starts.
     save.steps.baselineDay = undefined;
     d.liveUnmatched = Math.max(0, d.liveUnmatched - growth);
-    outcome = { credited: 0, skipped: growth, matched: 0 };
+    outcome = { credited: 0, before, baseline: true, skipped: growth, matched: 0 };
   } else if (growth > 0) {
     if (save.steps.tracking) {
       const matched = Math.min(growth, d.liveUnmatched);
       d.liveUnmatched -= matched;
       d.credited += growth - matched;
-      outcome = { credited: growth - matched, skipped: 0, matched };
+      outcome = { credited: growth - matched, before, skipped: 0, matched };
     } else {
       d.liveUnmatched = 0;
-      outcome = { credited: 0, skipped: growth, matched: 0 };
+      outcome = { credited: 0, before, skipped: growth, matched: 0 };
     }
   }
   if (imp.action) {
@@ -115,8 +120,10 @@ export function parseHealthText(text: string, now = new Date()): HealthImport | 
   const link = t.indexOf("#importar?");
   if (link >= 0) return parseImport(t.slice(link), now);
   const tagged = /pasos\s*[=:]\s*([\d.,\s]+)/i.exec(t)?.[1];
+  // A Health sample as text: "3.250 pasos", "3250 count", "3,250 steps" (maybe next to its dates).
+  const unit = /(?<![\d.,:])(\d{1,3}(?:[.,\s\u00a0\u202f]\d{3})+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)\s*(pasos|steps|count|recuento|cuenta)\b/i.exec(t)?.[1];
   const day = /fecha\s*[=:]\s*(\d{4}-\d{2}-\d{2})/i.exec(t)?.[1];
-  const steps = tagged !== undefined ? toInteger(tagged) : loneNumber(t);
+  const steps = tagged !== undefined ? toInteger(tagged) : unit !== undefined ? toInteger(unit) : loneNumber(t);
   if (steps === undefined) return undefined;
   return parseImport(`#importar?pasos=${steps}${day ? `&fecha=${day}` : ""}`, now);
 }
@@ -162,10 +169,17 @@ export function shortcutRunURL(shortcutName: string): string {
   return `shortcuts://run-shortcut?name=${encodeURIComponent(shortcutName)}`;
 }
 
-export type SyncReturn = { ok: true; imp: HealthImport } | { ok: false; reason: "cancel" | "error" | "empty" };
+/** "zero": the Shortcut sent 0, which almost always means Shortcuts can't read Steps in Health. */
+export type SyncReturn = { ok: true; imp: HealthImport } | { ok: false; reason: "cancel" | "error" | "empty" | "zero" };
 
 /** Reads the Shortcut's return (`?sync=ok&result=…`). Undefined if the page wasn't opened by it. */
 export function parseSyncReturn(search: string, now = new Date(), hash = ""): SyncReturn | undefined {
+  const r = readSyncParams(search, now, hash);
+  // A total of 0 is never applied: it's what Health gives Shortcuts without permission.
+  return r?.ok && r.imp.steps <= 0 ? { ok: false, reason: "zero" } : r;
+}
+
+function readSyncParams(search: string, now: Date, hash: string): SyncReturn | undefined {
   const params = new URLSearchParams(search);
   // The same parameters may come after "#" (`#syncSteps=3250`): add them.
   if (/^#(syncSteps|sync)=/.test(hash)) for (const [k, v] of new URLSearchParams(hash.slice(1))) if (!params.has(k)) params.set(k, v);

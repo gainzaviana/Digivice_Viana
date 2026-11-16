@@ -90,8 +90,8 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
           <ol class="recipe">
             <li>App <b>Atajos</b> › abre <b>{s.shortcutName}</b> (el nombre debe coincidir con el de arriba) y borra todos sus bloques.</li>
             <li><b>Buscar muestras de salud</b>: Tipo <i>Pasos</i> · filtro Fecha de inicio <i>es hoy</i> · Agrupar por <i>Día</i>.</li>
-            <li><b>Calcular estadísticas</b>: <i>Suma</i> de <i>Muestras de salud</i>.</li>
-            <li><b>Detener y generar salida</b>: <i>Estadísticas</i>. (Si iOS pregunta qué hacer si no hay salida, deja «No hacer nada».)</li>
+            <li><b>Calcular estadísticas</b>: <i>Suma</i>. Si su entrada no está ya unida al bloque 1, toca el campo › <i>Seleccionar variable</i> › toca el bloque «Buscar muestras de salud». (O sáltate este bloque: el juego también entiende la muestra tal cual, p. ej. «3.250 pasos».)</li>
+            <li><b>Detener y generar salida</b>: <i>Estadísticas</i> (o <i>Muestras de salud</i> si te saltaste el bloque 2). (Si iOS pregunta qué hacer si no hay salida, deja «No hacer nada».)</li>
             <li>Pruébalo desde el juego con «Cargar pasos de Salud»: la primera vez permite el acceso a Salud (solo Pasos).</li>
           </ol>
           <p>

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { newSave } from "../core/save";
 import { applyHealthImport, creditLiveSteps, parseHealthText, parseImport, parseSyncReturn, setPendingAction, setTrackingWithoutImport, shortcutRunURL, takePendingAction, toInteger, shortcutSyncURL, withoutSyncParams } from "../core/steps";
 import { StepDetector } from "../core/motion";
+import type { HealthImport } from "../core/steps";
 
 const now = new Date(2026, 10, 13, 18, 0);
 
@@ -170,5 +171,33 @@ describe("x-callback returns", () => {
     expect(shortcutSyncURL("enlace pasos", "https://g.io/Digivice_Viana/")).toBe(
       "shortcuts://x-callback-url/run-shortcut?name=enlace%20pasos&x-success=" + encodeURIComponent("https://g.io/Digivice_Viana/?sync=ok")
       + "&x-cancel=" + encodeURIComponent("https://g.io/Digivice_Viana/?sync=cancel") + "&x-error=" + encodeURIComponent("https://g.io/Digivice_Viana/?sync=error"));
+  });
+});
+
+describe("what the Shortcut sends back", () => {
+  const now = new Date(2026, 10, 16, 12);
+  it("never applies 0, empty or a word, and says why", () => {
+    for (const q of ["?sync=ok&result=0", "?sync=ok&result=0.0", "?syncSteps=0", "?result=0,0"]) expect([q, parseSyncReturn(q, now)]).toEqual([q, { ok: false, reason: "zero" }]);
+    for (const q of ["?sync=ok&result=", "?syncSteps=", "?syncSteps=Estad%C3%ADsticas", "?sync=ok"]) expect([q, parseSyncReturn(q, now)]).toEqual([q, { ok: false, reason: "empty" }]);
+  });
+  it("credits the whole total when nothing was counted today, then only the growth", () => {
+    const save = newSave();
+    save.steps.tracking = true;
+    const first = applyHealthImport(save, (parseSyncReturn("?sync=ok&result=3250.0", now) as { imp: HealthImport }).imp, now);
+    expect(first).toMatchObject({ credited: 3250, before: 0 });
+    expect(save.steps.days["2026-11-16"]).toMatchObject({ healthCounted: 3250, credited: 3250 });
+    const again = applyHealthImport(save, parseHealthText("3.250", now)!, now);
+    expect(again).toMatchObject({ credited: 0, before: 3250 });
+    expect(applyHealthImport(save, parseHealthText("3,900", now)!, now)).toMatchObject({ credited: 650, before: 3250 });
+  });
+});
+
+describe("a raw Health sample as the Shortcut's output", () => {
+  it("finds the step count next to its unit, even with dates around it", () => {
+    const now = new Date(2026, 10, 16, 20);
+    for (const t of ["3250 pasos", "3.250 pasos", "3,250 steps", "3250 count", "16 nov 2026, 0:00 – 16 nov 2026, 23:59 3.250 pasos", "3250"]) {
+      expect([t, parseHealthText(t, now)?.steps]).toEqual([t, 3250]);
+    }
+    expect(parseSyncReturn("?sync=ok&result=3.250%20pasos", now)).toMatchObject({ ok: true, imp: { steps: 3250 } });
   });
 });
