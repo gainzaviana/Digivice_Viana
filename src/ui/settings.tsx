@@ -89,13 +89,14 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
         <details class="small">
           <summary class="strong">Cómo crear (o cambiar) el atajo · una vez</summary>
           <ol class="recipe">
-            <li>Abre la app <b>Atajos</b> (si no la tienes, es gratis en el App Store). Crea uno con «+» o abre el que ya tenías, y llámalo exactamente <b>{s.shortcutName}</b>.</li>
-            <li>Primer bloque: <b>Buscar muestras de salud</b> · Tipo <i>Pasos</i> · filtro Fecha de inicio <i>es hoy</i> · Agrupar por <i>Día</i>.</li>
-            <li>Debajo: <b>Copiar al portapapeles</b> (copia las Muestras de salud). Lo usa la app de la pantalla de inicio.</li>
-            <li>Al final: <b>Detener y generar salida</b>. Toca su campo y elige <i>Muestras de salud</i>. Lo usa Safari.</li>
-            <li>Pruébalo con ▶ y permite el acceso a Salud (solo Pasos).</li>
+            <li>App <b>Atajos</b> › «+» (o abre el tuyo). Su nombre debe ser igual al de arriba: <b>{s.shortcutName}</b>.</li>
+            <li><b>Buscar muestras de salud</b>: Tipo <i>Pasos</i> · añade el filtro Fecha de inicio <i>es hoy</i> · Agrupar por <i>Día</i> (así Salud no suma dos veces los del reloj y los del iPhone).</li>
+            <li><b>Calcular estadísticas</b>: <i>Suma</i> de <i>Muestras de salud</i>. Convierte los pasos en un número (por ejemplo 3250).</li>
+            <li><b>Copiar al portapapeles</b>: <i>Estadísticas</i>. Es lo que pega la app de la pantalla de inicio.</li>
+            <li>Opcional, solo si juegas en Safari: <b>Detener y generar salida</b> con <i>Estadísticas</i>.</li>
+            <li>Pruébalo con ▶ y permite el acceso a Salud (solo Pasos). Debe acabar mostrando un número.</li>
           </ol>
-          <p>Uso: pulsa <b>Cargar pasos de Salud</b> en Inicio o Mapa. Siempre se suma solo lo nuevo desde la última lectura del día.</p>
+          <p>Uso: <b>Cargar pasos de Salud</b> › se abre Atajos › vuelve a Enlace › <b>Pegar pasos</b> (y la burbuja «Pegar» de iOS). Se suma solo lo que haya crecido el total de hoy desde la última lectura: sincronizar varias veces nunca duplica.</p>
           <p>
             También vale un enlace con el total de hoy: <code>{location.origin + location.pathname}?syncSteps=8421</code>.
             Ojo: iOS abre los enlaces en Safari, no en la app de la pantalla de inicio (cada una tiene su propia partida).

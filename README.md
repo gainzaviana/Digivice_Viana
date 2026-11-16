@@ -19,7 +19,7 @@ them ever counts twice:
   Terminal › Ajustes; Back Tap makes it a double tap on the back of the phone) and tap *Pegar de Salud*,
   or type the number from the Health app. Only the growth since the last reading
   counts, minus what the sensor or simulator already credited that day.
-- **Simular actividad:** adds 100–2,500 steps right away; a later Health sync the same day subtracts them.
+- **Real steps only:** steps come from Apple Health (via the Shortcut) or the motion sensor while the game is open. There is no way to type or add steps.
 
 The counter switch decides whether steps count. Giving the current Health total when switching marks
 exactly where counting starts or stops.
@@ -133,6 +133,6 @@ tools          validate-data, simulate-walk, make-icon
 
 - Se abre a pantalla completa (`display: standalone`). iOS le da **su propia partida**, separada de la de Safari: para pasarla, Terminal › Ajustes › «Descargar copia» en una y «Restaurar copia» en la otra.
 - **Cargar pasos de Salud**: en la app ejecuta el atajo sin enlace de vuelta (iOS lo abriría en Safari). El atajo copia los pasos; al volver aparece «¿Ya terminó el atajo? · Pegar».
-- Atajo: «Buscar muestras de salud» (Pasos, hoy, por día) → «Copiar al portapapeles» → «Detener y generar salida» (Muestras de salud). Sirve para Safari y para la app.
+- Atajo: «Buscar muestras de salud» (Pasos, inicio hoy) → «Calcular estadísticas» (Suma) → «Copiar al portapapeles» (opcional para Safari: «Detener y generar salida» con Estadísticas).
 - Enlace directo: `…/Digivice_Viana/?syncSteps=8421[&date=AAAA-MM-DD]` = total de Salud de ese día (se suma solo lo nuevo). iOS abre los enlaces en Safari.
-- **+500 / +1.000 / Otra cantidad** (hasta 5.000) y **Modo paseo**: pantalla negra con contador grande; mantiene la pantalla encendida (Wake Lock) para que el sensor siga contando. Se sale con doble toque.
+- **Modo paseo**: pantalla negra con contador grande; mantiene la pantalla encendida (Wake Lock) para que el sensor siga contando. Se sale con doble toque.

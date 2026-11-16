@@ -105,9 +105,6 @@ export function setTrackingWithoutImport(save: GameSave, on: boolean, now = new 
 
 export const stepsToday = (save: GameSave, now = new Date()) => save.steps.days[dayKey(now)]?.credited ?? 0;
 
-/** Most steps the activity simulator adds at once. */
-export const MAX_SIMULATED = 5_000;
-
 /**
  * Reads today's Health total from pasted text: what the Shortcut copies ("enlace pasos=8421
  * fecha=2026-11-13", or a Health sample as text such as "6.240 pasos" / "6240 count"), an

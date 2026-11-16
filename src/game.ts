@@ -3,8 +3,8 @@ import type { GameData } from "./data/models";
 import { loadGameData } from "./data/load";
 import { validate } from "./data/validate";
 import { Rng } from "./core/random";
-import { dayKey, loadSave, newSave, storeSave, type GameSave, type PendingEvent } from "./core/save";
-import { applyHealthImport, creditLiveSteps, MAX_SIMULATED, parseImport, parseSyncReturn, setTrackingWithoutImport, withoutSyncParams, type HealthImport } from "./core/steps";
+import { loadSave, newSave, storeSave, type GameSave, type PendingEvent } from "./core/save";
+import { applyHealthImport, creditLiveSteps, parseImport, parseSyncReturn, setTrackingWithoutImport, withoutSyncParams, type HealthImport } from "./core/steps";
 import { rest, walk } from "./systems/walk";
 import { upgradeSave } from "./systems/upgrade";
 import { refreshDaily } from "./systems/challenges";
@@ -110,22 +110,12 @@ export class Game {
   }
 
   /**
-   * The counter's switch. With today's Health total, that reading marks exactly where counting
-   * starts or stops; without it, the next reading of the day does.
+   * The counter's switch without a Health reading (the next reading of the day marks where
+   * counting started or stopped). With Health, the Shortcut's return carries the action.
    */
-  switchCounter(on: boolean, healthToday?: number) {
-    if (healthToday !== undefined) this.importHealth({ steps: healthToday, day: dayKey(), action: on ? "activar" : "desactivar" });
-    else { this.setTracking(on); this.show(on ? "Contador activado." : "Contador desactivado."); }
-  }
-
-  /**
-   * Activity simulator: steps credited now, like the motion sensor's. A later Health reading of the
-   * same day subtracts them, so walking that is also in Health never counts twice.
-   */
-  simulate(n: number) {
-    const steps = Math.max(0, Math.min(MAX_SIMULATED, Math.floor(n)));
-    if (!this.save.steps.tracking) { this.show("Activa el contador para que cuenten los pasos."); return; }
-    this.liveSteps(steps, `+${steps.toLocaleString("es")} pasos de actividad.`);
+  switchCounter(on: boolean) {
+    this.setTracking(on);
+    this.show(on ? "Contador activado." : "Contador desactivado.");
   }
 
   setTracking(on: boolean) {

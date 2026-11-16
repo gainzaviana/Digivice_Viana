@@ -45,13 +45,15 @@ function App() {
     const onHash = () => g.handleLocation();
     const onVisible = () => {
       if (document.visibilityState !== "visible") return;
+      g.handleLocation(); // a ?syncSteps= / Shortcut return that arrived while away
       refreshDaily(g.save, g.data);
       g.rest();
       g.changed();
     };
     window.addEventListener("hashchange", onHash);
+    window.addEventListener("pageshow", onHash);
     document.addEventListener("visibilitychange", onVisible);
-    return () => { window.removeEventListener("hashchange", onHash); document.removeEventListener("visibilitychange", onVisible); };
+    return () => { window.removeEventListener("hashchange", onHash); window.removeEventListener("pageshow", onHash); document.removeEventListener("visibilitychange", onVisible); };
   }, []);
 
   if (g.battle) return <BattleView battle={g.battle} />;

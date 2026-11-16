@@ -117,3 +117,17 @@ describe("direct links and the home-screen app", () => {
     expect(shortcutRunURL("Enlace pasos")).toBe("shortcuts://run-shortcut?name=Enlace%20pasos");
   });
 });
+
+describe("syncing the same day several times", () => {
+  it("reads formatted totals and only credits the growth", () => {
+    const now = new Date(2026, 10, 16, 12);
+    expect(parseHealthText("3,250", now)?.steps).toBe(3250);
+    expect(parseHealthText("3.250", now)?.steps).toBe(3250);
+    expect(parseHealthText("3250\n", now)?.steps).toBe(3250);
+    const save = newSave();
+    setTrackingWithoutImport(save, true, now);
+    // The first reading after switching the counter on is the starting point.
+    const credited = ["1.000", "3.250", "3.250", "4,000"].map((t) => applyHealthImport(save, parseHealthText(t, now)!, now).credited);
+    expect(credited).toEqual([0, 2250, 0, 750]);
+  });
+});
