@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { newSave } from "../core/save";
-import { applyHealthImport, creditLiveSteps, parseHealthText, parseImport, setTrackingWithoutImport } from "../core/steps";
+import { applyHealthImport, creditLiveSteps, parseHealthText, parseImport, parseSyncReturn, setTrackingWithoutImport, shortcutSyncURL, withoutSyncParams } from "../core/steps";
 import { StepDetector } from "../core/motion";
 
 const now = new Date(2026, 10, 13, 18, 0);
@@ -82,5 +82,25 @@ describe("parseHealthText", () => {
   });
   it("rejects anything else", () => {
     for (const t of ["", "hola", "pasos=", "enlace pasos=9999999", "pasos=5 fecha=2027-01-01", "3 de 5 Ecos"]) expect(parseHealthText(t, now)).toBeUndefined();
+  });
+});
+
+describe("Shortcut round trip", () => {
+  it("builds an x-callback link that comes back to the game", () => {
+    const url = shortcutSyncURL("Enlace pasos", "https://x.github.io/Digivice_Viana/", "activar");
+    expect(url.startsWith("shortcuts://x-callback-url/run-shortcut?name=Enlace%20pasos&x-success=")).toBe(true);
+    const success = decodeURIComponent(/x-success=([^&]+)/.exec(url)![1]);
+    expect(success).toBe("https://x.github.io/Digivice_Viana/?accion=activar&sync=ok");
+  });
+  it("reads what iOS appends (?sync=ok&result=…)", () => {
+    expect(parseSyncReturn("?sync=ok&result=6240", now)).toEqual({ ok: true, imp: { steps: 6240, day: "2026-11-13", action: undefined } });
+    expect(parseSyncReturn("?accion=activar&sync=ok&result=6.240%20pasos", now)).toMatchObject({ ok: true, imp: { steps: 6240, action: "activar" } });
+    expect(parseSyncReturn("?sync=ok&result=", now)).toEqual({ ok: false, reason: "empty" });
+    expect(parseSyncReturn("?sync=cancel", now)).toEqual({ ok: false, reason: "cancel" });
+    expect(parseSyncReturn("?sync=error&errorMessage=x", now)).toEqual({ ok: false, reason: "error" });
+    expect(parseSyncReturn("", now)).toBeUndefined();
+  });
+  it("tidies the address afterwards", () => {
+    expect(withoutSyncParams("https://x.io/app/?accion=activar&sync=ok&result=12#importar?pasos=3")).toBe("/app/");
   });
 });

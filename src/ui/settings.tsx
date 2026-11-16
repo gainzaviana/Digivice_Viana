@@ -74,21 +74,25 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
       </Panel>
 
       <Panel>
-        <SectionTitle text="Atajo de Salud (opcional)" />
+        <SectionTitle text="Atajo de Salud" />
         <div class="muted small">
-          Safari no puede leer Salud. Puedes escribir los pasos a mano («Escribir pasos»), o crear un atajo que los copie
-          por ti y luego pulsar «Pegar de Salud».
+          Safari no puede leer Salud por sí mismo. Con este atajo, el botón «Cargar pasos de Salud» lo ejecuta y el juego
+          vuelve a abrirse con tus pasos de hoy ya cargados. Nada que copiar ni escribir.
         </div>
+        <label class="small">
+          Nombre del atajo
+          <input class="input" value={s.shortcutName} onChange={(e) => set({ shortcutName: (e.target as HTMLInputElement).value.trim() || s.shortcutName })} />
+        </label>
         <details class="small">
-          <summary class="strong">Cómo crear el atajo (una vez)</summary>
+          <summary class="strong">Cómo crear (o cambiar) el atajo · una vez</summary>
           <ol class="recipe">
-            <li>Abre la app Atajos (si no la tienes, es gratis en el App Store) › «+» y llámalo <b>Enlace pasos</b>.</li>
-            <li>Añade <b>Buscar muestras de salud</b>: Tipo <i>Pasos</i>, filtro Fecha de inicio <i>es hoy</i>, Agrupar por <i>Día</i>.</li>
-            <li>Justo debajo, añade <b>Copiar al portapapeles</b>. Se conecta solo con el bloque de arriba.</li>
+            <li>Abre la app <b>Atajos</b> (si no la tienes, es gratis en el App Store). Crea uno con «+» o abre el que ya tenías, y llámalo exactamente <b>{s.shortcutName}</b>.</li>
+            <li>Primer bloque: <b>Buscar muestras de salud</b> · Tipo <i>Pasos</i> · filtro Fecha de inicio <i>es hoy</i> · Agrupar por <i>Día</i>.</li>
+            <li>Si tenías <b>Copiar al portapapeles</b>, bórralo.</li>
+            <li>Justo debajo, añade <b>Detener y generar salida</b> (búscalo como «salida»). Se conecta solo con las muestras de salud de arriba.</li>
             <li>Pruébalo con ▶ y permite el acceso a Salud (solo Pasos).</li>
           </ol>
-          <p>Uso: ejecuta el atajo, abre Enlace y pulsa <b>Pegar de Salud</b>. iOS te pedirá permiso para pegar: pulsa «Permitir pegar».</p>
-          <p>Más rápido: Ajustes › Accesibilidad › Tocar › <b>Tocar atrás</b> › Doble toque › elige tu atajo. Así das dos golpecitos en la parte de atrás del iPhone y los pasos quedan copiados.</p>
+          <p>Uso: pulsa <b>Cargar pasos de Salud</b> en Inicio o Mapa. Se abre Atajos un instante y vuelves a Enlace con los pasos sumados.</p>
         </details>
       </Panel>
 
@@ -96,6 +100,7 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
         <SectionTitle text="Copia de seguridad" />
         <div class="muted small">
           La partida se guarda solo en este navegador. Descarga una copia de vez en cuando (por ejemplo a Archivos › En mi iPhone).
+          Para pasar la partida de la app aparte a Safari: aquí «Descargar copia», luego abre el juego en Safari y «Restaurar copia».
           {s.lastBackup ? ` Última copia: ${new Date(s.lastBackup).toLocaleDateString("es")}.` : " Aún no has hecho ninguna."}
         </div>
         <div class="buttons">

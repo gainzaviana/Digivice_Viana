@@ -143,3 +143,42 @@ function loneNumber(text: string): number | undefined {
   if (numbers.length !== 1) return undefined;
   return toInteger(numbers[0]);
 }
+
+/**
+ * The link that runs the player's Health Shortcut and comes back to the game with the result.
+ * iOS's x-callback opens `x-success` with `&result=<the shortcut's output>` appended, in Safari.
+ */
+export function shortcutSyncURL(shortcutName: string, gameURL: string, action?: "activar" | "desactivar"): string {
+  const back = (state: string) => `${gameURL}${gameURL.includes("?") ? "&" : "?"}${action ? `accion=${action}&` : ""}sync=${state}`;
+  return `shortcuts://x-callback-url/run-shortcut?name=${encodeURIComponent(shortcutName)}`
+    + `&x-success=${encodeURIComponent(back("ok"))}&x-cancel=${encodeURIComponent(back("cancel"))}&x-error=${encodeURIComponent(back("error"))}`;
+}
+
+export type SyncReturn = { ok: true; imp: HealthImport } | { ok: false; reason: "cancel" | "error" | "empty" };
+
+/** Reads the Shortcut's return (`?sync=ok&result=…`). Undefined if the page wasn't opened by it. */
+export function parseSyncReturn(search: string, now = new Date()): SyncReturn | undefined {
+  const params = new URLSearchParams(search);
+  const state = params.get("sync");
+  if (!state) return undefined;
+  if (state === "cancel") return { ok: false, reason: "cancel" };
+  if (state !== "ok") return { ok: false, reason: "error" };
+  const imp = parseHealthText(params.get("result") ?? "", now);
+  const a = params.get("accion");
+  if (imp && (a === "activar" || a === "desactivar")) imp.action = a;
+  return imp ? { ok: true, imp } : { ok: false, reason: "empty" };
+}
+
+/** The page address without the sync parameters (to tidy the address bar after reading them). */
+export function withoutSyncParams(href: string): string {
+  const url = new URL(href);
+  for (const k of ["sync", "result", "errorMessage", "accion"]) url.searchParams.delete(k);
+  url.hash = "";
+  return url.pathname + (url.search ? url.search : "");
+}
+
+/** True when the game runs as a separate home-screen web app (not inside Safari). */
+export function isStandaloneApp(): boolean {
+  if (typeof window === "undefined") return false;
+  return (navigator as Navigator & { standalone?: boolean }).standalone === true || matchMedia("(display-mode: standalone)").matches;
+}

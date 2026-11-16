@@ -4,7 +4,7 @@ import { loadGameData } from "./data/load";
 import { validate } from "./data/validate";
 import { Rng } from "./core/random";
 import { dayKey, loadSave, newSave, storeSave, type GameSave, type PendingEvent } from "./core/save";
-import { applyHealthImport, creditLiveSteps, MAX_SIMULATED, parseImport, setTrackingWithoutImport, type HealthImport } from "./core/steps";
+import { applyHealthImport, creditLiveSteps, MAX_SIMULATED, parseImport, parseSyncReturn, setTrackingWithoutImport, withoutSyncParams, type HealthImport } from "./core/steps";
 import { rest, walk } from "./systems/walk";
 import { upgradeSave } from "./systems/upgrade";
 import { refreshDaily } from "./systems/challenges";
@@ -79,8 +79,16 @@ export class Game {
 
   /** Reads `#importar?…` from the address (the Shortcut's link), applies it and clears it. */
   handleLocation(): void {
-    const imp = parseImport(location.hash);
-    if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+    // The Health Shortcut's return (?sync=ok&result=…), or an older #importar link.
+    const back = parseSyncReturn(location.search);
+    const imp = back?.ok ? back.imp : parseImport(location.hash);
+    if (back || location.hash) history.replaceState(null, "", withoutSyncParams(location.href));
+    if (back && !back.ok) {
+      this.show(back.reason === "cancel" ? "Sincronización cancelada."
+        : back.reason === "empty" ? "El atajo no devolvió pasos. Revisa que su último bloque sea «Detener y generar salida» con las muestras de salud."
+        : "El atajo falló. Comprueba que se llama igual que en Ajustes y que tiene permiso para leer los pasos.");
+      return;
+    }
     if (imp) this.importHealth(imp);
   }
 

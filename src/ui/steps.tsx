@@ -1,6 +1,7 @@
 import { useEffect, useState } from "preact/hooks";
 import { game, useGame } from "../game";
-import { parseHealthText, stepsToday } from "../core/steps";
+import { isStandaloneApp, parseHealthText, shortcutSyncURL, stepsToday } from "../core/steps";
+import { sound } from "../audio/sound";
 import { requestMotionPermission, startMotion, type MotionPermission } from "../core/motion";
 import { P } from "./theme";
 import { Panel, PixelButton, fmt } from "./common";
@@ -75,11 +76,17 @@ export function StepsPanel() {
         {last ? `Última lectura de Salud: ${last.toLocaleString("es", { dateStyle: "short", timeStyle: "short" })}` : "Aún no has sincronizado con Salud."}
       </div>
       <SensorStatus tracking={tracking} enabled={s.settings.motionSensor} />
+      {isStandaloneApp() && (
+        <div class="small red">
+          Estás usando Enlace como app aparte: el atajo no puede volver aquí. Ábrelo en Safari para cargar los pasos solo
+          (Terminal › Ajustes › Copia de seguridad te explica cómo pasar la partida).
+        </div>
+      )}
+      <PixelButton title="Cargar pasos de Salud" colour={P.teal2} onClick={() => loadFromHealth(s.settings.shortcutName)} />
       <div class="buttons">
-        <PixelButton small title="Pegar de Salud" colour={P.teal2} onClick={() => void pasteHealth()} />
-        <PixelButton small title="Escribir pasos" colour={P.teal2} onClick={() => setDialog({ kind: "sync" })} />
+        <PixelButton small title="Escribir pasos" colour={P.mist} onClick={() => setDialog({ kind: "sync" })} />
+        <PixelButton small title="Simular actividad" colour={P.mist} disabled={!tracking} onClick={() => setDialog({ kind: "simulate" })} />
       </div>
-      <PixelButton small title="Simular actividad" colour={P.mist} disabled={!tracking} onClick={() => setDialog({ kind: "simulate" })} />
       {dialog?.kind === "sync" && <HealthDialog title="Sincronizar con Salud" ok="Sincronizar" onClose={() => setDialog(undefined)}
         onSteps={(n, day) => g.importHealth({ steps: n, day })} />}
       {dialog?.kind === "switch" && (
@@ -89,6 +96,7 @@ export function StepsPanel() {
           optional
           note={dialog.on ? "Con los pasos que marca Salud ahora, solo contarán los que des a partir de este momento." : "Con los pasos que marca Salud ahora, se cuentan los que diste hasta este momento."}
           onClose={() => setDialog(undefined)}
+          onShortcut={() => loadFromHealth(s.settings.shortcutName, dialog.on ? "activar" : "desactivar")}
           onSteps={(n) => { g.switchCounter(dialog.on, n); if (dialog.on) askMotion(); }}
           onSkip={() => { g.switchCounter(dialog.on); if (dialog.on) askMotion(); }}
         />
@@ -99,6 +107,15 @@ export function StepsPanel() {
 }
 
 /** One tap: reads what the Health Shortcut copied and syncs it. */
+/**
+ * Runs the Health Shortcut; iOS then reopens the game in Safari with today's steps, which load
+ * by themselves (see Game.handleLocation). `action` also switches the counter at that reading.
+ */
+export function loadFromHealth(shortcutName: string, action?: "activar" | "desactivar") {
+  sound.play("tap");
+  location.href = shortcutSyncURL(shortcutName, location.origin + location.pathname, action);
+}
+
 export async function pasteHealth() {
   try {
     const imp = parseHealthText(await navigator.clipboard.readText());
@@ -125,9 +142,9 @@ function SensorStatus({ tracking, enabled }: { tracking: boolean; enabled: boole
 }
 
 /** Asks for today's step total in Health: typed, or pasted from what the Shortcut copied. */
-function HealthDialog({ title, ok, note, optional, onSteps, onSkip, onClose }: {
+function HealthDialog({ title, ok, note, optional, onSteps, onSkip, onClose, onShortcut }: {
   title: string; ok: string; note?: string; optional?: boolean;
-  onSteps: (steps: number, day: string) => void; onSkip?: () => void; onClose: () => void;
+  onSteps: (steps: number, day: string) => void; onSkip?: () => void; onClose: () => void; onShortcut?: () => void;
 }) {
   const [text, setText] = useState("");
   const [error, setError] = useState<string>();
@@ -157,7 +174,9 @@ function HealthDialog({ title, ok, note, optional, onSteps, onSkip, onClose }: {
             onInput={(e) => { setText((e.target as HTMLInputElement).value); setError(undefined); }} />
         </label>
         {error && <div class="small red">{error}</div>}
-        <PixelButton small title="Pegar del atajo" colour={P.teal2} onClick={() => void paste()} />
+        {onShortcut
+          ? <PixelButton small title="Leerlos de Salud (automático)" colour={P.teal2} onClick={onShortcut} />
+          : <PixelButton small title="Pegar del atajo" colour={P.teal2} onClick={() => void paste()} />}
         <div class="buttons">
           {optional && onSkip
             ? <PixelButton title="Sin Salud" colour={P.mist} onClick={() => { onClose(); onSkip(); }} />
@@ -213,9 +232,9 @@ export function SyncBanner() {
     <div class="sync-banner" role="region" aria-label="Sincronizar con Salud">
       <div class="grow small">
         <div class="strong">¿Pasos nuevos en Salud?</div>
-        <div class="tiny">Ejecuta tu atajo y pulsa Pegar.</div>
+        <div class="tiny">Un toque y se cargan solos.</div>
       </div>
-      <PixelButton small title="Pegar" colour={P.teal2} onClick={() => { setHidden(true); void pasteHealth(); }} />
+      <PixelButton small title="Cargar" colour={P.teal2} onClick={() => { setHidden(true); loadFromHealth(g.save.settings.shortcutName); }} />
       <button class="link-button tiny" aria-label="Ocultar" onClick={() => setHidden(true)}>✕</button>
     </div>
   );
