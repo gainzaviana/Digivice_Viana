@@ -154,12 +154,28 @@ export function shortcutSyncURL(shortcutName: string, gameURL: string, action?: 
     + `&x-success=${encodeURIComponent(back("ok"))}&x-cancel=${encodeURIComponent(back("cancel"))}&x-error=${encodeURIComponent(back("error"))}`;
 }
 
+/**
+ * Runs the Shortcut without a return link: from the home-screen app, iOS would send the
+ * x-callback return to Safari (a different save). The Shortcut copies the steps instead, and the
+ * app pastes them when you come back.
+ */
+export function shortcutRunURL(shortcutName: string): string {
+  return `shortcuts://run-shortcut?name=${encodeURIComponent(shortcutName)}`;
+}
+
 export type SyncReturn = { ok: true; imp: HealthImport } | { ok: false; reason: "cancel" | "error" | "empty" };
 
 /** Reads the Shortcut's return (`?sync=ok&result=…`). Undefined if the page wasn't opened by it. */
 export function parseSyncReturn(search: string, now = new Date()): SyncReturn | undefined {
   const params = new URLSearchParams(search);
   const state = params.get("sync");
+  // A direct link: `?syncSteps=8421` (optionally `&date=2026-11-16`), today's total in Health.
+  const direct = params.get("syncSteps");
+  if (!state && direct !== null) {
+    const date = params.get("date");
+    const imp = parseHealthText(`pasos=${direct}${date ? ` fecha=${date}` : ""}`, now);
+    return imp ? { ok: true, imp } : { ok: false, reason: "empty" };
+  }
   if (!state) return undefined;
   if (state === "cancel") return { ok: false, reason: "cancel" };
   if (state !== "ok") return { ok: false, reason: "error" };
@@ -172,7 +188,7 @@ export function parseSyncReturn(search: string, now = new Date()): SyncReturn | 
 /** The page address without the sync parameters (to tidy the address bar after reading them). */
 export function withoutSyncParams(href: string): string {
   const url = new URL(href);
-  for (const k of ["sync", "result", "errorMessage", "accion"]) url.searchParams.delete(k);
+  for (const k of ["sync", "result", "errorMessage", "accion", "syncSteps", "date"]) url.searchParams.delete(k);
   url.hash = "";
   return url.pathname + (url.search ? url.search : "");
 }

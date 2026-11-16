@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { newSave } from "../core/save";
-import { applyHealthImport, creditLiveSteps, parseHealthText, parseImport, parseSyncReturn, setTrackingWithoutImport, shortcutSyncURL, withoutSyncParams } from "../core/steps";
+import { applyHealthImport, creditLiveSteps, parseHealthText, parseImport, parseSyncReturn, setTrackingWithoutImport, shortcutRunURL, shortcutSyncURL, withoutSyncParams } from "../core/steps";
 import { StepDetector } from "../core/motion";
 
 const now = new Date(2026, 10, 13, 18, 0);
@@ -102,5 +102,18 @@ describe("Shortcut round trip", () => {
   });
   it("tidies the address afterwards", () => {
     expect(withoutSyncParams("https://x.io/app/?accion=activar&sync=ok&result=12#importar?pasos=3")).toBe("/app/");
+  });
+});
+
+describe("direct links and the home-screen app", () => {
+  const now = new Date(2026, 10, 13, 18);
+  it("reads ?syncSteps= as today's Health total", () => {
+    expect(parseSyncReturn("?syncSteps=3200", now)).toEqual({ ok: true, imp: { steps: 3200, day: "2026-11-13", action: undefined } });
+    expect(parseSyncReturn("?syncSteps=3.200&date=2026-11-12", now)).toMatchObject({ ok: true, imp: { steps: 3200, day: "2026-11-12" } });
+    expect(parseSyncReturn("?syncSteps=abc", now)).toEqual({ ok: false, reason: "empty" });
+  });
+  it("cleans the link and runs the Shortcut without a return address", () => {
+    expect(withoutSyncParams("https://x.io/game/?syncSteps=3200&date=2026-11-13")).toBe("/game/");
+    expect(shortcutRunURL("Enlace pasos")).toBe("shortcuts://run-shortcut?name=Enlace%20pasos");
   });
 });

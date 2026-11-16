@@ -94,6 +94,8 @@ render(<App />, document.getElementById("app")!);
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
   void navigator.serviceWorker.register("./sw.js");
 }
-// Ask the browser to keep the save even under storage pressure.
+// Ask the browser to keep the save even under storage pressure. Every change (each credited step
+// included) is written to localStorage the moment it happens; iOS keeps the home-screen app's
+// storage apart from Safari's.
 void navigator.storage?.persist?.();
 void game;

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "preact/hooks";
+import { createPortal } from "preact/compat";
 import { game, useGame } from "../game";
-import { isStandaloneApp, parseHealthText, shortcutSyncURL, stepsToday } from "../core/steps";
+import { isStandaloneApp, MAX_SIMULATED, parseHealthText, shortcutRunURL, shortcutSyncURL, stepsToday } from "../core/steps";
 import { sound } from "../audio/sound";
 import { requestMotionPermission, startMotion, type MotionPermission } from "../core/motion";
 import { P } from "./theme";
@@ -52,7 +53,7 @@ export function useMotionSensor() {
   }, [wanted, motionPermission]);
 }
 
-type Dialog = { kind: "sync" } | { kind: "switch"; on: boolean } | { kind: "simulate" };
+type Dialog = { kind: "sync" } | { kind: "switch"; on: boolean } | { kind: "simulate" } | { kind: "walk" };
 
 /** The counter's switch, today's steps, Health sync and the activity simulator. */
 export function StepsPanel() {
@@ -76,16 +77,15 @@ export function StepsPanel() {
         {last ? `Última lectura de Salud: ${last.toLocaleString("es", { dateStyle: "short", timeStyle: "short" })}` : "Aún no has sincronizado con Salud."}
       </div>
       <SensorStatus tracking={tracking} enabled={s.settings.motionSensor} />
-      {isStandaloneApp() && (
-        <div class="small red">
-          Estás usando Enlace como app aparte: el atajo no puede volver aquí. Ábrelo en Safari para cargar los pasos solo
-          (Terminal › Ajustes › Copia de seguridad te explica cómo pasar la partida).
-        </div>
-      )}
       <PixelButton title="Cargar pasos de Salud" colour={P.teal2} onClick={() => loadFromHealth(s.settings.shortcutName)} />
       <div class="buttons">
-        <PixelButton small title="Escribir pasos" colour={P.mist} onClick={() => setDialog({ kind: "sync" })} />
-        <PixelButton small title="Simular actividad" colour={P.mist} disabled={!tracking} onClick={() => setDialog({ kind: "simulate" })} />
+        <PixelButton small title="+500" colour={P.amber2} disabled={!tracking} onClick={() => g.simulate(500)} />
+        <PixelButton small title="+1.000" colour={P.amber2} disabled={!tracking} onClick={() => g.simulate(1000)} />
+        <PixelButton small title="Otra cantidad" colour={P.mist} disabled={!tracking} onClick={() => setDialog({ kind: "simulate" })} />
+      </div>
+      <div class="buttons">
+        <PixelButton small title="Escribir total de Salud" colour={P.mist} onClick={() => setDialog({ kind: "sync" })} />
+        {s.settings.motionSensor && <PixelButton small title="Modo paseo" colour={P.green2} disabled={!tracking} onClick={() => { askMotion(); setDialog({ kind: "walk" }); }} />}
       </div>
       {dialog?.kind === "sync" && <HealthDialog title="Sincronizar con Salud" ok="Sincronizar" onClose={() => setDialog(undefined)}
         onSteps={(n, day) => g.importHealth({ steps: n, day })} />}
@@ -102,27 +102,52 @@ export function StepsPanel() {
         />
       )}
       {dialog?.kind === "simulate" && <SimulateDialog onClose={() => setDialog(undefined)} />}
+      {dialog?.kind === "walk" && <WalkMode onClose={() => setDialog(undefined)} />}
     </Panel>
   );
 }
 
-/** One tap: reads what the Health Shortcut copied and syncs it. */
+/** When the home-screen app ran the Shortcut and waits for its copied steps (ms timestamp). */
+const AWAIT_KEY = "enlace.awaitingShortcut";
+const AWAIT_MINUTES = 15;
+type Awaiting = { at: number; action?: "activar" | "desactivar" };
+function awaiting(): Awaiting | undefined {
+  try {
+    const a = JSON.parse(localStorage.getItem(AWAIT_KEY) ?? "null") as Awaiting | null;
+    return a && Date.now() - a.at < AWAIT_MINUTES * 60_000 ? a : undefined;
+  } catch { return undefined; }
+}
+function setAwaiting(a?: Awaiting) {
+  try { if (a) localStorage.setItem(AWAIT_KEY, JSON.stringify(a)); else localStorage.removeItem(AWAIT_KEY); } catch { /* storage blocked */ }
+  notify();
+}
+
 /**
- * Runs the Health Shortcut; iOS then reopens the game in Safari with today's steps, which load
- * by themselves (see Game.handleLocation). `action` also switches the counter at that reading.
+ * Runs the Health Shortcut. In Safari, iOS reopens the game with today's steps, which load by
+ * themselves (see Game.handleLocation). In the home-screen app, iOS can't return to it, so the
+ * Shortcut copies the steps and a «Pegar pasos» button waits here. `action` also switches the
+ * counter at that reading.
  */
 export function loadFromHealth(shortcutName: string, action?: "activar" | "desactivar") {
   sound.play("tap");
+  if (isStandaloneApp()) {
+    setAwaiting({ at: Date.now(), action });
+    location.href = shortcutRunURL(shortcutName);
+    return;
+  }
   location.href = shortcutSyncURL(shortcutName, location.origin + location.pathname, action);
 }
 
-export async function pasteHealth() {
+/** Must run from a tap: iOS then shows its «Pegar» bubble (or pastes silently if allowed). */
+export async function pasteHealth(action?: "activar" | "desactivar") {
   try {
     const imp = parseHealthText(await navigator.clipboard.readText());
-    if (imp) game.importHealth(imp);
-    else game.show("No hay pasos copiados. Ejecuta antes tu atajo de Salud (o usa «Escribir pasos»).");
+    if (!imp) { game.show("No hay pasos copiados. Revisa que el atajo tenga «Copiar al portapapeles» (o usa «Escribir total de Salud»)."); return; }
+    setAwaiting(undefined);
+    if (action) imp.action = action;
+    game.importHealth(imp);
   } catch {
-    game.show("No se pudo leer el portapapeles. Usa «Escribir pasos».");
+    game.show("No se pudo leer el portapapeles. Usa «Escribir total de Salud».");
   }
 }
 
@@ -133,7 +158,7 @@ function SensorStatus({ tracking, enabled }: { tracking: boolean; enabled: boole
     case "granted":
       return <div class="small green">Sensor activo mientras el juego está abierto · {fmt(sensorSession)} pasos ahora.</div>;
     case "denied":
-      return <div class="small red">iOS no permite el sensor. Actívalo en Ajustes › Apps › Safari › Movimiento y orientación, y vuelve a abrir el juego.</div>;
+      return <div class="small red">iOS no permite el sensor. Actívalo en Ajustes › Apps › Safari › Avanzado › Movimiento y orientación, cierra el juego del todo y vuelve a abrirlo.</div>;
     case "unsupported":
       return <div class="muted small">Este navegador no tiene sensor de movimiento.</div>;
     default:
@@ -191,11 +216,13 @@ function HealthDialog({ title, ok, note, optional, onSteps, onSkip, onClose, onS
 
 function SimulateDialog({ onClose }: { onClose: () => void }) {
   const g = useGame();
+  const [text, setText] = useState("");
+  const amount = Math.min(MAX_SIMULATED, Number(text.replace(/[.\s,]/g, "")) || 0);
   const add = (n: number) => { onClose(); g.simulate(n); };
   return (
     <div class="modal-backdrop" onClick={onClose}>
-      <div class="modal panel" role="dialog" aria-label="Simular actividad" onClick={(e) => e.stopPropagation()}>
-        <h3 class="modal-title">Simular actividad</h3>
+      <div class="modal panel" role="dialog" aria-label="Añadir pasos" onClick={(e) => e.stopPropagation()}>
+        <h3 class="modal-title">Añadir pasos</h3>
         <p class="muted small">
           Añade pasos ahora, por ejemplo de un paseo con el móvil en la mochila. Si luego sincronizas con Salud el mismo día,
           se descuentan de su total para no contarlos dos veces.
@@ -203,9 +230,67 @@ function SimulateDialog({ onClose }: { onClose: () => void }) {
         <div class="buttons">
           {[100, 500, 1000, 2500].map((n) => <PixelButton key={n} small title={`+${fmt(n)}`} colour={P.amber2} onClick={() => add(n)} />)}
         </div>
+        <form class="buttons" onSubmit={(e) => { e.preventDefault(); if (amount > 0) add(amount); }}>
+          <input class="input" inputMode="numeric" autoComplete="off" placeholder={`hasta ${fmt(MAX_SIMULATED)}`} aria-label="Pasos"
+            value={text} onInput={(e) => setText((e.target as HTMLInputElement).value)} />
+          <PixelButton small title="Añadir" disabled={amount <= 0} onClick={() => add(amount)} />
+        </form>
         <PixelButton title="Cancelar" colour={P.mist} onClick={onClose} />
       </div>
     </div>
+  );
+}
+
+type WakeLockSentinelLike = { release: () => Promise<void> };
+type WakeLockNavigator = Navigator & { wakeLock?: { request: (type: "screen") => Promise<WakeLockSentinelLike> } };
+
+/**
+ * Walk mode: a dark, almost black screen with a big step counter that keeps the screen on (Wake
+ * Lock), so the sensor keeps counting while you walk with the game open. Double tap to leave,
+ * so a touch in the pocket doesn't close it.
+ */
+function WalkMode({ onClose }: { onClose: () => void }) {
+  const g = useGame();
+  const [, tick] = useState(0);
+  const [lock, setLock] = useState<"on" | "off" | "unsupported">("off");
+  const start = useState(sensorSession)[0];
+  useEffect(() => {
+    const fn = () => tick((n) => n + 1);
+    permissionListeners.add(fn);
+    let sentinel: WakeLockSentinelLike | undefined;
+    let alive = true;
+    const acquire = async () => {
+      const wl = (navigator as WakeLockNavigator).wakeLock;
+      if (!wl) { setLock("unsupported"); return; }
+      try {
+        sentinel = await wl.request("screen");
+        if (!alive) { void sentinel.release(); return; }
+        setLock("on");
+      } catch { setLock("off"); }
+    };
+    // iOS releases the lock when the app goes to the background: take it again on return.
+    const onVisible = () => { if (document.visibilityState === "visible") void acquire(); };
+    void acquire();
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      alive = false;
+      permissionListeners.delete(fn);
+      document.removeEventListener("visibilitychange", onVisible);
+      void sentinel?.release().catch(() => undefined);
+    };
+  }, []);
+  // On <body>: the panels' blur and transforms would otherwise trap a fixed overlay inside them.
+  return createPortal(
+    <div class="walk-mode" role="dialog" aria-label="Modo paseo" onDblClick={onClose}>
+      <div class="walk-count">{fmt(sensorSession - start)}</div>
+      <div class="walk-label">pasos en este paseo</div>
+      <div class="walk-sub">Hoy: {fmt(stepsToday(g.save))} · {motionPermission === "granted" ? "sensor activo" : motionPermission === "denied" ? "sensor bloqueado en Ajustes" : "toca una vez para activar el sensor"}</div>
+      <div class="walk-sub">
+        {lock === "on" ? "La pantalla se queda encendida." : lock === "unsupported" ? "Pon Ajustes › Pantalla › Bloqueo automático en «Nunca» mientras caminas." : "No se pudo mantener la pantalla encendida."}
+      </div>
+      <div class="walk-hint">Toca dos veces para salir</div>
+    </div>,
+    document.body,
   );
 }
 
@@ -221,12 +306,31 @@ export function SyncBanner() {
   const [hidden, setHidden] = useState(false);
   const s = g.save.steps;
   const due = s.tracking && (!s.lastImport || Date.now() - s.lastImport > REMIND_AFTER_HOURS * 3_600_000);
+  const [, tick] = useState(0);
+  useEffect(() => {
+    const fn = () => tick((n) => n + 1);
+    permissionListeners.add(fn);
+    return () => { permissionListeners.delete(fn); };
+  }, []);
   useEffect(() => {
     // Show again each time the game comes back to the screen.
     const onVisible = () => { if (document.visibilityState === "visible") setHidden(false); };
     document.addEventListener("visibilitychange", onVisible);
     return () => document.removeEventListener("visibilitychange", onVisible);
   }, []);
+  const wait = awaiting();
+  if (wait) {
+    return (
+      <div class="sync-banner" role="region" aria-label="Pegar pasos de Salud">
+        <div class="grow small">
+          <div class="strong">¿Ya terminó el atajo?</div>
+          <div class="tiny">Toca «Pegar» (y «Pegar» otra vez si iOS lo pregunta).</div>
+        </div>
+        <PixelButton small title="Pegar" colour={P.teal2} onClick={() => void pasteHealth(wait.action)} />
+        <button class="link-button tiny" aria-label="Ocultar" onClick={() => setAwaiting(undefined)}>✕</button>
+      </div>
+    );
+  }
   if (!due || hidden) return null;
   return (
     <div class="sync-banner" role="region" aria-label="Sincronizar con Salud">

@@ -1,3 +1,4 @@
+import { isStandaloneApp } from "../core/steps";
 import { useState } from "preact/hooks";
 import { migrate } from "../core/save";
 import { storeSave } from "../core/save";
@@ -76,8 +77,10 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
       <Panel>
         <SectionTitle text="Atajo de Salud" />
         <div class="muted small">
-          Safari no puede leer Salud por sí mismo. Con este atajo, el botón «Cargar pasos de Salud» lo ejecuta y el juego
-          vuelve a abrirse con tus pasos de hoy ya cargados. Nada que copiar ni escribir.
+          Ninguna web puede leer Salud por sí misma. Con este atajo, el botón «Cargar pasos de Salud» lo ejecuta:
+          {isStandaloneApp()
+            ? " al terminar, vuelve a Enlace (arriba a la izquierda «◀ Enlace», o desliza) y toca «Pegar»."
+            : " el juego vuelve a abrirse con tus pasos de hoy ya cargados."}
         </div>
         <label class="small">
           Nombre del atajo
@@ -88,19 +91,24 @@ export function SettingsScreen({ onClose }: { onClose: () => void }) {
           <ol class="recipe">
             <li>Abre la app <b>Atajos</b> (si no la tienes, es gratis en el App Store). Crea uno con «+» o abre el que ya tenías, y llámalo exactamente <b>{s.shortcutName}</b>.</li>
             <li>Primer bloque: <b>Buscar muestras de salud</b> · Tipo <i>Pasos</i> · filtro Fecha de inicio <i>es hoy</i> · Agrupar por <i>Día</i>.</li>
-            <li>Si tenías <b>Copiar al portapapeles</b>, bórralo.</li>
-            <li>Justo debajo, añade <b>Detener y generar salida</b> (búscalo como «salida»). Se conecta solo con las muestras de salud de arriba.</li>
+            <li>Debajo: <b>Copiar al portapapeles</b> (copia las Muestras de salud). Lo usa la app de la pantalla de inicio.</li>
+            <li>Al final: <b>Detener y generar salida</b>. Toca su campo y elige <i>Muestras de salud</i>. Lo usa Safari.</li>
             <li>Pruébalo con ▶ y permite el acceso a Salud (solo Pasos).</li>
           </ol>
-          <p>Uso: pulsa <b>Cargar pasos de Salud</b> en Inicio o Mapa. Se abre Atajos un instante y vuelves a Enlace con los pasos sumados.</p>
+          <p>Uso: pulsa <b>Cargar pasos de Salud</b> en Inicio o Mapa. Siempre se suma solo lo nuevo desde la última lectura del día.</p>
+          <p>
+            También vale un enlace con el total de hoy: <code>{location.origin + location.pathname}?syncSteps=8421</code>.
+            Ojo: iOS abre los enlaces en Safari, no en la app de la pantalla de inicio (cada una tiene su propia partida).
+          </p>
         </details>
       </Panel>
 
       <Panel>
         <SectionTitle text="Copia de seguridad" />
         <div class="muted small">
-          La partida se guarda solo en este navegador. Descarga una copia de vez en cuando (por ejemplo a Archivos › En mi iPhone).
-          Para pasar la partida de la app aparte a Safari: aquí «Descargar copia», luego abre el juego en Safari y «Restaurar copia».
+          La partida se guarda en este dispositivo al momento, con cada paso. iOS guarda aparte la de Safari y la de la app de la
+          pantalla de inicio. Para pasarla de una a otra: aquí «Descargar copia» (a Archivos › En mi iPhone) y en la otra «Restaurar copia».
+          Descarga una copia de vez en cuando.
           {s.lastBackup ? ` Última copia: ${new Date(s.lastBackup).toLocaleDateString("es")}.` : " Aún no has hecho ninguna."}
         </div>
         <div class="buttons">

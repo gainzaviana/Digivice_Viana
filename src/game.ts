@@ -77,7 +77,7 @@ export class Game {
 
   // MARK: Steps
 
-  /** Reads `#importar?…` from the address (the Shortcut's link), applies it and clears it. */
+  /** Reads the Shortcut's return, a `?syncSteps=` link or an old `#importar?…` link, applies it and clears it. */
   handleLocation(): void {
     // The Health Shortcut's return (?sync=ok&result=…), or an older #importar link.
     const back = parseSyncReturn(location.search);
@@ -85,7 +85,7 @@ export class Game {
     if (back || location.hash) history.replaceState(null, "", withoutSyncParams(location.href));
     if (back && !back.ok) {
       this.show(back.reason === "cancel" ? "Sincronización cancelada."
-        : back.reason === "empty" ? "El atajo no devolvió pasos. Revisa que su último bloque sea «Detener y generar salida» con las muestras de salud."
+        : back.reason === "empty" ? "No llegaron pasos válidos. Revisa que el último bloque del atajo sea «Detener y generar salida» con las muestras de salud (o que el enlace lleve ?syncSteps=número)."
         : "El atajo falló. Comprueba que se llama igual que en Ajustes y que tiene permiso para leer los pasos.");
       return;
     }

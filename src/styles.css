@@ -504,3 +504,15 @@ details[open] summary { margin-bottom: 6px; }
   background: color-mix(in srgb, var(--surface) 75%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 4px 14px rgba(60, 40, 30, 0.15); }
 .hud-pill.alert { color: #fff; background: linear-gradient(135deg, var(--coral), var(--red)); animation: beep 1s ease-in-out infinite; }
 @keyframes beep { 50% { transform: scale(1.08); box-shadow: 0 0 18px var(--coral); } }
+
+/* Walk mode: near-black (cheap on OLED), big counter, the screen stays on. */
+.walk-mode {
+  position: fixed; inset: 0; z-index: 60; background: #000; color: #8fd9a8;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  padding: 24px 16px calc(24px + env(safe-area-inset-bottom)); text-align: center;
+  user-select: none; -webkit-user-select: none; touch-action: manipulation;
+}
+.walk-count { font-size: 76px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.walk-label { font-size: 15px; opacity: .8; }
+.walk-sub { font-size: 13px; opacity: .55; max-width: 320px; }
+.walk-hint { position: absolute; bottom: calc(20px + env(safe-area-inset-bottom)); font-size: 12px; opacity: .4; }
