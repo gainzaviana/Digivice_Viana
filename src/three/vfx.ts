@@ -3,6 +3,7 @@ import type { EcoSpecies, GameData } from "../data/models";
 import { lookFor } from "../art/bodies";
 import { PALETTE } from "../art/palette";
 import { softDotTexture } from "./materials";
+import { dashStyle, type DashStyle } from "../systems/moves";
 
 /**
  * Signature attacks. Every species gets its own Basic and Strong attack look, built from a set of
@@ -410,5 +411,44 @@ export function riseEffect(particles: Particles, at: THREE.Vector3, colors: stri
     p.set(at.x + (Math.random() - 0.5) * width, at.y + Math.random() * 0.3, at.z + (Math.random() - 0.5) * width * 0.6);
     v.set((Math.random() - 0.5) * 0.3, 1.4 + Math.random() * 1.6, (Math.random() - 0.5) * 0.3);
     particles.spawn(p, v, colors[i % colors.length], 0.16 + Math.random() * 0.14, 0.9 + Math.random() * 0.6, { drag: 0.6, grow: -0.3 });
+  }
+}
+
+// MARK: Physical Strike styles
+
+export interface PhysicalRecipe { style: DashStyle; colors: [string, string, string]; speed: number; lean: number }
+
+const physCache = new Map<string, PhysicalRecipe>();
+
+/** Each species' own Physical Strike: how it dashes (tackle, claw swipe, spin, horn charge, pounce) and its colours. */
+export function physicalFor(speciesID: string, data: GameData): PhysicalRecipe {
+  const hit = physCache.get(speciesID);
+  if (hit) return hit;
+  const species = data.eco.get(speciesID);
+  const h = hash(`${speciesID}|physical`);
+  const style = dashStyle(species, speciesID);
+  const look = species ? lookFor(species) : undefined;
+  const r = (salt: number) => ((h >>> salt) & 255) / 255;
+  const recipe: PhysicalRecipe = {
+    style,
+    colors: look ? [look.seam, look.main[2] ?? look.main[1], look.accent[2] ?? look.accent[1]] : [PALETTE.white, PALETTE.amber3, PALETTE.amber2],
+    speed: 0.9 + r(3) * 0.3,
+    lean: 0.2 + r(9) * 0.25,
+  };
+  physCache.set(speciesID, recipe);
+  return recipe;
+}
+
+/** Slash arcs for claw strikes (three curved streaks of particles). */
+export function slashEffect(particles: Particles, at: THREE.Vector3, colors: string[], dir: 1 | -1, quality: number) {
+  const v = new THREE.Vector3(), p = new THREE.Vector3();
+  for (let line = 0; line < 3; line++) {
+    for (let i = 0; i < Math.round(12 * quality); i++) {
+      const t = i / 11;
+      const a = -0.9 + t * 1.8;
+      p.set(at.x - dir * 0.1 + Math.cos(a) * 0.45 * dir, at.y + Math.sin(a) * 0.45 + (line - 1) * 0.18, at.z + 0.05);
+      v.set(dir * 1.2, -0.8, 0);
+      particles.spawn(p, v, colors[line % colors.length], 0.14, 0.35, { drag: 4, grow: -1 });
+    }
   }
 }

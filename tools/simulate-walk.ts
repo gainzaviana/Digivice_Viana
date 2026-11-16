@@ -62,8 +62,9 @@ function bestBossCost(): number {
   return costs.length ? Math.min(data.rules.maxDP, Math.max(...costs)) : 0;
 }
 
-const RESERVE = 15;
+const RESERVE = 8;
 let lastBossTryLevel = 0;
+let lastBossTryWins = 0;
 let clock = Date.now();
 
 function fight(event?: PendingEvent): Outcome | undefined {
@@ -128,8 +129,11 @@ while (walked < totalSteps) {
   // Challenge the boss with HP ≥ 70 % and enough DP for the best unlocked form; after a defeat,
   // only once the partner has gained a level (a sensible player trains first).
   const level = partnerOf(save)!.level;
-  if (save.map.bossReady && hpShare() >= 0.7 && partnerOf(save)!.dp >= bestBossCost() && (save.map.bossDefeats === 0 || level > lastBossTryLevel)) {
+  const wins = partnerOf(save)!.wins;
+  if (save.map.bossReady && hpShare() >= 0.7 && partnerOf(save)!.dp >= bestBossCost() && !partnerOf(save)!.injured
+    && (save.map.bossDefeats === 0 || level > lastBossTryLevel || wins - lastBossTryWins >= 8)) {
     lastBossTryLevel = level;
+    lastBossTryWins = wins;
     fight();
     maintain();
   }

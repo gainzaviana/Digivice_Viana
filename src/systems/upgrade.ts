@@ -17,6 +17,12 @@ export function upgradeSave(save: GameSave, data: GameData): boolean {
   const region = save.map.regionID ? data.region.get(save.map.regionID) : undefined;
   if (region && !save.map.bossReady) save.map.stepsLeft = Math.min(region.steps, Math.max(1, save.map.stepsLeft));
   save.map.stepsToNextEvent = Math.min(save.map.stepsToNextEvent, data.rules.encounterEveryMaxSteps);
+  // 3 → 4: DP max 20 and level cap 30.
+  for (const eco of save.squad) {
+    eco.dp = Math.max(0, Math.min(data.rules.maxDP, eco.dp));
+    if (eco.level > data.rules.levelCap) { eco.level = data.rules.levelCap; eco.xp = 0; }
+    eco.hp = Math.min(eco.hp, maxStats(eco, data).hp);
+  }
   save.version = SAVE_VERSION;
   return true;
 }

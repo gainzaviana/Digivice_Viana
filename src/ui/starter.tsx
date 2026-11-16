@@ -44,6 +44,7 @@ function StarterDetail({ species, onBack }: { species: EcoSpecies; onBack: () =>
       <Panel>
         <SectionTitle text="Ataques" />
         <AttackRow attack={species.basic} kind="basic" />
+        <AttackRow kind="physical" species={species} />
         <AttackRow attack={species.signature} kind="strong" />
       </Panel>
       {forms.length > 0 && (

@@ -5,7 +5,7 @@ import { buildCreature, type CreatureRig } from "../three/creature";
 import { CreatureAnimator, type Motion } from "../three/rig";
 import { buildArena, type Arena } from "../three/arena";
 import { defaultQuality, type Quality } from "../three/materials";
-import { chargeEffect, clashEffect, impactEffect, Particles, Projectile, recipeFor, riseEffect, ringEffect, type AttackRecipe } from "../three/vfx";
+import { chargeEffect, clashEffect, impactEffect, Particles, physicalFor, Projectile, recipeFor, riseEffect, ringEffect, slashEffect, type AttackRecipe } from "../three/vfx";
 import { sound } from "../audio/sound";
 
 /**
@@ -248,21 +248,35 @@ export class BattleStage {
 
   // MARK: Beats
 
-  async play(beats: Beat[]) {
+  /** HP as the player sees it: it only changes when a hit visibly lands. */
+  private shownHP: Record<Side, number> = { partner: 0, enemy: 0 };
+  /** Told each time the shown HP changes (the HUD bars follow it). */
+  onHP: (side: Side, hp: number) => void = () => {};
+  /** The moves launched this turn, waiting to clash/land. */
+  private moves = new Map<Side, AttackKind>();
+  /** Sides whose creature is away from its slot (dashing), to bring back after the turn. */
+  private away = new Set<Side>();
+
+  /** Plays one turn's beats. `before`: each side's HP before the turn (what the bars show until hits land). */
+  async play(beats: Beat[], before?: Record<Side, number>) {
+    this.shownHP = before ? { ...before } : { partner: this.battle.partner.hp, enemy: this.battle.enemy.hp };
     for (const beat of beats) await this.beat(beat);
     for (const p of this.projectiles.values()) p.dispose();
     this.projectiles.clear();
+    this.moves.clear();
+    await Promise.all([...this.away].map((side) => this.goHome(side)));
     if (this.battle.outcome === "victory") void this.motion("partner", "victory");
     if (this.battle.outcome === "defeat") void this.motion("enemy", "victory");
   }
 
+  private setHP(side: Side, hp: number) {
+    this.shownHP[side] = Math.max(0, hp);
+    this.onHP(side, this.shownHP[side]);
+  }
+
   private sfx(b: Beat) {
     switch (b.t) {
-      case "launch": return sound.play("launch");
       case "charge": return sound.play("charge");
-      case "pierce": case "clash": case "blocked": return sound.play("clash");
-      case "hit": return sound.play(b.critical ? "crit" : "hit");
-      case "dodge": return sound.play("dodge");
       case "card": return sound.play("slash");
       case "evolve": return sound.play(b.success ? "evolve" : "miss");
       case "emote": case "status": return sound.play("tap");
@@ -270,40 +284,48 @@ export class BattleStage {
     }
   }
 
+  /** Projectile looks: Quick Shot uses the species' basic recipe, Charged Attack its strong one. */
   private recipe(side: Side, kind: AttackKind): AttackRecipe {
-    return recipeFor(this.battle.combatant(side).speciesID, kind, this.battle.data);
+    return recipeFor(this.battle.combatant(side).speciesID, kind === "charged" ? "strong" : "basic", this.battle.data);
   }
 
   private async beat(b: Beat) {
     this.sfx(b);
     switch (b.t) {
-      case "text": this.onCaption(b.text); return this.pause(0.45);
-      case "emote": this.bubble(b.side, b.mark); return this.pause(0.85);
+      case "text": this.onCaption(b.text); return this.pause(0.5);
+      case "emote": this.bubble(b.side, b.mark); return this.pause(0.9);
       case "charge": {
-        // Phase 1 (Strong): a big gathering and a wind-up pose.
-        chargeEffect(this.particles, this.chest(b.side), this.recipe(b.side, "strong"), true, this.quality.particles);
-        await this.motion(b.side, "charge");
-        return;
+        // The Charged Attack gathers power: a long, glowing build-up.
+        this.onCaption(`${this.battle.species(b.side).name} carga su ${this.battle.species(b.side).signature.name}…`);
+        chargeEffect(this.particles, this.chest(b.side), this.recipe(b.side, "charged"), true, this.quality.particles);
+        void this.motion(b.side, "charge");
+        await this.pause(0.55);
+        chargeEffect(this.particles, this.chest(b.side), this.recipe(b.side, "charged"), true, this.quality.particles);
+        return this.pause(0.35);
       }
       case "launch": return this.launch(b.side, b.kind);
-      case "pierce": return this.collide(b.by, true);
-      case "clash": return this.collide(b.winner, false);
-      case "hit": await this.flyIn(b.target); return this.impact(b.target, b.damage, b.critical, b.effectiveness);
+      case "clash": return this.exchange(b.winner, b.partner, b.enemy);
+      case "hit": {
+        await this.approach(other(b.target), false);
+        return this.impact(b.target, b.damage, b.critical, b.effectiveness);
+      }
       case "dodge": {
-        await this.flyIn(b.side, true);
-        void this.motion(b.side, "dodge");
-        this.label("¡ESQUIVA!", this.head(b.side), "#9ff3ee");
-        return this.pause(0.5);
+        await this.approach(other(b.side), true);
+        sound.play("dodge");
+        this.label("¡ESQUIVA!", this.head(b.side), "#9ff3ee", "big");
+        return this.pause(0.6);
       }
       case "blocked": {
-        await this.flyIn(b.side);
+        await this.approach(other(b.side), false);
+        sound.play("clash");
         ringEffect(this.particles, this.center(b.side), "#b4dcff", 1.2, this.quality.particles);
         this.label("¡BLOQUEADO!", this.head(b.side), "#b4dcff");
-        return this.pause(0.5);
+        return this.pause(0.6);
       }
       case "heal": {
         riseEffect(this.particles, this.center(b.side).setY(this.fighters.get(b.side)!.rig.root.position.y), ["#7fcb5a", "#cdeb8b", "#ffffff"], 30, 1, this.quality.particles);
         this.label(`+${b.amount}`, this.head(b.side), "#7fcb5a");
+        this.setHP(b.side, this.shownHP[b.side] + b.amount);
         return this.pause(0.6);
       }
       case "card": return this.cardSlash(b.name);
@@ -312,6 +334,7 @@ export class BattleStage {
       case "ko": this.haptic(50); await this.motion(b.side, "ko"); return;
       case "revive": {
         this.place(b.side);
+        this.setHP(b.side, this.battle.combatant(b.side).stats.hp);
         riseEffect(this.particles, this.fighters.get(b.side)!.rig.root.position, ["#7fcb5a", "#ffffff"], 40, 1.2, this.quality.particles);
         await this.motion(b.side, "revive");
         this.label("¡REINICIO!", this.head(b.side), "#7fcb5a");
@@ -320,29 +343,36 @@ export class BattleStage {
     }
   }
 
-  /** Phase 1 (Basic) and the throw: a quick gathering, the attack pose, the projectile appears. */
+  /** Wind-up: each side readies its move; projectiles appear and hover, dashers crouch. */
   private async launch(side: Side, kind: AttackKind) {
-    const recipe = this.recipe(side, kind);
-    if (kind === "basic") chargeEffect(this.particles, this.chest(side), recipe, false, this.quality.particles);
-    await this.motion(side, "windup");
-    void this.motion(side, kind === "strong" ? "strongAttack" : "attack");
-    const p = new Projectile(recipe, kind, this.dir(side), this.particles, this.quality.particles);
-    p.setPosition(this.chest(side));
-    this.scene.add(p.group);
-    this.projectiles.get(side)?.dispose();
-    this.projectiles.set(side, p);
-    await this.pause(0.08);
+    this.moves.set(side, kind);
+    void this.motion(side, "windup");
+    if (kind !== "physical") {
+      const recipe = this.recipe(side, kind);
+      if (kind === "quick") chargeEffect(this.particles, this.chest(side), recipe, false, this.quality.particles);
+      const p = new Projectile(recipe, kind === "charged" ? "strong" : "basic", this.dir(side), this.particles, this.quality.particles);
+      p.setPosition(this.chest(side));
+      p.group.scale.setScalar(0.01);
+      this.scene.add(p.group);
+      this.projectiles.get(side)?.dispose();
+      this.projectiles.set(side, p);
+      void this.tween(0.3, (t) => p.group.scale.setScalar(Math.max(0.01, t)));
+    }
+    // Both launch beats arrive back to back; together they make a ~0.7 s wind-up.
+    await this.pause(0.35);
   }
 
-  private flightTime(p: Projectile, distance: number) {
-    const speed = (p.kind === "basic" ? 9 : 5.5) * p.recipe.speed;
-    return Math.max(0.08, Math.abs(distance) / speed);
+  /** Units per second: Quick Shots are fast, Charged Attacks heavy, dashes in between. */
+  private speedOf(kind: AttackKind, side: Side) {
+    const base = kind === "quick" ? 3.4 : kind === "charged" ? 2.3 : 3.0;
+    const r = kind === "physical" ? physicalFor(this.battle.combatant(side).speciesID, this.battle.data).speed : this.projectiles.get(side)?.recipe.speed ?? 1;
+    return base * r;
   }
 
-  /** Moves a projectile along an arc (or straight for beams) to x; resolves on arrival. */
+  /** Moves a projectile along an arc to `to`; resolves on arrival. */
   private travel(p: Projectile, to: THREE.Vector3, time: number) {
     const from = p.position.clone();
-    const arc = p.kind === "strong" && p.recipe.strong === "meteor" ? 1.4 : p.recipe.arc;
+    const arc = p.kind === "strong" && p.recipe.strong === "meteor" ? 1.2 : p.recipe.arc * 0.6;
     const pos = new THREE.Vector3();
     return this.tween(time, (t) => {
       const e = p.kind === "strong" && p.recipe.strong === "meteor" ? t * t : t;
@@ -352,63 +382,178 @@ export class BattleStage {
     });
   }
 
-  /** Phase 2: both attacks meet. Basic pierces Strong early; Strong vs Strong struggles mid-screen. */
-  private async collide(winner: Side | undefined, pierce: boolean) {
-    const mine = this.projectiles.get("partner"), theirs = this.projectiles.get("enemy");
-    if (!mine || !theirs) return;
-    const a = this.chest("partner"), b = this.chest("enemy");
-    const meet = new THREE.Vector3().lerpVectors(a, b, pierce ? (winner === "partner" ? 0.7 : 0.3) : 0.5);
-    const t = Math.max(this.flightTime(mine, meet.x - mine.position.x), this.flightTime(theirs, theirs.position.x - meet.x));
-    await Promise.all([
-      this.travel(mine, meet.clone().add(new THREE.Vector3(-0.12, 0, 0)), t),
-      this.travel(theirs, meet.clone().add(new THREE.Vector3(0.12, 0, 0)), t),
-    ]);
-    if (!pierce) {
-      // Beam struggle: the meeting point wobbles, then the stronger one pushes through.
-      const push = winner === "partner" ? 1 : winner === "enemy" ? -1 : 0;
-      const base = meet.clone();
-      const pos = new THREE.Vector3();
-      await this.tween(0.55, (k) => {
-        const x = base.x + Math.sin(k * 26) * 0.08 * (1 - k) + push * k * k * 0.5;
-        mine.setPosition(pos.set(x - 0.12, base.y, base.z));
-        theirs.setPosition(pos.set(x + 0.12, base.y, base.z));
-        if (Math.random() < 0.5) this.particles.burst(pos.set(x, base.y, base.z), 2, [mine.recipe.colors[0], theirs.recipe.colors[0]], 4, 0.12, 0.3);
-      });
-      meet.x += push * 0.5;
+  /** The creature itself dashes to `toX` in its own style (tackle, claw, spin, horn, pounce). */
+  private dash(side: Side, toX: number, time: number) {
+    const f = this.fighters.get(side)!;
+    const style = physicalFor(f.speciesID, this.battle.data);
+    const root = f.rig.root;
+    const fromX = root.position.x, y0 = this.slot(side).y, baseRot = root.rotation.clone();
+    this.away.add(side);
+    let trail = 0;
+    const tmp = new THREE.Vector3();
+    return this.tween(time, (t) => {
+      const e = t < 0.15 ? t * 0.5 : t;
+      root.position.x = fromX + (toX - fromX) * e;
+      switch (style.style) {
+        case "pounce": root.position.y = y0 + Math.sin(Math.PI * t) * 0.9; break;
+        case "spin": root.rotation.y = baseRot.y + t * Math.PI * 4; break;
+        case "horn": root.rotation.z = -this.dir(side) * style.lean * 0.8; root.position.y = y0; break;
+        default: root.rotation.z = -this.dir(side) * style.lean * 0.5; root.position.y = y0 + Math.abs(Math.sin(t * Math.PI * 4)) * 0.08;
+      }
+      trail -= 1;
+      if (trail <= 0) {
+        trail = 2;
+        tmp.copy(root.position).setY(root.position.y + f.rig.height * 0.4);
+        this.particles.spawn(tmp, new THREE.Vector3(-this.dir(side) * 1.5, 0.3, 0), style.colors[Math.random() < 0.5 ? 0 : 1], 0.22, 0.4, { drag: 3 });
+      }
+    });
+  }
+
+  private slot(side: Side) { return side === "partner" ? this.arena.slots.partner : this.arena.slots.enemy; }
+
+  /** Brings a dashing creature back to its slot. */
+  private async goHome(side: Side) {
+    const f = this.fighters.get(side);
+    this.away.delete(side);
+    if (!f) return;
+    const root = f.rig.root, slot = this.slot(side);
+    const from = root.position.clone(), rz = root.rotation.z, ry = root.rotation.y, homeY = side === "enemy" ? 0.45 : -0.45;
+    await this.tween(0.45, (t) => {
+      root.position.lerpVectors(from, slot, t);
+      root.position.y = slot.y + Math.sin(Math.PI * t) * 0.25;
+      root.rotation.z = rz * (1 - t);
+      root.rotation.y = ry + (homeY - ry) * t;
+    });
+  }
+
+  /** Knocked back: a dasher blown back to (near) its slot. */
+  private knockBack(side: Side, time = 0.35) {
+    const f = this.fighters.get(side)!;
+    const root = f.rig.root, slot = this.slot(side), fromX = root.position.x;
+    void this.motion(side, "bigHit");
+    return this.tween(time, (t) => { root.position.x = fromX + (slot.x - this.dir(side) * 0.3 - fromX) * (1 - (1 - t) * (1 - t)); root.rotation.z *= 0.8; });
+  }
+
+  /**
+   * Phase 2: both moves travel at once and meet. Only `winner` comes out of it:
+   * Quick pierces a still-charging Charged Attack; Physical smashes through a Quick Shot; a
+   * Charged Attack blasts a dashing Physical back; mirrors struggle mid-arena (higher AP, then SP).
+   */
+  private async exchange(winner: Side | undefined, pk: AttackKind, ek: AttackKind) {
+    const kinds: Record<Side, AttackKind> = { partner: pk, enemy: ek };
+    const A = this.chest("partner"), B = this.chest("enemy");
+    sound.play("launch");
+    // Where they meet: mirrors in the middle; a Quick Shot reaches a Charged Attack still near its
+    // owner; a dash meets a Quick Shot early on the shot's side; a beam stops a dash mid-way.
+    const quickVsCharged = (pk === "quick" && ek === "charged") || (pk === "charged" && ek === "quick");
+    const physVsQuick = (pk === "physical" && ek === "quick") || (pk === "quick" && ek === "physical");
+    const chargedVsPhys = (pk === "charged" && ek === "physical") || (pk === "physical" && ek === "charged");
+    let meetT = 0.5;
+    if (quickVsCharged) meetT = pk === "quick" ? 0.78 : 0.22;
+    else if (physVsQuick) meetT = pk === "physical" ? 0.55 : 0.45;
+    else if (chargedVsPhys) meetT = pk === "physical" ? 0.42 : 0.58;
+    const meet = new THREE.Vector3().lerpVectors(A, B, meetT);
+    const legs: Promise<void>[] = [];
+    let time = 0;
+    for (const side of ["partner", "enemy"] as Side[]) {
+      const k = kinds[side];
+      const startX = side === "partner" ? A.x : B.x;
+      const target = meet.clone().setX(meet.x - this.dir(side) * (k === "physical" ? 0.45 : 0.14));
+      // A Charged Attack pierced while charging never really leaves.
+      const stays = k === "charged" && quickVsCharged;
+      const t = stays ? 0 : Math.abs(target.x - startX) / this.speedOf(k, side);
+      time = Math.max(time, t);
+      if (stays) continue;
+      if (k === "physical") legs.push(this.dash(side, target.x - this.dir(side) * 0.0, t));
+      else { const p = this.projectiles.get(side); if (p) legs.push(this.travel(p, target, t)); }
     }
-    clashEffect(this.particles, meet, mine.recipe, theirs.recipe, !pierce, this.quality.particles);
-    this.hitStop = pierce ? 0.06 : 0.12;
-    this.shake = pierce ? 0.08 : 0.16;
-    this.haptic(pierce ? 15 : 30);
-    this.label(pierce ? "¡ATRAVIESA!" : winner ? "¡CHOQUE!" : "¡EMPATE!", meet.clone().setY(meet.y + 0.5), pierce ? "#ffe27a" : "#ffffff", "big");
+    this.onCaption("¡Los ataques se acercan…!");
+    await Promise.all(legs);
+
+    // The clash itself: a suspenseful struggle on mirrors, a sharp break otherwise.
+    const mirror = pk === ek;
+    const label = !winner ? "¡EMPATE!" : mirror ? (pk === "charged" ? "¡CHOQUE DE RAYOS!" : pk === "physical" ? "¡FORCEJEO!" : "¡CHOQUE!")
+      : quickVsCharged ? "¡ATRAVIESA!" : physVsQuick ? "¡LO ROMPE!" : "¡ARRASA!";
+    sound.play("clash");
+    if (mirror) {
+      const push = winner === "partner" ? 1 : winner === "enemy" ? -1 : 0;
+      const pieces = (["partner", "enemy"] as Side[]).map((side) => ({ side, p: this.projectiles.get(side), root: this.fighters.get(side)!.rig.root }));
+      const start = pieces.map((x) => (x.p ? x.p.position.x : x.root.position.x));
+      const pos = new THREE.Vector3();
+      const struggle = pk === "charged" ? 1.1 : pk === "physical" ? 0.8 : 0.6;
+      await this.tween(struggle, (k) => {
+        const wobble = Math.sin(k * 30) * 0.1 * (1 - k * 0.6) + push * k * k * 0.35;
+        pieces.forEach((x, i) => {
+          const nx = start[i] + wobble;
+          if (x.p) x.p.setPosition(pos.copy(x.p.position).setX(nx));
+          else x.root.position.x = nx;
+        });
+        if (Math.random() < 0.6) this.particles.burst(pos.copy(meet).setX(meet.x + wobble), 2, [this.recipe("partner", pk).colors[0], this.recipe("enemy", ek).colors[0], "#ffffff"], 4.5, 0.13, 0.35);
+        this.shake = 0.03 + k * 0.05;
+      });
+    } else await this.pause(0.12);
+    const at = meet.clone();
+    clashEffect(this.particles, at, this.recipe("partner", pk === "physical" ? "quick" : pk), this.recipe("enemy", ek === "physical" ? "quick" : ek), mirror && pk === "charged", this.quality.particles);
+    this.hitStop = mirror ? 0.14 : 0.08;
+    this.shake = mirror ? 0.18 : 0.1;
+    this.haptic(mirror ? 30 : 15);
+    this.label(label, at.clone().setY(at.y + 0.6), winner ? "#ffe27a" : "#ffffff", "big");
+    // The loser's move breaks: projectiles shatter, a dasher is knocked back.
     for (const side of ["partner", "enemy"] as Side[]) {
       if (side === winner) continue;
       const p = this.projectiles.get(side);
-      if (p) { this.particles.burst(p.position, 14, [p.recipe.colors[1], "#ffffff"], 4, 0.14, 0.4, { gravity: 3 }); p.dispose(); this.projectiles.delete(side); }
+      if (p) { this.particles.burst(p.position, 18, [p.recipe.colors[1], "#ffffff"], 4.5, 0.15, 0.45, { gravity: 3 }); p.dispose(); this.projectiles.delete(side); }
+      if (kinds[side] === "physical") void this.knockBack(side);
     }
-    if (!winner) this.onCaption("¡Los ataques chocan y se anulan!");
-    else if (pierce) this.onCaption("¡El ataque básico atraviesa al especial!");
-    else this.onCaption(`¡El especial de ${this.battle.species(winner).name} se impone!`);
-    await this.pause(0.15);
+    const name = (s: Side) => this.battle.species(s).name;
+    if (!winner) this.onCaption("¡Los ataques se anulan! Nadie recibe daño.");
+    else if (quickVsCharged) this.onCaption(`¡El disparo rápido de ${name(winner)} atraviesa el ataque cargado antes de que salga!`);
+    else if (physVsQuick) this.onCaption(`¡${name(winner)} embiste a través del disparo!`);
+    else if (chargedVsPhys) this.onCaption(`¡El ${this.battle.species(winner).signature.name} de ${name(winner)} arrasa la embestida!`);
+    else this.onCaption(`¡${name(winner)} se impone en el choque!`);
+    if (!winner) this.moves.clear();
+    await this.pause(0.45);
   }
 
-  /** Phase 2 end: the projectile aimed at `target` arrives (or flies past on a dodge). */
-  private async flyIn(target: Side, passing = false) {
-    const shooter = other(target);
-    const p = this.projectiles.get(shooter);
-    if (!p) return;
-    const to = this.chest(target);
-    if (passing) to.x += this.dir(shooter) * 1.6;
-    await this.travel(p, to, this.flightTime(p, to.x - p.position.x));
-    if (passing) { p.dispose(); this.projectiles.delete(shooter); }
+  /** Phase 3 approach: the winning move goes on to the defender (or past it, on a dodge). */
+  private async approach(attacker: Side, dodged: boolean) {
+    const defender = other(attacker);
+    const kind = this.moves.get(attacker) ?? "quick";
+    this.moves.delete(attacker);
+    const to = this.chest(defender);
+    if (kind === "physical") {
+      const f = this.fighters.get(attacker)!;
+      const target = this.slot(defender).x - this.dir(attacker) * (dodged ? -0.8 : f.rig.width * 0.5 + this.fighters.get(defender)!.rig.width * 0.35);
+      if (!this.away.has(attacker)) await this.motion(attacker, "windup");
+      if (dodged) void this.motion(defender, "dodge");
+      await this.dash(attacker, target, Math.abs(target - f.rig.root.position.x) / (this.speedOf("physical", attacker) * 1.2));
+      if (!dodged && physicalFor(f.speciesID, this.battle.data).style === "claw") {
+        slashEffect(this.particles, this.chest(defender), physicalFor(f.speciesID, this.battle.data).colors, this.dir(attacker), this.quality.particles);
+      }
+      return;
+    }
+    let p = this.projectiles.get(attacker);
+    if (!p) {
+      // An unopposed attack (the other side didn't move): launch it now.
+      const recipe = this.recipe(attacker, kind);
+      p = new Projectile(recipe, kind === "charged" ? "strong" : "basic", this.dir(attacker), this.particles, this.quality.particles);
+      p.setPosition(this.chest(attacker));
+      this.scene.add(p.group);
+      this.projectiles.set(attacker, p);
+    }
+    if (dodged) { to.x += this.dir(attacker) * 1.8; void this.motion(defender, "dodge"); }
+    await this.travel(p, to, Math.abs(to.x - p.position.x) / this.speedOf(kind, attacker));
+    if (dodged) { p.dispose(); this.projectiles.delete(attacker); }
   }
 
   /** Phase 3: elemental burst, hit-stop, shake, flinch and the bouncy number. */
   private async impact(target: Side, damage: number, critical: boolean, eff: Effectiveness) {
     const shooter = other(target);
     const p = this.projectiles.get(shooter);
-    const recipe = p?.recipe ?? this.recipe(shooter, "basic");
-    const strong = p?.kind === "strong";
+    const recipe = p?.recipe ?? this.recipe(shooter, "quick");
+    const strong = p?.kind === "strong" || !p;
+    sound.play(critical ? "crit" : "hit");
+    this.setHP(target, this.shownHP[target] - damage);
     const at = this.center(target);
     impactEffect(this.particles, at, recipe, strong || critical, this.quality.particles);
     if (p) { p.dispose(); this.projectiles.delete(shooter); }

@@ -20,7 +20,17 @@ import { chooseAttack } from "./ai";
 
 export type Side = "partner" | "enemy";
 export const other = (s: Side): Side => (s === "partner" ? "enemy" : "partner");
-export type AttackKind = "basic" | "strong";
+/** Quick Shot (fast projectile), Physical Strike (melee dash), Charged Attack (heavy beam, 1 Carga). */
+export type AttackKind = "quick" | "physical" | "charged";
+export const MOVES: AttackKind[] = ["quick", "physical", "charged"];
+export const MOVE_NAME: Record<AttackKind, string> = { quick: "Disparo rápido", physical: "Golpe físico", charged: "Ataque cargado" };
+/** What each move beats: Quick → Charged → Physical → Quick. */
+export const MOVE_BEATS: Record<AttackKind, AttackKind> = { quick: "charged", charged: "physical", physical: "quick" };
+/** The triangle's winner for two different moves; undefined for a mirror (decided by stats). */
+export function clashWinner(p: AttackKind, e: AttackKind): Side | undefined {
+  if (p === e) return undefined;
+  return MOVE_BEATS[p] === e ? "partner" : "enemy";
+}
 export type TurnAction = AttackKind | { card: string };
 export type Outcome = "victory" | "defeat" | "fled" | "left";
 export type Effectiveness = "normal" | "strong" | "weak";
@@ -30,8 +40,8 @@ export type Beat =
   | { t: "emote"; side: Side; mark: string }
   | { t: "charge"; side: Side }
   | { t: "launch"; side: Side; kind: AttackKind }
-  | { t: "pierce"; by: Side }
-  | { t: "clash"; winner?: Side; kind: AttackKind }
+  /** Both moves meet; only `winner` (if any) goes on to hit. */
+  | { t: "clash"; winner?: Side; partner: AttackKind; enemy: AttackKind }
   | { t: "hit"; target: Side; damage: number; critical: boolean; effectiveness: Effectiveness }
   | { t: "dodge"; side: Side }
   | { t: "blocked"; side: Side }
@@ -161,10 +171,13 @@ export class Battle {
 
   // MARK: Turns
 
-  canUseStrong(side: Side = "partner") { return this.combatant(side).charge >= 1; }
+  /** The Charged Attack costs 1 Carga; Quick Shot and Physical Strike are free. */
+  canUseCharged(side: Side = "partner") { return this.combatant(side).charge >= 1; }
+  /** @deprecated old name, kept for older callers. */
+  canUseStrong(side: Side = "partner") { return this.canUseCharged(side); }
   cardCost(id: string) { const p = this.data.parche.get(id); return p ? this.tuning.cardCost[p.rarity] : 0; }
 
-  /** One turn: the partner's action against the enemy's (chosen by the AI at the same time). */
+  /** One turn: the partner's move against the enemy's (chosen by the AI at the same time). */
   playTurn(intended: TurnAction, aiRng?: Rng): Beat[] {
     this.begin();
     if (this.phase !== "choosing") return [];
@@ -174,7 +187,7 @@ export class Battle {
       const used = this.useCard(intended.card, beats);
       if (!used) return beats;
     } else {
-      const choice: AttackKind = intended === "strong" && !this.canUseStrong() ? "basic" : intended;
+      const choice: AttackKind = intended === "charged" && !this.canUseCharged() ? "quick" : intended;
       partnerAction = this.partner.statuses.stunTurns > 0 ? undefined : this.obey(choice, beats);
       this.partnerChoices.push(choice);
     }
@@ -223,61 +236,53 @@ export class Battle {
       beats.push({ t: "emote", side: "partner", mark: "…" }, { t: "text", text: `${name} no obedece y se queda mirando a las nubes.` });
       return undefined;
     }
-    const random: AttackKind = this.canUseStrong() && this.rng.bool() ? "strong" : "basic";
-    beats.push({ t: "emote", side: "partner", mark: "!?" }, { t: "text", text: random === "strong" ? `¡${name} hace lo que quiere y lanza su ataque especial!` : `${name} hace lo que quiere y dispara un ataque básico.` });
+    const options: AttackKind[] = this.canUseCharged() ? ["quick", "physical", "charged"] : ["quick", "physical"];
+    const random = this.rng.pick(options.filter((k) => k !== choice)) ?? "quick";
+    beats.push({ t: "emote", side: "partner", mark: "!?" }, { t: "text", text: `¡${name} hace lo que quiere: ${MOVE_NAME[random].toLowerCase()}!` });
     return random;
   }
 
+  /**
+   * The D-Ark triangle. Both moves launch at once and only ONE side can hit:
+   * Quick Shot beats Charged Attack (pierces it while it charges), Physical Strike beats Quick
+   * Shot (dashes through it), Charged Attack beats Physical Strike (blasts it back). Same move:
+   * higher AP wins, SP breaks a tie, a perfect tie cancels both. The winning hit can still be
+   * dodged.
+   */
   private resolve(p: AttackKind | undefined, e: AttackKind | undefined, beats: Beat[]) {
     for (const [side, action] of [["partner", p], ["enemy", e]] as [Side, AttackKind | undefined][]) {
-      if (action === "strong") { this.combatant(side).charge -= 1; beats.push({ t: "charge", side }); }
+      if (action === "charged") { this.combatant(side).charge -= 1; beats.push({ t: "charge", side }); }
     }
     if (p) beats.push({ t: "launch", side: "partner", kind: p });
     if (e) beats.push({ t: "launch", side: "enemy", kind: e });
-
-    // Hits that land (before dodges): [attacker, kind, damage share, dodgeable].
-    const hits: [Side, AttackKind, number, boolean][] = [];
-    let simultaneous = false;
-    if (p && e && p !== e) {
-      // The Basic shot is faster: it pierces the charging Strong attack and cancels it.
-      const basicSide: Side = p === "basic" ? "partner" : "enemy";
-      beats.push({ t: "pierce", by: basicSide });
-      hits.push([basicSide, "basic", 1, false]);
-    } else if (p === "strong" && e === "strong") {
-      const winner = this.strongClashWinner();
-      beats.push({ t: "clash", winner, kind: "strong" });
-      if (winner) hits.push([winner, "strong", 1, false]);
-    } else if (p === "basic" && e === "basic") {
-      // Both fire; the faster lands first (same SP: at the same time).
-      const ps = this.effective("sp", "partner"), es = this.effective("sp", "enemy");
-      simultaneous = ps === es;
-      const first: Side = ps >= es ? "partner" : "enemy";
-      hits.push([first, "basic", 1, true], [other(first), "basic", 1, true]);
-    } else if (p) hits.push(["partner", p, 1, true]);
-    else if (e) hits.push(["enemy", e, 1, true]);
-    else beats.push({ t: "text", text: "Ninguno de los dos ataca." });
-
-    for (const [attacker, kind, share, dodgeable] of hits) {
-      if (!simultaneous && this.combatant(attacker).hp <= 0) continue;
-      this.land(attacker, kind, share, dodgeable, beats);
-      if (this.combatant(attacker).statuses.doubleStrike) {
-        this.combatant(attacker).statuses.doubleStrike = false;
-        if (this.combatant(other(attacker)).hp > 0) {
-          beats.push({ t: "status", side: attacker, text: "¡Doble golpe!" });
-          this.land(attacker, kind, share * this.tuning.doubleStrikeSecondHit, dodgeable, beats);
-        }
+    let winner: Side | undefined;
+    if (p && e) {
+      winner = clashWinner(p, e) ?? this.statWinner();
+      beats.push({ t: "clash", winner, partner: p, enemy: e });
+    } else winner = p ? "partner" : e ? "enemy" : undefined;
+    if (!p && !e) { beats.push({ t: "text", text: "Ninguno de los dos ataca." }); return; }
+    if (!winner) return;
+    const kind = (winner === "partner" ? p : e)!;
+    this.land(winner, kind, 1, true, beats);
+    if (this.combatant(winner).statuses.doubleStrike) {
+      this.combatant(winner).statuses.doubleStrike = false;
+      if (this.combatant(other(winner)).hp > 0) {
+        beats.push({ t: "status", side: winner, text: "¡Doble golpe!" });
+        this.land(winner, kind, this.tuning.doubleStrikeSecondHit, true, beats);
       }
     }
   }
 
-  /** Strong vs Strong: higher AP overpowers the other beam; SP breaks a tie; a full tie cancels both. */
-  strongClashWinner(): Side | undefined {
+  /** Same move on both sides: higher AP wins; SP breaks a tie; a perfect tie cancels both. */
+  statWinner(): Side | undefined {
     const pa = this.effective("ap", "partner"), ea = this.effective("ap", "enemy");
     if (pa !== ea) return pa > ea ? "partner" : "enemy";
     const ps = this.effective("sp", "partner"), es = this.effective("sp", "enemy");
     if (ps !== es) return ps > es ? "partner" : "enemy";
     return undefined;
   }
+  /** @deprecated old name. */
+  strongClashWinner() { return this.statWinner(); }
 
   private land(attacker: Side, kind: AttackKind, share: number, dodgeable: boolean, beats: Beat[]) {
     const defender = other(attacker);
@@ -403,21 +408,23 @@ export class Battle {
   }
 
   /**
-   * Basic: max(1, AP × 1.0 − defender AP × 0.3). Strong: max(2, AP × 2.2 − defender AP × 0.3).
-   * Then affinity and guard. No randomness: dodging is the only luck.
+   * Quick Shot: max(1, AP × 1.0 − defender AP × 0.3). Physical Strike: max(1, AP × 1.5 − …).
+   * Charged Attack: max(2, AP × 2.2 − …). Then affinity and guard. No randomness: dodging is the
+   * only luck.
    */
   expectedDamage(attacker: Side, kind: AttackKind): number {
     const t = this.tuning;
     const ap = this.effective("ap", attacker), def = this.effective("ap", other(attacker));
-    let damage = kind === "basic" ? Math.max(t.basicMin, ap * t.basicAP - def * t.defenderAP) : Math.max(t.strongMin, ap * t.strongAP - def * t.defenderAP);
+    const [mult, min] = kind === "quick" ? [t.basicAP, t.basicMin] : kind === "physical" ? [t.physicalAP, t.physicalMin] : [t.strongAP, t.strongMin];
+    let damage = Math.max(min, ap * mult - def * t.defenderAP);
     const eff = this.effectiveness(attacker);
     damage *= eff === "strong" ? t.affinityAdvantage : eff === "weak" ? t.affinityDisadvantage : 1;
     damage *= 1 - this.guard(other(attacker)) / 100;
     return Math.max(1, damage);
   }
 
-  /** Dodge % for a shot from `attacker`: (defender SP − attacker SP) × 4, between 5 and 35. */
-  dodgeChance(attacker: Side): number {
+  /** Dodge % for a hit from `attacker`: (defender SP − attacker SP) × 4, between 5 and 35. */
+  dodgeChance(attacker: Side, _kind?: AttackKind): number {
     const t = this.tuning;
     return clamp((this.effective("sp", other(attacker)) - this.effective("sp", attacker)) * t.dodgePerSP, t.dodgeMin, t.dodgeMax);
   }

@@ -11,6 +11,9 @@ import { Battle } from "../src/systems/battle/battle";
 import { chooseAttack } from "../src/systems/battle/ai";
 
 const data = loadGameData();
+// Compare archetypes alone: affinity off, so the species picked for each don't skew it.
+data.rules.battle.affinityAdvantage = 1;
+data.rules.battle.affinityDisadvantage = 1;
 const archetypes = Object.keys(data.rules.archetypes) as Archetype[];
 const starterOf = (a: Archetype) => data.starters.find((s) => s.archetype === a);
 const wildOf = (a: Archetype) => data.ecos.find((e) => !e.line && e.stage === "novato" && e.archetype === a);

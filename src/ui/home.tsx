@@ -128,6 +128,7 @@ export function HomeScreen({ go }: { go: (tab: number) => void }) {
         <Panel>
           <SectionTitle text="Ataques" />
           <AttackRow attack={species.basic} kind="basic" />
+          <AttackRow kind="physical" species={species} />
           <AttackRow attack={species.signature} kind="strong" />
         </Panel>
       )}

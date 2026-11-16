@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import type { Battle, Beat, Combatant, Outcome, Side } from "../systems/battle/battle";
-import type { Attack, Parche } from "../data/models";
+import type { Parche } from "../data/models";
+import { physicalName } from "../systems/moves";
 import { useGame } from "../game";
 import { sound } from "../audio/sound";
 import { P } from "../ui/theme";
@@ -50,14 +51,22 @@ export function BattleView({ battle }: { battle: Battle }) {
     return () => { cancelled = true; ro?.disconnect(); stage?.destroy(); };
   }, []);
 
+  // HP shown on the bars: it only drops when a hit visibly lands on the stage.
+  const [shown, setShown] = useState<Record<Side, number> | undefined>();
   const perform = (action: () => Beat[]) => {
     if (busy) return;
+    const before = { partner: battle.partner.hp, enemy: battle.enemy.hp };
+    setShown(before);
     const beats = action();
     rerender((n) => n + 1);
-    if (!beats.length) return;
+    if (!beats.length) { setShown(undefined); return; }
     setBusy(true);
-    void ready.current!.then((s) => s.play(beats)).then(() => {
+    void ready.current!.then((s) => {
+      s.onHP = (side, hp) => setShown((cur) => ({ ...(cur ?? before), [side]: hp }));
+      return s.play(beats, before);
+    }).then(() => {
       setBusy(false);
+      setShown(undefined);
       if (battle.outcome) {
         setCaption(summary(battle.outcome, battle));
         if (battle.outcome === "victory") sound.play("victory");
@@ -66,16 +75,16 @@ export function BattleView({ battle }: { battle: Battle }) {
       rerender((n) => n + 1);
     });
   };
-  const begin = () => { battle.begin(); setCaption("¿Básico o especial? El básico atraviesa al especial; dos especiales chocan y gana el de más AP."); rerender((n) => n + 1); };
+  const begin = () => { battle.begin(); setCaption("Elige: el disparo rápido atraviesa al cargado, el golpe físico rompe el disparo y el ataque cargado arrasa al golpe. Si coinciden, gana el de más AP."); rerender((n) => n + 1); };
   const forms = battle.formOptions();
   const partnerSpecies = battle.species("partner");
   const t = battle.tuning;
 
   return (
     <div class="battle">
-      <FighterBar battle={battle} side="enemy" />
+      <FighterBar battle={battle} side="enemy" hp={shown?.enemy} />
       <div class="battle-stage" ref={box} style={{ position: "relative" }}><canvas ref={canvas} aria-label="Combate" /></div>
-      <FighterBar battle={battle} side="partner" />
+      <FighterBar battle={battle} side="partner" hp={shown?.partner} />
       <div class="caption" aria-live="polite">{caption}</div>
       {battle.phase === "intro" && (
         <div class="stack">
@@ -101,9 +110,10 @@ export function BattleView({ battle }: { battle: Battle }) {
       )}
       {battle.phase === "choosing" && (
         <div class="stack">
-          <div class="buttons">
-            <AttackButton title="Básico" attack={partnerSpecies.basic} note={`AP ×${t.basicAP} · libre`} colour={P.amber2} disabled={busy} onClick={() => perform(() => battle.playTurn("basic"))} />
-            <AttackButton title="Especial" attack={partnerSpecies.signature} note={`AP ×${t.strongAP} · 1 Carga`} colour={P.red3} disabled={busy || !battle.canUseStrong()} onClick={() => perform(() => battle.playTurn("strong"))} />
+          <div class="buttons three">
+            <AttackButton title="Rápido" name={partnerSpecies.basic.name} note={`AP ×${t.basicAP} · gana al cargado`} colour={P.teal2} disabled={busy} onClick={() => perform(() => battle.playTurn("quick"))} />
+            <AttackButton title="Físico" name={physicalName(partnerSpecies)} note={`AP ×${t.physicalAP} · gana al rápido`} colour={P.amber2} disabled={busy} onClick={() => perform(() => battle.playTurn("physical"))} />
+            <AttackButton title="Cargado" name={partnerSpecies.signature.name} note={`AP ×${t.strongAP} · 1 Carga · gana al físico`} colour={P.red3} disabled={busy || !battle.canUseCharged()} onClick={() => perform(() => battle.playTurn("charged"))} />
           </div>
           {!battle.isBoss && <button class="link-button center" disabled={busy} onClick={() => perform(() => battle.flee())}>Huir</button>}
           <CardHand battle={battle} busy={busy} onUse={(id) => perform(() => battle.playTurn({ card: id }))} />
@@ -119,8 +129,9 @@ function hpColour(c: Combatant) {
   return share > 0.5 ? P.green2 : share > 0.2 ? P.amber2 : P.red2;
 }
 
-function FighterBar({ battle, side }: { battle: Battle; side: Side }) {
-  const c = battle.combatant(side);
+function FighterBar({ battle, side, hp: shownHP }: { battle: Battle; side: Side; hp?: number }) {
+  const real = battle.combatant(side);
+  const c = { ...real, hp: shownHP ?? real.hp };
   const species = battle.species(side);
   return (
     <div class="fighter">
@@ -145,11 +156,11 @@ function FighterBar({ battle, side }: { battle: Battle; side: Side }) {
   );
 }
 
-function AttackButton({ title, attack, note, colour, disabled, onClick }: { title: string; attack: Attack; note: string; colour: string; disabled: boolean; onClick: () => void }) {
+function AttackButton({ title, name, note, colour, disabled, onClick }: { title: string; name: string; note: string; colour: string; disabled: boolean; onClick: () => void }) {
   return (
     <button class="attack-button" style={{ background: disabled ? P.slate : colour }} disabled={disabled} onClick={onClick}>
       <span class="strong">{title.toUpperCase()}</span>
-      <span class="small ellipsis">{attack.name}</span>
+      <span class="small ellipsis">{name}</span>
       <span class="tiny">{note}</span>
     </button>
   );

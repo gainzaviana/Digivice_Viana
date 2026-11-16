@@ -1,5 +1,5 @@
 {
-  "levelCap": 70,
+  "levelCap": 30,
   "maxBond": 100,
   "stepsPerBond": 600,
   "encounterEveryMinSteps": 150,
@@ -224,7 +224,9 @@
       1.0,
       0.5,
       0.3
-    ]
+    ],
+    "physicalAP": 1.5,
+    "physicalMin": 1
   },
   "training": {
     "sessionsPerDay": 5,
@@ -258,7 +260,7 @@
     "bondGain": 2
   },
   "dailyChallenges": 3,
-  "maxDP": 50,
+  "maxDP": 20,
   "restHoursPerDP": 2,
   "startingDP": 10,
   "archetypes": {
@@ -276,57 +278,57 @@
     },
     "atacante": {
       "base": {
-        "hp": 17,
-        "ap": 5,
+        "hp": 19,
+        "ap": 4,
         "sp": 3
       },
       "growth": {
-        "hp": 3.4,
-        "ap": 1.9,
-        "sp": 0.9
+        "hp": 3.8,
+        "ap": 1.5,
+        "sp": 1
       }
     },
     "tanque": {
       "base": {
-        "hp": 25,
-        "ap": 3.5,
-        "sp": 2
+        "hp": 21,
+        "ap": 4,
+        "sp": 3
       },
       "growth": {
-        "hp": 5,
-        "ap": 1.3,
-        "sp": 0.7
+        "hp": 4.2,
+        "ap": 1.5,
+        "sp": 1
       }
     },
     "veloz": {
       "base": {
-        "hp": 18,
-        "ap": 3.5,
-        "sp": 5
+        "hp": 20,
+        "ap": 4,
+        "sp": 3
       },
       "growth": {
-        "hp": 3.5,
-        "ap": 1.3,
-        "sp": 1.4
+        "hp": 3.9,
+        "ap": 1.5,
+        "sp": 1
       }
     },
     "mistico": {
       "base": {
-        "hp": 19,
-        "ap": 4.5,
-        "sp": 3.5
+        "hp": 20,
+        "ap": 4,
+        "sp": 3
       },
       "growth": {
-        "hp": 3.7,
-        "ap": 1.6,
-        "sp": 1.1
+        "hp": 4.1,
+        "ap": 1.5,
+        "sp": 1
       }
     }
   },
   "xp": {
     "perWin": 10,
     "winsPerLevelStart": 3,
-    "winsPerLevelEvery": 5,
+    "winsPerLevelEvery": 2,
     "winsPerLevelMax": 15,
     "ratioMin": 0.5,
     "ratioMax": 1.5,

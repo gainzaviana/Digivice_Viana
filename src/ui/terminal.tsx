@@ -168,6 +168,7 @@ function GuideEntry({ species, onClose }: { species: EcoSpecies; onClose: () => 
       <Panel>
         <SectionTitle text="Ataques" />
         <AttackRow attack={species.basic} kind="basic" />
+        <AttackRow kind="physical" species={species} />
         <AttackRow attack={species.signature} kind="strong" />
       </Panel>
       {(from.length > 0 || into.length > 0 || fusions.length > 0) && (

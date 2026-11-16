@@ -5,7 +5,7 @@ import { Rng } from "../core/random";
 import { migrate, newSave, partnerOf } from "../core/save";
 import { newGame } from "../systems/actions";
 import { walk } from "../systems/walk";
-import { Battle } from "../systems/battle/battle";
+import { Battle, clashWinner } from "../systems/battle/battle";
 import { chooseAttack } from "../systems/battle/ai";
 import { finishBattle } from "../systems/battle/results";
 import { maxStats, newEco } from "../systems/progression";
@@ -49,7 +49,13 @@ describe("game", () => {
     const p = partnerOf(newGame("brasko", newSave(), data)!)!;
     expect(p.level).toBe(1);
     expect(p.unlocked).toEqual([]);
-    expect(maxStats(p, data)).toEqual({ hp: 17, ap: 5, sp: 3 });
+    expect(maxStats(p, data)).toEqual({ hp: 19, ap: 4, sp: 3 });
+    const t = partnerOf(newGame("tuerkin", newSave(), data)!)!;
+    expect(maxStats(t, data)).toEqual({ hp: 20, ap: 4, sp: 3 });
+    t.level = 2;
+    expect(maxStats(t, data)).toEqual({ hp: 24, ap: 5.5, sp: 4 });
+    expect(data.rules.maxDP).toBe(20);
+    expect(data.rules.levelCap).toBe(30);
   });
 
   it("uses the D-Ark damage and dodge formulas", () => {
@@ -57,26 +63,36 @@ describe("game", () => {
     const b = Battle.start({ id: "e", kind: "battle", regionID: save.map.regionID!, date: 0, species: "pixelito", level: 1, variant: "normal" }, save, data, 1)!;
     const ap = b.effective("ap", "partner"), def = b.effective("ap", "enemy");
     const aff = b.effectiveness("partner") === "strong" ? 1.15 : b.effectiveness("partner") === "weak" ? 0.9 : 1;
-    expect(b.expectedDamage("partner", "basic")).toBeCloseTo(Math.max(1, ap - def * 0.3) * aff);
-    expect(b.expectedDamage("partner", "strong")).toBeCloseTo(Math.max(2, ap * 2.2 - def * 0.3) * aff);
+    expect(b.expectedDamage("partner", "quick")).toBeCloseTo(Math.max(1, ap - def * 0.3) * aff);
+    expect(b.expectedDamage("partner", "physical")).toBeCloseTo(Math.max(1, ap * 1.5 - def * 0.3) * aff);
+    expect(b.expectedDamage("partner", "charged")).toBeCloseTo(Math.max(2, ap * 2.2 - def * 0.3) * aff);
     const d = (b.effective("sp", "enemy") - b.effective("sp", "partner")) * 4;
     expect(b.dodgeChance("partner")).toBe(Math.min(35, Math.max(5, d)));
   });
 
-  it("lets a Basic pierce a Strong, and the higher AP win a Strong clash", () => {
+  it("resolves the 3-move triangle with a single winner per clash", () => {
+    expect(clashWinner("quick", "charged")).toBe("partner");
+    expect(clashWinner("physical", "quick")).toBe("partner");
+    expect(clashWinner("charged", "physical")).toBe("partner");
+    expect(clashWinner("charged", "quick")).toBe("enemy");
+    expect(clashWinner("quick", "physical")).toBe("enemy");
+    expect(clashWinner("physical", "charged")).toBe("enemy");
+    expect(clashWinner("quick", "quick")).toBeUndefined();
     const save = newGame("brasko", newSave(), data)!;
     const b = Battle.start({ id: "e", kind: "battle", regionID: save.map.regionID!, date: 0, species: "pixelito", level: 1, variant: "normal" }, save, data, 3)!;
-    b.partner.charge = 3;
-    const rng = { float: () => 0.99, bool: () => false, next: () => 1 } as unknown as Rng;
-    // Force the enemy to Strong by giving it Carga and patching its choice via a fixed RNG is fragile;
-    // check the clash rule directly instead.
     b.enemy.stats.ap = 1;
-    expect(b.strongClashWinner()).toBe("partner");
+    expect(b.statWinner()).toBe("partner");
     b.enemy.stats.ap = b.partner.stats.ap; b.enemy.stats.sp = b.partner.stats.sp + 1;
-    expect(b.strongClashWinner()).toBe("enemy");
+    expect(b.statWinner()).toBe("enemy");
     b.enemy.stats.sp = b.partner.stats.sp;
-    expect(b.strongClashWinner()).toBeUndefined();
-    void rng;
+    expect(b.statWinner()).toBeUndefined();
+    // Over many turns, never both sides hit in the same turn.
+    const rng = new Rng(5);
+    for (let i = 0; i < 200 && !b.outcome; i++) {
+      const beats = b.playTurn(rng.pick(["quick", "physical", "charged"] as const)!, rng);
+      const hit = new Set(beats.filter((x) => x.t === "hit").map((x) => (x as { target: string }).target));
+      expect(hit.size).toBeLessThanOrEqual(1);
+    }
   });
 
   it("unlocks evolutions only for the Eco that beats a boss, one stage at a time", () => {
@@ -123,7 +139,7 @@ describe("game", () => {
     expect(q.speciesID).toBe("brasko");
     expect(q.unlocked).toEqual(["fraguadrako", "calderon"]);
     expect(q.bonus).toEqual({ hp: 5, ap: 2, sp: 1 });
-    expect(q.dp).toBe(50);
+    expect(q.dp).toBe(20);
   });
 
   it("lays out 18 cities in 6 Areas with the multi-day distances", () => {
@@ -160,7 +176,7 @@ describe("game", () => {
     save.pending.push({ id: "e", kind: "battle", regionID: save.map.regionID!, date: 0, species: "cactuson", level: 30 });
     b.begin();
     const rng = new Rng(9);
-    while (!b.outcome) b.playTurn("basic");
+    while (!b.outcome) b.playTurn("quick");
     expect(b.outcome).toBe("defeat");
     finishBattle(save, b, data, new Date(0), rng);
     expect(p.hp).toBe(1);

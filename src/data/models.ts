@@ -84,6 +84,8 @@ export interface ArchetypeProfile { base: Stats; growth: Stats }
 export interface BattleTuning {
   /** Basic: AP × basicAP − defender AP × defenderAP (min basicMin). Strong: AP × strongAP − … (min strongMin). */
   basicAP: number; strongAP: number; defenderAP: number; basicMin: number; strongMin: number;
+  /** Physical Strike: AP × physicalAP − defender AP × defenderAP (min physicalMin). */
+  physicalAP: number; physicalMin: number;
   /** Dodge % = (defender SP − attacker SP) × dodgePerSP, clamped to dodgeMin…dodgeMax. */
   dodgePerSP: number; dodgeMin: number; dodgeMax: number;
   affinityAdvantage: number; affinityDisadvantage: number; critMultiplier: number;

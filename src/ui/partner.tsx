@@ -35,6 +35,7 @@ export function PartnerScreen() {
           <Panel>
             <SectionTitle text="Ataques" />
             <AttackRow attack={species.basic} kind="basic" />
+            <AttackRow kind="physical" species={species} />
             <AttackRow attack={species.signature} kind="strong" />
           </Panel>
           <EvolutionTree eco={partner} />

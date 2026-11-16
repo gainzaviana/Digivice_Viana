@@ -4,6 +4,7 @@ import { AFFINITY_NAME, ARCHETYPE_NAME, STAGE_NAME, STAGE_TIER, TIER_NAME, type 
 import { VARIANT_NAME, type Variant } from "../core/save";
 import { P } from "./theme";
 import { game } from "../game";
+import { physicalName } from "../systems/moves";
 import { sound } from "../audio/sound";
 
 // Shared interface pieces in the game's cozy style: frosted rounded panels, soft pills and
@@ -96,17 +97,19 @@ export function EcoImg({ id, variant = "normal", size = 96, flip, silhouette, di
   );
 }
 
-/** An attack: Basic (AP × 1.0, fast, pierces Strong) or Strong (AP × 2.2, costs 1 Carga). */
-export function AttackRow({ attack, kind }: { attack: Attack; kind: "basic" | "strong" }) {
+/** One of the three D-Ark moves, with this species' name for it. */
+export function AttackRow({ attack, kind, species }: { attack?: Attack; kind: "basic" | "physical" | "strong"; species?: EcoSpecies }) {
   const b = game.data.rules.battle;
+  const name = kind === "physical" ? (species ? physicalName(species) : "Golpe físico") : attack?.name ?? "";
+  const info = { basic: ["Disparo rápido · gana al cargado", `AP ×${b.basicAP}`, "Libre"], physical: ["Golpe físico · gana al rápido", `AP ×${b.physicalAP}`, "Libre"], strong: ["Ataque cargado · gana al físico", `AP ×${b.strongAP}`, "1 Carga"] }[kind];
   return (
     <div class="row">
       <div class="grow">
-        <div class="strong">{attack.name}</div>
-        <div class="muted small">{kind === "basic" ? "Básico · rápido, atraviesa al especial" : "Especial · choca con otros especiales"}</div>
+        <div class="strong">{name}</div>
+        <div class="muted small">{info[0]}</div>
       </div>
-      <span class="small">AP ×{kind === "basic" ? b.basicAP : b.strongAP}</span>
-      <span class="small amber">{kind === "basic" ? "Libre" : "1 Carga"}</span>
+      <span class="small">{info[1]}</span>
+      <span class="small amber">{info[2]}</span>
     </div>
   );
 }

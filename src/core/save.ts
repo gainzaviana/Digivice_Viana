@@ -132,8 +132,8 @@ export interface GameSave {
   cityDay: { day: string; healed: boolean; blessed: boolean; offering?: string };
 }
 
-/** 2: D-Ark stats (HP/AP/SP + DP pool), temporary evolutions unlocked by bosses. 3: 18 cities in 6 Areas, injuries, Care. */
-export const SAVE_VERSION = 3;
+/** 2: D-Ark stats (HP/AP/SP + DP pool), temporary evolutions unlocked by bosses. 3: 18 cities in 6 Areas, injuries, Care. 4: 3-move combat, DP max 20, level cap 30. */
+export const SAVE_VERSION = 4;
 
 export function newSave(): GameSave {
   return {

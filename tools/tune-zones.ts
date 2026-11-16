@@ -17,8 +17,8 @@ const write = process.argv.includes("--write");
 
 /** Partner level when reaching each zone's boss, as measured by tools/simulate-walk.ts. */
 const PARTNER_LEVEL: Record<number, number> = {
-  1: 4, 2: 8, 3: 12, 4: 15, 5: 17, 6: 21, 7: 24, 8: 27, 9: 29, 10: 32,
-  11: 36, 12: 40, 13: 44, 14: 46, 15: 48, 16: 51, 17: 54, 18: 57, 19: 48,
+  1: 4, 2: 6, 3: 9, 4: 10, 5: 12, 6: 13, 7: 16, 8: 20, 9: 23, 10: 24,
+  11: 27, 12: 28, 13: 30, 14: 30, 15: 30, 16: 30, 17: 30, 18: 30, 19: 30,
 };
 /** The best evolution tier unlocked when fighting each zone (zone 1: none yet). */
 const tierAt = (zone: number) => {
@@ -29,7 +29,7 @@ const tierAt = (zone: number) => {
 };
 const WILD_TARGET = 0.75;
 /** First-try win rate against each boss: early bosses are walls; later ones a bit more, since players arrive better trained. */
-const bossTarget = (zone: number) => (zone <= 3 ? 0.35 : 0.25);
+const bossTarget = (_zone: number) => 0.35;
 const RUNS = 160;
 
 const starters = data.starters;
