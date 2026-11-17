@@ -80,6 +80,21 @@ export class SpriteForge {
     }
   }
 
+  /** A filled polygon (any shape, concave too), as one part. */
+  poly(points: Point[], m: Material, lift = 0) {
+    const id = this.nextPart(), n = this.n;
+    const pts = points.map((p) => [p[0] * n, p[1] * n] as const);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const px = x + 0.5, py = y + 0.5;
+      let inside = false;
+      for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+        const [xi, yi] = pts[i], [xj, yj] = pts[j];
+        if ((yi > py) !== (yj > py) && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi) inside = !inside;
+      }
+      if (inside) this.set(x, y, m, id, lift);
+    }
+  }
+
   /** A ring (outline of a circle), `thickness` in pixels. */
   ring(cx: number, cy: number, r: number, m: Material, thickness = 1, lift = 0) {
     const id = this.nextPart(), n = this.n;

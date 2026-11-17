@@ -68,7 +68,20 @@ exactly where counting starts or stops.
 - **Cuidados:** Energy Charge (DP +3…+6, bond) and Data Pulse (30–75 % HP, cures injuries). 3 charges, +1 every
   500 steps or 2 hours.
 
-## Your own creature art
+## Creature art
+
+Every creature is an original 64×64 pixel-art sprite, drawn by code in `tools/sprites/`:
+`style.ts` paints them (tinted outlines, cel shading, eyes) and `designs/*.ts` holds one design per
+species. Edit a design, preview it and regenerate the PNGs:
+
+```sh
+npx tsx tools/sprites/preview.ts /tmp/sheet.png salvajes-1 aranared,lobocifra 5   # review sheet
+npx tsx tools/sprites/build.ts                                                     # writes src/assets/creatures/<id>.png
+```
+
+Brillante colours are made by the game (a hue turn) unless a `<id>_brillante.png` exists.
+
+### Replacing a sprite with your own drawing
 
 Drop images into `src/assets/creatures/` and rebuild (a push to GitHub rebuilds the site). The game bundles every
 file it finds there and uses it instead of the procedural 3D figure: in portraits, battles and the home walk. Any

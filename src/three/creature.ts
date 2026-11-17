@@ -625,6 +625,10 @@ function addSparkles(body: THREE.Group, width: number, height: number, materials
 function buildSpriteCreature(speciesID: string, variant: Variant, art: CustomArt, stageHeight: number, silhouette: boolean): CreatureRig {
   const tex = new THREE.Texture();
   tex.colorSpace = THREE.SRGBColorSpace;
+  // Pixel art: keep every pixel crisp when scaled.
+  tex.magFilter = THREE.NearestFilter;
+  tex.minFilter = THREE.NearestFilter;
+  tex.generateMipmaps = false;
   const img = new Image();
   img.onload = () => {
     if (art.recolour) {

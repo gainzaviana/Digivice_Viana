@@ -119,3 +119,11 @@ describe("custom creature art", () => {
     expect(customArt("pixelito", "normal", table)).toBeUndefined();
   });
 });
+
+describe("creature art", () => {
+  it("every species has its own sprite in src/assets/creatures", async () => {
+    const { customArt } = await import("../art/custom");
+    const missing = data.ecos.filter((e) => !customArt(e.id, "normal")).map((e) => e.id);
+    expect(missing).toEqual([]);
+  });
+});

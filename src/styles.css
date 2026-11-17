@@ -534,7 +534,7 @@ details[open] summary { margin-bottom: 6px; }
 }
 @keyframes shiny-pulse { 50% { transform: scale(1.08); opacity: 0.7; } }
 @keyframes twinkle { 0%, 100% { transform: scale(0.4) rotate(0deg); opacity: 0; } 50% { transform: scale(1) rotate(45deg); opacity: 1; } }
-.eco-img.custom { image-rendering: auto; }
+.eco-img.custom { image-rendering: pixelated; image-rendering: crisp-edges; }
 .eco-img.custom.silhouette { filter: brightness(0) opacity(0.35); }
 .tag.stars { background: linear-gradient(135deg, #ffd56b, #ff9fc4); color: #5a2a3a; letter-spacing: 0.06em; }
 .pink { color: #d4507a; }
