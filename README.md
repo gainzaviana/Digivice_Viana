@@ -70,9 +70,13 @@ exactly where counting starts or stops.
 
 ## Creature art
 
-In the game every creature is a 3D voxel figure built from its 64×64 pixel-art sprite
-(`src/three/voxel.ts`: each pixel becomes a column of cubes, thick in the body and thin at the edges).
-The sprites are original designs drawn by code in `tools/sprites/`:
+In the game every creature is a sculpted, toon-shaded 3D model (`src/three/sculpt.ts`): soft shapes
+(ellipsoids, tapered capsules, rounded boxes, tori) blended into one smooth surface, painted per region,
+with an ink outline and big glossy eyes. One design per species in `src/three/sculpts/*.ts`; models are
+built in a background worker. Check build times with `npx tsx tools/sculpt-time.ts`.
+
+Each sculpt was modelled from the creature's original 64×64 pixel-art design, drawn by code in `tools/sprites/`
+(those PNGs are also used as portraits while a 3D portrait renders):
 `style.ts` paints them (tinted outlines, cel shading, eyes) and `designs/*.ts` holds one design per
 species. Edit a design, preview it and regenerate the PNGs:
 

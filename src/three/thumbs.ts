@@ -80,12 +80,18 @@ function setup() {
   camera = new THREE.PerspectiveCamera(28, 1, 0.1, 50);
 }
 
-function render(speciesID: string, variant: Variant, data: GameData, size: number, silhouette: boolean): string {
+/** A one-off render at any turn (radians around y), for design previews. Not cached. */
+export async function renderCreatureView(speciesID: string, variant: Variant, data: GameData, size: number, turn: number): Promise<string> {
+  await preloadCreature(speciesID, variant);
+  return render(speciesID, variant, data, size, false, turn);
+}
+
+function render(speciesID: string, variant: Variant, data: GameData, size: number, silhouette: boolean, turn = -0.75): string {
   setup();
   const r = renderer!, s = scene!, cam = camera!;
   const rig = buildCreature(speciesID, variant, data, { silhouette });
   // Slightly turned towards the viewer: a 3/4 view of an Eco facing right.
-  rig.root.rotation.y = -0.45;
+  rig.root.rotation.y = turn;
   s.add(rig.root);
   rig.root.updateMatrixWorld(true);
   const box = new THREE.Box3().setFromObject(rig.root);

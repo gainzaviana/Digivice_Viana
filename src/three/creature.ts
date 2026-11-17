@@ -8,6 +8,8 @@ import { PALETTE } from "../art/palette";
 import { glowMaterial, softDotTexture, softMaterial } from "./materials";
 import { customArt, type CustomArt } from "../art/custom";
 import { cachedSpritePixels, loadSpritePixels, voxelGeometry, type SpritePixels } from "./voxel";
+import { eyeGeometry, eyeTexture, sculptData, sculptGeometries, shiftPalette, toonMaterial, type SculptData } from "./sculpt";
+import { SCULPTS } from "./sculpts";
 
 /**
  * Full 3D Ecos, built from the same body plans as the pixel sprites so every design keeps its
@@ -109,6 +111,8 @@ const isBodyMaterial = (m: M) => m === M.main || m === M.second || m === M.accen
  */
 export function buildCreature(speciesID: string, variant: Variant, data: GameData, opts: { silhouette?: boolean } = {}): CreatureRig {
   const species = data.eco.get(speciesID);
+  // Sculpted 3D designs first, then sprite art (src/assets/creatures), then the procedural figure.
+  if (SCULPTS[speciesID] && typeof document !== "undefined") return buildSculptCreature(speciesID, variant, STAGE_HEIGHT[species?.stage ?? "novato"], !!opts.silhouette);
   // Your own art (src/assets/creatures) replaces the procedural figure.
   const custom = typeof document !== "undefined" ? customArt(speciesID, variant) : undefined;
   if (custom) return buildSpriteCreature(speciesID, variant, custom, STAGE_HEIGHT[species?.stage ?? "novato"], !!opts.silhouette);
@@ -659,6 +663,122 @@ function buildSpriteCreature(speciesID: string, variant: Variant, art: CustomArt
 
 /** Decodes a species' sprite ahead of time, so its voxel figure is ready when built. */
 export function preloadCreature(speciesID: string, variant: Variant): Promise<void> {
+  const sculpt = typeof document !== "undefined" ? requestSculpt(speciesID, variant) : undefined;
+  if (sculpt) return sculpt.then(() => undefined);
   const art = typeof document !== "undefined" ? customArt(speciesID, variant) : undefined;
   return art ? loadSpritePixels(art.url, art.recolour).then(() => undefined, () => undefined) : Promise.resolve();
+}
+
+const sculptCache = new Map<string, SculptData>();
+const sculptPending = new Map<string, Promise<SculptData>>();
+let worker: Worker | undefined;
+const waiting = new Map<string, (d: SculptData) => void>();
+
+/** A sculpted creature's mesh data: from the cache, or built in a background worker. */
+export function requestSculpt(speciesID: string, variant: Variant): Promise<SculptData> | undefined {
+  const design = SCULPTS[speciesID];
+  if (!design) return undefined;
+  const shiny = variant === "brillante";
+  const key = `${speciesID}|${shiny ? 1 : 0}`;
+  const hit = sculptCache.get(key);
+  if (hit) return Promise.resolve(hit);
+  const pending = sculptPending.get(key);
+  if (pending) return pending;
+  const turn = shiny ? shinyHueShift(speciesID) : 0;
+  const p = new Promise<SculptData>((done) => {
+    const finish = (d: SculptData) => { sculptCache.set(key, d); sculptPending.delete(key); done(d); };
+    if (typeof Worker === "undefined") {
+      finish(sculptData(turn ? { ...design, palette: shiftPalette(design.palette, turn) } : design));
+      return;
+    }
+    if (!worker) {
+      worker = new Worker(new URL("./sculpt.worker.ts", import.meta.url), { type: "module" });
+      worker.onmessage = (e: MessageEvent<{ key: string; data: SculptData }>) => { waiting.get(e.data.key)?.(e.data.data); waiting.delete(e.data.key); };
+      // If the worker can't run (old browser, blocked), build here instead: slower, but never stuck.
+      worker.onerror = () => {
+        worker = undefined;
+        for (const [k, done] of waiting) {
+          const [id, s] = k.split("|");
+          const base = SCULPTS[id];
+          if (base) done(sculptData(s === "1" ? { ...base, palette: shiftPalette(base.palette, shinyHueShift(id)) } : base));
+        }
+        waiting.clear();
+      };
+    }
+    waiting.set(key, finish);
+    worker.postMessage({ key, id: speciesID, turn });
+  });
+  sculptPending.set(key, p);
+  return p;
+}
+
+/**
+ * A sculpted Eco: one smooth toon-shaded surface with an ink outline and big glossy eyes. Its mesh
+ * is built once per species and variant in a worker; until it arrives the figure is empty.
+ */
+function buildSculptCreature(speciesID: string, variant: Variant, stageHeight: number, silhouette: boolean): CreatureRig {
+  const shiny = variant === "brillante";
+  const materials: THREE.Material[] = [];
+  const model = new THREE.Group();
+  const bodyMat = silhouette ? new THREE.MeshBasicMaterial({ color: "#5a5478" }) : toonMaterial();
+  materials.push(bodyMat);
+  const bodyMesh = new THREE.Mesh(new THREE.BufferGeometry(), bodyMat);
+  bodyMesh.castShadow = true;
+  model.add(bodyMesh);
+  const glowMat = silhouette ? bodyMat : new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false });
+  if (!silhouette) materials.push(glowMat);
+  const glowMesh = new THREE.Mesh(new THREE.BufferGeometry(), glowMat);
+  model.add(glowMesh);
+  const hulls: THREE.Mesh[] = [];
+  if (!silhouette) {
+    // Ink outline: the surface pushed out along its normals, drawn from the inside.
+    const ink = new THREE.MeshBasicMaterial({ color: "#1c1630", side: THREE.BackSide });
+    ink.userData.outline = true;
+    ink.onBeforeCompile = (sh) => {
+      sh.vertexShader = sh.vertexShader.replace("#include <begin_vertex>", "vec3 transformed = position + normal * 0.012;");
+    };
+    ink.customProgramCacheKey = () => "sculpt-ink";
+    materials.push(ink);
+    for (let i = 0; i < 2; i++) { const h = new THREE.Mesh(new THREE.BufferGeometry(), ink); hulls.push(h); model.add(h); }
+  }
+  const body = new THREE.Group();
+  body.add(model);
+  const extra: THREE.Material[] = [];
+  const root = new THREE.Group();
+  root.add(body);
+  root.name = `eco:${speciesID}`;
+  const rig: CreatureRig = {
+    root, body, height: stageHeight, width: stageHeight * 0.9, eyes: [], seams: silhouette ? [] : [glowMesh],
+    colors: { main: "#ffffff", second: "#ffffff", accent: "#ffd76a", seam: "#ffd76a" },
+    dispose() { for (const x of [...materials, ...extra]) x.dispose(); },
+  };
+  const place = (d: SculptData) => {
+    const { geo, glow } = sculptGeometries(d);
+    const k = stageHeight / d.height;
+    model.scale.setScalar(k);
+    bodyMesh.geometry = geo;
+    if (glow) glowMesh.geometry = glow;
+    if (hulls.length) { hulls[0].geometry = geo; if (glow) hulls[1].geometry = glow; }
+    rig.width = d.width * k;
+    if (!silhouette) {
+      for (const e of d.eyes) {
+        const mat = new THREE.MeshBasicMaterial({ map: eyeTexture(e.iris, e.angry), transparent: true, alphaTest: 0.2 });
+        materials.push(mat);
+        const eye = new THREE.Mesh(eyeGeometry(), mat);
+        const n = new THREE.Vector3(...e.n);
+        eye.position.set(...e.p).addScaledVector(n, 0.004);
+        eye.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), n);
+        eye.scale.set(e.r * 0.85, e.r, e.r);
+        eye.userData.sy = e.r;
+        model.add(eye);
+        rig.eyes.push(eye);
+      }
+    }
+  };
+  const key = `${speciesID}|${shiny ? 1 : 0}`;
+  const ready = sculptCache.get(key);
+  if (ready) place(ready);
+  else void requestSculpt(speciesID, variant)?.then(place);
+  rig.sparkles = shiny && !silhouette ? addSparkles(body, stageHeight * 0.8, stageHeight, extra) : undefined;
+  return rig;
 }

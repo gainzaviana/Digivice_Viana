@@ -33,7 +33,6 @@ export class CreatureAnimator {
   private readonly materials: THREE.MeshStandardMaterial[] = [];
   /** Ink outlines: they fade with the body. */
   private readonly outlines: THREE.Material[] = [];
-  private readonly eyeScale: number[];
   private readonly phase: number;
   private readonly model: THREE.Object3D;
   /** Extra emissive tint (e.g. charging aura), 0–1. */
@@ -49,7 +48,7 @@ export class CreatureAnimator {
       if (m && "emissive" in m && !this.materials.includes(m)) this.materials.push(m);
       else if (m?.userData?.outline && !this.outlines.includes(m)) this.outlines.push(m);
     });
-    this.eyeScale = rig.eyes.map((e) => e.scale.y);
+    for (const e of rig.eyes) e.userData.sy ??= e.scale.y;
     // Each creature breathes at its own phase.
     this.phase = (rig.root.name.length * 1.7) % (Math.PI * 2);
     this.nextBlink = 1.5 + (this.phase % 2);
@@ -91,20 +90,20 @@ export class CreatureAnimator {
     // Fainted eyes stay shut.
     const fainted = this.down || (this.motion === "ko" && this.motionTime > DURATION.ko * 0.4);
     if (fainted) {
-      this.rig.eyes.forEach((e, i) => { e.scale.y = this.eyeScale[i] * 0.1; });
+      this.rig.eyes.forEach((e) => { e.scale.y = (e.userData.sy ??= e.scale.y) * 0.1; });
       this.blinkT = -1;
-    } else if (this.wasFainted) this.rig.eyes.forEach((e, i) => { e.scale.y = this.eyeScale[i]; });
+    } else if (this.wasFainted) this.rig.eyes.forEach((e) => { e.scale.y = (e.userData.sy ??= e.scale.y); });
     this.wasFainted = fainted;
     // Blinks.
     if (!fainted && this.blinkT < 0 && this.time >= this.nextBlink) this.blinkT = 0;
     if (this.blinkT >= 0) {
       this.blinkT += dt;
       const k = this.blinkT < 0.07 ? 1 - this.blinkT / 0.07 : Math.min(1, (this.blinkT - 0.07) / 0.07);
-      this.rig.eyes.forEach((e, i) => { e.scale.y = this.eyeScale[i] * Math.max(0.08, k); });
+      this.rig.eyes.forEach((e) => { e.scale.y = (e.userData.sy ??= e.scale.y) * Math.max(0.08, k); });
       if (this.blinkT > 0.14) {
         this.blinkT = -1;
         this.nextBlink = this.time + 2.2 + ((Math.sin(this.time * 7.1 + this.phase) + 1) * 1.6);
-        this.rig.eyes.forEach((e, i) => { e.scale.y = this.eyeScale[i]; });
+        this.rig.eyes.forEach((e) => { e.scale.y = (e.userData.sy ??= e.scale.y); });
       }
     }
 
