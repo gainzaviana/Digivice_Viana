@@ -142,6 +142,7 @@ function FighterBar({ battle, side, hp: shownHP }: { battle: Battle; side: Side;
         {c.enraged && <Tag text="Enfurecido" colour={P.red3} />}
         <VariantTag variant={c.variant} />
       </div>
+      {side === "enemy" && c.variant === "brillante" && !battle.isBoss && !battle.rescue && <div class="tiny amber">✨ Si lo vences, se une a ti.</div>}
       <StatBar label="Vida" value={c.hp} max={c.stats.hp} colour={hpColour(c)} text={`${c.hp}/${c.stats.hp}`} />
       <div class="row tiny">
         <span class="muted">AP {statText(battle.effective("ap", side))} · SP {statText(battle.effective("sp", side))}</span>

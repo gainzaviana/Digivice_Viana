@@ -1,11 +1,12 @@
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
-import type { GameData, Stage } from "../data/models";
+import { STAGE_TIER, type GameData, type Stage } from "../data/models";
 import type { Variant } from "../core/save";
 import { Material as M, SpriteForge, type Look, type Point } from "../art/forge";
 import { drawBody, lookFor } from "../art/bodies";
 import { PALETTE } from "../art/palette";
 import { glowMaterial, softDotTexture, softMaterial } from "./materials";
+import { customArt, hueRotatePixels, type CustomArt } from "../art/custom";
 
 /**
  * Full 3D Ecos, built from the same body plans as the pixel sprites so every design keeps its
@@ -61,6 +62,8 @@ export interface CreatureRig {
   eyes: THREE.Object3D[];
   seams: THREE.Mesh[];
   colors: { main: string; second: string; accent: string; seam: string };
+  /** Brillante: the twinkling sparkle aura (animated by the CreatureAnimator). */
+  sparkles?: THREE.Group;
   dispose(): void;
 }
 
@@ -76,9 +79,19 @@ function cozy(hex: string, amount = 0.12): THREE.Color {
 
 interface Palette3D { main: THREE.Color; second: THREE.Color; accent: THREE.Color; dark: THREE.Color; seam: string; hex: { main: string; second: string; accent: string; seam: string } }
 
-function paletteFor(look: Look, variant: Variant): Palette3D {
+/** A Brillante's hue turn: its own for each species (a third to two thirds of the colour wheel). */
+export function shinyHueShift(speciesID: string): number {
+  let h = 0;
+  for (const ch of speciesID) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return 0.3 + (h % 1000) / 1000 * 0.36;
+}
+
+function paletteFor(look: Look, variant: Variant, speciesID: string): Palette3D {
   if (variant === "brillante") {
-    look = { ...look, main: [PALETTE.amber1, PALETTE.amber2, PALETTE.amber3, PALETTE.cream], second: [PALETTE.skin, PALETTE.cream, PALETTE.white, PALETTE.white] };
+    // An alternate palette: hues turned, a bit richer, with golden markings.
+    const turn = shinyHueShift(speciesID);
+    const shift = (hex: string) => `#${new THREE.Color(hex).offsetHSL(turn, 0.14, 0.03).getHexString()}`;
+    look = { ...look, main: look.main.map(shift), second: look.second.map(shift), accent: [PALETTE.amber1, PALETTE.amber2, PALETTE.amber3, PALETTE.cream], seam: PALETTE.amber2 };
   }
   const pick = (ramp: string[], i: number) => ramp[Math.min(ramp.length - 1, i)];
   const hex = { main: pick(look.main, 1), second: pick(look.second, 1), accent: pick(look.accent, 2), seam: look.seam };
@@ -95,10 +108,13 @@ const isBodyMaterial = (m: M) => m === M.main || m === M.second || m === M.accen
  */
 export function buildCreature(speciesID: string, variant: Variant, data: GameData, opts: { silhouette?: boolean } = {}): CreatureRig {
   const species = data.eco.get(speciesID);
+  // Your own art (src/assets/creatures) replaces the procedural figure.
+  const custom = typeof document !== "undefined" ? customArt(speciesID, variant) : undefined;
+  if (custom) return buildSpriteCreature(speciesID, variant, custom, STAGE_HEIGHT[species?.stage ?? "novato"], !!opts.silhouette);
   const rec = new ShapeRecorder(32);
   if (species) drawBody(rec, species);
   const look = species ? lookFor(species) : lookFor(data.ecos[0]);
-  const pal = paletteFor(look, variant);
+  const pal = paletteFor(look, variant, speciesID);
   const stageHeight = STAGE_HEIGHT[species?.stage ?? "novato"];
 
   // Torso: the biggest body ellipse is deeper, so the figure reads as round.
@@ -148,6 +164,75 @@ export function buildCreature(speciesID: string, variant: Variant, data: GameDat
     part.geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
   }
 
+  // Detail pass (from Stage 1 up; Brotes stay round and soft): markings, claws, back spikes and,
+  // from Stage 3, armour plates. Fiercer the higher the stage.
+  const tier = species ? STAGE_TIER[species.stage] : 1;
+  const fierce = species?.stage !== "brote";
+  const details: THREE.BufferGeometry[] = [];
+  const torsoPart = torso >= 0 ? parts.find((p) => p.prim === rec.prims[torso] && p.zc !== -1) : undefined;
+  let plate: THREE.BufferGeometry | undefined;
+  if (fierce) {
+    const ink = pal.dark.clone().multiplyScalar(0.55);
+    const horn = new THREE.Color("#f4ead6");
+    // Digital markings: angular stripes across the upper back of the torso.
+    if (torsoPart && torsoPart.prim.t === "ellipse") {
+      const tp = torsoPart.prim;
+      const pos = torsoPart.geo.getAttribute("position");
+      const col = torsoPart.geo.getAttribute("color");
+      const stripes = 8 + tier * 3;
+      for (let v = 0; v < pos.count; v++) {
+        const x2 = pos.getX(v) + 0.5, y2 = 0.5 - pos.getY(v);
+        const u = (x2 - tp.cx) / tp.rx, w = (y2 - tp.cy) / tp.ry;
+        if (u > 0.15 || w > -0.05) continue;
+        const t = (x2 - Math.abs(w) * 0.35 * tp.ry) * stripes;
+        if (t - Math.floor(t) > 0.3) continue;
+        tmp.setRGB(col.getX(v), col.getY(v), col.getZ(v)).lerp(ink, 0.75);
+        col.setXYZ(v, tmp.r, tmp.g, tmp.b);
+      }
+    }
+    // Claws: three on the front of each foot.
+    for (const part of [...parts]) {
+      const p = part.prim;
+      if (!isBodyMaterial(p.m) || footprintArea(p) >= 0.02 || centreY(p) <= 0.7) continue;
+      part.geo.computeBoundingBox();
+      const b = part.geo.boundingBox!;
+      const size = 0.02 + tier * 0.004;
+      for (const dz of [-0.6, 0, 0.6]) {
+        const claw = new THREE.ConeGeometry(size * 0.55, size * 1.9, 6);
+        claw.rotateZ(-Math.PI / 2 - 0.5);
+        claw.translate(b.max.x - size * 0.3, b.min.y + size * 0.5, (b.min.z + b.max.z) / 2 + dz * (b.max.z - b.min.z) * 0.32);
+        details.push(paint(claw, horn));
+      }
+    }
+    if (torsoPart && torsoPart.prim.t === "ellipse") {
+      const tp = torsoPart.prim;
+      const cx = tp.cx - 0.5, cy = 0.5 - tp.cy, rz = torsoPart.depth;
+      // Back spikes (Stage 2+): blades along the top-back of the torso.
+      if (tier >= 2) {
+        const n = Math.min(5, tier + 1);
+        for (let i = 0; i < n; i++) {
+          const a = THREE.MathUtils.degToRad(100 + (i * 64) / Math.max(1, n - 1));
+          const px = cx + tp.rx * Math.cos(a) * 0.92, py = cy + tp.ry * Math.sin(a) * 0.92;
+          const nx = Math.cos(a) / tp.rx, ny = Math.sin(a) / tp.ry;
+          const len = (0.05 + tier * 0.018) * (1 - Math.abs(i - (n - 1) / 2) / n * 0.6);
+          const spike = new THREE.ConeGeometry(len * 0.42, len, 4);
+          spike.scale(1, 1, 0.45);
+          spike.rotateZ(Math.atan2(ny, nx) - Math.PI / 2);
+          spike.translate(px + (nx / Math.hypot(nx, ny)) * len * 0.4, py + (ny / Math.hypot(nx, ny)) * len * 0.4, torsoPart.zc);
+          details.push(paint(spike, tier >= 3 ? pal.accent : pal.dark));
+        }
+      }
+      // Armour (Stage 3+): a faceted chest plate over the front of the torso.
+      if (tier >= 3) {
+        // Upper chest and shoulder, facing forward and toward the camera.
+        const g = new THREE.SphereGeometry(1, 12, 5, Math.PI * 0.75, Math.PI * 0.75, Math.PI * 0.22, Math.PI * 0.3);
+        g.scale(tp.rx * 1.06, tp.ry * 1.06, rz * 1.06);
+        g.translate(cx, cy, torsoPart.zc);
+        plate = g;
+      }
+    }
+  }
+
   // Glitch rows: a horizontal slip in those slices (glitch line, infected variants, fusions).
   const glitch = [...rec.glitch];
   if (variant === "infectado") glitch.push({ rows: [0.45, 0.62, 0.78], offset: 1 });
@@ -163,17 +248,40 @@ export function buildCreature(speciesID: string, variant: Variant, data: GameDat
 
   // Merge the body into one mesh.
   // Each part keeps its own smooth normals (recomputing on merged triangles would make it faceted).
-  const bodyGeo = mergeGeometries(parts.map((p) => toNonIndexedColored(p.geo)), false)!;
+  const bodyGeo = mergeGeometries([...parts.map((p) => toNonIndexedColored(p.geo)), ...details], false)!;
   const silhouette = !!opts.silhouette;
   const bodyMat = silhouette
     ? new THREE.MeshBasicMaterial({ color: "#5a5478" })
-    : cloneSoft(softMaterial("#ffffff", { vertexColors: true, roughness: 0.58, wrap: 0.5, rim: 0.32, subsurface: pal.hex.main }));
+    : cloneSoft(softMaterial("#ffffff", { vertexColors: true, roughness: 0.46, wrap: 0.28, rim: 0.42, subsurface: pal.hex.main }));
   const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
   bodyMesh.castShadow = true;
   bodyMesh.receiveShadow = false;
 
   const model = new THREE.Group();
   model.add(bodyMesh);
+  const extraMaterials: THREE.Material[] = [];
+
+  // Armour plate: its own metallic, faceted material.
+  if (plate) {
+    const plateMat = silhouette ? bodyMat : new THREE.MeshStandardMaterial({ color: pal.second.clone().lerp(new THREE.Color("#d8dde8"), 0.3), metalness: 0.35, roughness: 0.3, flatShading: true, side: THREE.DoubleSide });
+    if (!silhouette) extraMaterials.push(plateMat);
+    const mesh = new THREE.Mesh(plate, plateMat);
+    mesh.castShadow = true;
+    model.add(mesh);
+  }
+
+  // Ink outline (inverted hull): a crisp, coloured contour around the whole figure.
+  if (!silhouette) {
+    const hull = bodyGeo.clone();
+    hull.deleteAttribute("color");
+    const pos = hull.getAttribute("position"), nrm = hull.getAttribute("normal");
+    const w = 0.009;
+    for (let v = 0; v < pos.count; v++) pos.setXYZ(v, pos.getX(v) + nrm.getX(v) * w, pos.getY(v) + nrm.getY(v) * w, pos.getZ(v) + nrm.getZ(v) * w);
+    const inkMat = new THREE.MeshBasicMaterial({ color: pal.dark.clone().multiplyScalar(0.32), side: THREE.BackSide });
+    inkMat.userData.outline = true;
+    extraMaterials.push(inkMat);
+    model.add(new THREE.Mesh(hull, inkMat));
+  }
 
   // Glow beads.
   const seams: THREE.Mesh[] = [];
@@ -250,19 +358,23 @@ export function buildCreature(speciesID: string, variant: Variant, data: GameDat
     body.add(halo);
   }
 
+  // Brillante: a ring of twinkling star sparkles.
+  const sparkles = variant === "brillante" && !silhouette ? addSparkles(body, size.x * k, stageHeight, extraMaterials) : undefined;
+
   const root = new THREE.Group();
   root.add(body);
   root.name = `eco:${speciesID}`;
 
   return {
-    root, body, height: stageHeight, width: size.x * k, eyes, seams,
+    root, body, height: stageHeight, width: size.x * k, eyes, seams, sparkles,
     colors: pal.hex,
     dispose() {
       root.traverse((o) => {
         const mesh = o as THREE.Mesh;
-        if (mesh.geometry) mesh.geometry.dispose();
+        if (mesh.geometry && !(o as THREE.Sprite).isSprite) mesh.geometry.dispose();
       });
       bodyMat.dispose();
+      for (const m of extraMaterials) m.dispose();
     },
   };
 }
@@ -452,4 +564,103 @@ function cloneSoft(base: THREE.MeshStandardMaterial): THREE.MeshStandardMaterial
   m.onBeforeCompile = base.onBeforeCompile;
   m.customProgramCacheKey = base.customProgramCacheKey;
   return m;
+}
+
+/** Gives a detail piece a flat vertex colour, ready to merge into the body. */
+function paint(g: THREE.BufferGeometry, colour: THREE.Color): THREE.BufferGeometry {
+  const out = toNonIndexedColored(g);
+  const n = out.getAttribute("position").count;
+  const c = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) { c[i * 3] = colour.r; c[i * 3 + 1] = colour.g; c[i * 3 + 2] = colour.b; }
+  out.setAttribute("color", new THREE.BufferAttribute(c, 3));
+  return out;
+}
+
+/** A four-point star sprite for Brillante sparkles. */
+let star: THREE.Texture | undefined;
+function starTexture(): THREE.Texture {
+  if (star) return star;
+  const c = document.createElement("canvas");
+  c.width = c.height = 64;
+  const g = c.getContext("2d")!;
+  const grad = g.createRadialGradient(32, 32, 0, 32, 32, 30);
+  grad.addColorStop(0, "rgba(255,255,255,1)");
+  grad.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = grad;
+  g.beginPath();
+  for (let i = 0; i < 8; i++) {
+    const r = i % 2 ? 6 : 30, a = (i / 8) * Math.PI * 2 - Math.PI / 2;
+    g.lineTo(32 + Math.cos(a) * r, 32 + Math.sin(a) * r);
+  }
+  g.closePath();
+  g.fill();
+  star = new THREE.CanvasTexture(c);
+  star.colorSpace = THREE.SRGBColorSpace;
+  return star;
+}
+
+/** Twinkling stars around a Brillante (animated by the CreatureAnimator). Browser only. */
+function addSparkles(body: THREE.Group, width: number, height: number, materials: THREE.Material[]): THREE.Group | undefined {
+  if (typeof document === "undefined") return undefined;
+  const group = new THREE.Group();
+  const tex = starTexture();
+  for (let i = 0; i < 7; i++) {
+    const m = new THREE.SpriteMaterial({ map: tex, color: i % 2 ? "#fff3b0" : "#ffd0f0", transparent: true, blending: THREE.AdditiveBlending, depthWrite: false });
+    materials.push(m);
+    const sp = new THREE.Sprite(m);
+    const a = (i / 7) * Math.PI * 2;
+    sp.position.set(Math.cos(a) * width * 0.55, height * (0.2 + ((i * 37) % 7) / 9), Math.sin(a) * 0.35);
+    sp.scale.setScalar(height * (0.1 + (i % 3) * 0.035));
+    sp.userData.phase = i * 0.9;
+    group.add(sp);
+  }
+  body.add(group);
+  return group;
+}
+
+/**
+ * An Eco drawn from your own PNG: a standing card (square image, facing right, feet on the
+ * bottom edge) that breathes, hops and flashes like the 3D figures.
+ */
+function buildSpriteCreature(speciesID: string, variant: Variant, art: CustomArt, stageHeight: number, silhouette: boolean): CreatureRig {
+  const tex = new THREE.Texture();
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const img = new Image();
+  img.onload = () => {
+    if (art.recolour) {
+      const c = document.createElement("canvas");
+      c.width = img.naturalWidth; c.height = img.naturalHeight;
+      const g = c.getContext("2d")!;
+      g.drawImage(img, 0, 0);
+      const d = g.getImageData(0, 0, c.width, c.height);
+      hueRotatePixels(d.data);
+      g.putImageData(d, 0, 0);
+      tex.image = c;
+    } else tex.image = img;
+    tex.needsUpdate = true;
+  };
+  img.src = art.url;
+  const size = stageHeight * 1.2;
+  // Silhouette: black (the texture times black) keeping the image's outline through its alpha.
+  const mat = silhouette
+    ? new THREE.MeshBasicMaterial({ color: "#000000", map: tex, alphaTest: 0.5, side: THREE.DoubleSide, transparent: true, opacity: 0.7 })
+    : new THREE.MeshStandardMaterial({ map: tex, emissiveMap: tex, alphaTest: 0.5, roughness: 0.9, side: THREE.DoubleSide });
+  const geo = new THREE.PlaneGeometry(size, size);
+  geo.translate(0, size / 2, 0);
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.castShadow = true;
+  const model = new THREE.Group();
+  model.add(mesh);
+  const body = new THREE.Group();
+  body.add(model);
+  const extra: THREE.Material[] = [];
+  const sparkles = variant === "brillante" && !silhouette ? addSparkles(body, size * 0.8, size, extra) : undefined;
+  const root = new THREE.Group();
+  root.add(body);
+  root.name = `eco:${speciesID}`;
+  return {
+    root, body, height: size, width: size * 0.8, eyes: [], seams: [], sparkles,
+    colors: { main: "#ffffff", second: "#ffffff", accent: "#ffd76a", seam: "#ffd76a" },
+    dispose() { geo.dispose(); mat.dispose(); tex.dispose(); for (const m of extra) m.dispose(); },
+  };
 }

@@ -54,6 +54,7 @@ function WildEco({ event, title }: { event: PendingEvent; title: string }) {
         <div class="muted small">{title}</div>
         <div class="title">{species.name}</div>
         <SpeciesTags species={species} level={event.level ?? 1} variant={event.variant} />
+        {event.variant === "brillante" && event.kind === "battle" && <div class="small amber">✨ Si lo vences, se une a tu equipo (o despierta al tuyo de su especie).</div>}
       </div>
     </div>
   );

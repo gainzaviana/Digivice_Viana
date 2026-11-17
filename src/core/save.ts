@@ -2,7 +2,7 @@ import type { ChallengeMetric, Stats } from "../data/models";
 import { ZERO_STATS } from "../data/models";
 
 export type Variant = "normal" | "brillante" | "infectado";
-export const VARIANT_NAME: Record<Variant, string> = { normal: "", brillante: "Brillante", infectado: "Infectado" };
+export const VARIANT_NAME: Record<Variant, string> = { normal: "", brillante: "✨ Brillante", infectado: "Infectado" };
 
 /**
  * One creature. Everything here is its own: XP, level, stats, DP, bond and unlocked evolutions
@@ -34,6 +34,26 @@ export interface EcoInstance {
   trainingSessions: number;
   stepsWalked: number;
   history: string[];
+  /** Awakening stars (★): each duplicate of its species added rules.awakening stats to `bonus`. */
+  awakening?: number;
+}
+
+/** A big moment to celebrate on screen (an Awakening, a Brillante joining or recoloring). */
+export interface Announcement {
+  id: string;
+  kind: "awakening" | "newEco";
+  ecoID: string;
+  speciesID: string;
+  variant: Variant;
+  /** Stars after the Awakening, and what it added. */
+  stars?: number;
+  gains?: { hp: number; ap: number; sp: number };
+  /** Bits instead, when it was already at the top star. */
+  bits?: number;
+  /** It became Brillante. */
+  turnedBrillante?: boolean;
+  /** Where it came from (shown on the card). */
+  source: "egg" | "wild" | "recruit";
 }
 
 export interface EggInstance { id: string; typeID: string; stepsLeft: number }
@@ -130,10 +150,12 @@ export interface GameSave {
   care: { charges: number; steps: number; lastCharge: number };
   /** City services used today (free healing, shrine blessing) and today's shrine offering. */
   cityDay: { day: string; healed: boolean; blessed: boolean; offering?: string };
+  /** Celebrations still to show (oldest first). */
+  announcements: Announcement[];
 }
 
-/** 2: D-Ark stats (HP/AP/SP + DP pool), temporary evolutions unlocked by bosses. 3: 18 cities in 6 Areas, injuries, Care. 4: 3-move combat, DP max 20, level cap 30. */
-export const SAVE_VERSION = 4;
+/** 2: D-Ark stats (HP/AP/SP + DP pool), temporary evolutions unlocked by bosses. 3: 18 cities in 6 Areas, injuries, Care. 4: 3-move combat, DP max 20, level cap 30. 5: one Eco per species (duplicates awaken it). */
+export const SAVE_VERSION = 5;
 
 export function newSave(): GameSave {
   return {
@@ -158,6 +180,7 @@ export function newSave(): GameSave {
     settings: { sound: true, graphicsEffects: true, motionSensor: true, shortcutName: DEFAULT_SHORTCUT },
     care: { charges: 3, steps: 0, lastCharge: Date.now() },
     cityDay: { day: "", healed: false, blessed: false },
+    announcements: [],
     createdAt: Date.now(),
   };
 }
@@ -178,7 +201,8 @@ export function migrate(raw: unknown): GameSave {
     settings: { ...fresh.settings, ...s.settings },
     care: { ...fresh.care, ...s.care },
     cityDay: { ...fresh.cityDay, ...s.cityDay },
-    squad: (s.squad ?? []).map((e) => ({ ...e, lossStreak: e.lossStreak ?? 0, unlocked: e.unlocked ?? [], bonus: { ...ZERO_STATS, ...e.bonus } })),
+    announcements: Array.isArray(s.announcements) ? s.announcements : [],
+    squad: (s.squad ?? []).map((e) => ({ ...e, awakening: e.awakening ?? 0, lossStreak: e.lossStreak ?? 0, unlocked: e.unlocked ?? [], bonus: { ...ZERO_STATS, ...e.bonus } })),
     // Older saves keep their number so the game can convert them (systems/upgrade.ts).
     version: typeof s.version === "number" ? s.version : SAVE_VERSION,
   };

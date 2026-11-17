@@ -1,6 +1,7 @@
 import { STAGE_TIER, type GameData } from "../data/models";
 import { SAVE_VERSION, type GameSave } from "../core/save";
 import { baseFormOf, maxStats } from "./progression";
+import { mergeDuplicates } from "./collection";
 
 /**
  * Converts a save from an older version of the rules. Version 1 → 2 (D-Ark rules):
@@ -23,6 +24,8 @@ export function upgradeSave(save: GameSave, data: GameData): boolean {
     if (eco.level > data.rules.levelCap) { eco.level = data.rules.levelCap; eco.xp = 0; }
     eco.hp = Math.min(eco.hp, maxStats(eco, data).hp);
   }
+  // 4 → 5: one Eco per species; extra copies awaken the one that stays.
+  if (save.version < 5) mergeDuplicates(save, data);
   save.version = SAVE_VERSION;
   return true;
 }

@@ -54,10 +54,50 @@ exactly where counting starts or stops.
   10 % (a tougher captor; winning gives bond and often rare data), data hazard 10 % (tap/shake challenge: XP or a small
   HP/DP loss). They show on the home path and in Sucesos.
 - **Digi-eggs** (500 / 1,200 / 2,000 steps) from caches, city bosses and rescues, in a 3-slot incubator.
+- **One Eco per species:** a duplicate never joins. An egg that hatches into a species you own, or a wild
+  Brillante of it you beat, triggers a **Species Resonance**: the Eco you have awakens for good (+5 HP, +2 AP, +1.5 SP
+  and a ★, up to 5★; after that 150 bits). Evolved forms count as their line's Stage 1. Duplicates in older saves are
+  merged into the best copy (your partner, else the highest level), each extra copy giving one Awakening.
+- **Brillantes (shiny):** every species has its own alternate palette with sparkles and a ✨ tag. 5 % from eggs (25 %
+  from the rare egg), 4 % in wild battles (8 % with the Lucky charm). Beat a wild Brillante and it joins at level 1, or,
+  if you have its species, recolours yours to Brillante and awakens it. Bosses and SOS captors are never Brillante.
+- **Going back:** any city you've cleared (Map › «Ir») can be walked again to train a newly hatched or rescued level 1
+  partner on weak wild Ecos. A warning shows the road you'd lose; the new road starts at 0.
 - **Defeat:** pushed back 300–600 steps on the road, injured at 1 HP (no battles until healed), bond −3. Lifetime steps
   and egg progress are never lost. Injuries heal with the Pulse game, healing items, the city, 2 h of rest or 300 steps.
 - **Cuidados:** Energy Charge (DP +3…+6, bond) and Data Pulse (30–75 % HP, cures injuries). 3 charges, +1 every
   500 steps or 2 hours.
+
+## Your own creature art
+
+Drop images into `src/assets/creatures/` and rebuild (a push to GitHub rebuilds the site). The game bundles every
+file it finds there and uses it instead of the procedural 3D figure: in portraits, battles and the home walk. Any
+species without a file keeps its 3D figure.
+
+| File | Used for |
+|---|---|
+| `<id>.png` (or `<id>_idle.png`) | normal look |
+| `<id>_brillante.png` (or `<id>_shiny.png`) | Brillante look; without it, the normal image is recoloured |
+| `<id>_infectado.png` | optional infected look |
+
+- **Format:** PNG (or WebP) with a transparent background, **square, 512×512** (256×256 works too).
+- **Pose:** the Eco **facing right**, centred, **feet touching the bottom edge**, little empty margin. Enemies are
+  mirrored automatically.
+- **One image per look,** not sprite sheets: the game animates breathing, hops, lunges, hits and evolutions itself.
+- **Size on screen** follows the stage (Brote smallest, Supremo largest), so draw every image filling its square.
+- `<id>` is the species id (lower case) from `src/data/json/ecos.json`:
+
+| Line | Species ids (Brote → Novato → Avanzado → Élite → Supremo → Despertar) |
+|---|---|
+| forja | `chispin`, `brasko`, `fraguadrako`, `calderon`, `solforja`, `solforja-nucleo-blanco`, `escoria` |
+| eco | `tilin`, `ecoli`, `bramaliebre`, `trompetrueno`, `sinfonia-titan`, `sinfonia-titan-fortissimo`, `silencio` |
+| pliegue | `pliegue`, `origamin`, `pliegazorro`, `mil-pliegues`, `arcanorigami`, `arcanorigami-papel-estelar`, `tinta-negra` |
+| glitch | `bichito`, `glitchin`, `titiriton`, `marioneterror`, `rey-del-error`, `rey-del-error-pantalla-azul`, `bufon-leal` |
+| quitina | `escarbi`, `corazita`, `bastion`, `egida`, `paladin-quitina`, `paladin-quitina-coraza-solar` |
+| telurica | `bolarmi`, `rodacorno`, `rinoblindo`, `terremotor`, `coloso-telurico`, `coloso-telurico-placa-tectonica` |
+| engranaje | `bip`, `tuerkin`, `engranajon`, `androforja`, `deus-maquina`, `deus-maquina-overclock` |
+| abisal | `burbuja`, `ajolin`, `marealote`, `abisalote`, `leviatan-glacial`, `leviatan-glacial-cero-absoluto` |
+| salvajes / fusiones | `emperador-crisol`, `eclipse-plegado`, `orquesta-omega`, `tormenta-telurica`, `bitbicho`, `pixelito`, `caracolchon`, `murciclic`, `ranadin`, `topocable`, `polillux`, `cangrejal`, `hongolin`, `pajarrafaga`, `aranared`, `gaviotaje`, `sapotron`, `cactuson`, `golem-disco`, `medusonica`, `lobocifra`, `buhoraculo`, `escorpiolag`, `ciervoltio`, `manticora-spam`, `grifo-bus`, `minotauro-kernel`, `serpiente-bucle`, `golemagma`, `fenix-reinicio`, `hidra-fork`, `yeti-criptografico`, `kraken-paquete`, `tortuga-archivo`, `reina-colmena`, `titan-cortafuegos`, `senor-del-lag`, `coloso-nulo`, `arcangel-checksum`, `emperatriz-virica`, `gusano-mundial`, `guardian-raiz`, `dragon-desbordamiento`, `fantasma-cache` |
 
 ## Develop
 

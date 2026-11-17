@@ -31,6 +31,8 @@ export class CreatureAnimator {
   private wasFainted = false;
   private readonly pose: Pose = { x: 0, y: 0, rotZ: 0, rotY: 0, sx: 1, sy: 1, flash: 0, fade: 1 };
   private readonly materials: THREE.MeshStandardMaterial[] = [];
+  /** Ink outlines: they fade with the body. */
+  private readonly outlines: THREE.Material[] = [];
   private readonly eyeScale: number[];
   private readonly phase: number;
   private readonly model: THREE.Object3D;
@@ -45,6 +47,7 @@ export class CreatureAnimator {
     rig.body.traverse((o) => {
       const m = (o as THREE.Mesh).material as THREE.MeshStandardMaterial | undefined;
       if (m && "emissive" in m && !this.materials.includes(m)) this.materials.push(m);
+      else if (m?.userData?.outline && !this.outlines.includes(m)) this.outlines.push(m);
     });
     this.eyeScale = rig.eyes.map((e) => e.scale.y);
     // Each creature breathes at its own phase.
@@ -116,6 +119,21 @@ export class CreatureAnimator {
       const transparent = p.fade < 0.999;
       if (m.transparent !== transparent) { m.transparent = transparent; m.needsUpdate = true; }
       m.opacity = p.fade;
+    }
+    for (const m of this.outlines) {
+      const transparent = p.fade < 0.999;
+      if (m.transparent !== transparent) { m.transparent = transparent; m.needsUpdate = true; }
+      m.opacity = p.fade;
+    }
+    // Brillante sparkles: twinkle and drift around.
+    const sparkles = this.rig.sparkles;
+    if (sparkles) {
+      sparkles.rotation.y = this.time * 0.6;
+      for (const s of sparkles.children as THREE.Sprite[]) {
+        const tw = Math.max(0, Math.sin(this.time * 3.2 + s.userData.phase));
+        s.material.opacity = tw * p.fade;
+        s.material.rotation = this.time * 1.5 + s.userData.phase;
+      }
     }
   }
 

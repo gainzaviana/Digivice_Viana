@@ -1,7 +1,8 @@
 import type { GameData, Region } from "../data/models";
 import { Rng } from "../core/random";
 import { addLog, newID, partnerOf, type EcoInstance, type GameSave, type LogEntry, type LogKind, type Variant } from "../core/save";
-import { maxStats, newEco } from "./progression";
+import { maxStats } from "./progression";
+import { ownedOf, receiveEco } from "./collection";
 import { record } from "./challenges";
 
 /**
@@ -79,7 +80,9 @@ function rollEvent(region: Region, save: GameSave, data: GameData, rng: Rng, now
       save.pending.push({ id: newID(), kind: "battle", regionID: region.id, date: now, species: species.id, level, variant });
       if (!save.guide.seen.includes(species.id)) save.guide.seen.push(species.id);
       const name = species.name + (variant === "normal" ? "" : ` ${variant}`);
-      log("battle", `¡BIP! ¡Un ${name} salvaje (nivel ${level}) te corta el paso!`);
+      log("battle", variant === "brillante"
+        ? `¡BIP! ✨ ¡Un ${name} salvaje (nivel ${level})! Si lo vences, se unirá a ti.`
+        : `¡BIP! ¡Un ${name} salvaje (nivel ${level}) te corta el paso!`);
       return;
     }
     case "cache":
@@ -123,16 +126,18 @@ function hatchEggs(walked: number, save: GameSave, data: GameData, rng: Rng, log
   const kept = [];
   for (const egg of save.eggs) {
     const type = data.egg.get(egg.typeID);
-    if (egg.stepsLeft > 0 || !type || save.squad.length >= data.rules.squadCap) { kept.push(egg); continue; }
+    if (egg.stepsLeft > 0 || !type) { kept.push(egg); continue; }
     const entry = rng.weighted(type.pool, (p) => p.weight);
     const species = entry && data.eco.get(entry.species);
     if (!species) continue;
+    // A species you already own needs no room: it awakens the one you have.
+    if (!ownedOf(save, species.id, data) && save.squad.length >= data.rules.squadCap) { kept.push(egg); continue; }
     const variant: Variant = rng.int(1, 100) <= type.brillanteChance ? "brillante" : "normal";
-    const born = newEco(species.id, 1, data, variant);
-    save.squad.push(born);
-    for (const id of new Set([species.id, born.speciesID])) for (const list of [save.guide.seen, save.guide.owned]) if (!list.includes(id)) list.push(id);
-    const name = data.eco.get(born.speciesID)?.name ?? species.name;
-    log("hatch", `¡Tu ${type.name} se ha abierto! Ha nacido ${name}${variant === "brillante" ? " (¡Brillante!)" : ""}, nivel 1.`);
+    const got = receiveEco(save, species.id, 1, variant, data, "egg");
+    if (got.kind === "new") {
+      const name = data.eco.get(got.eco!.speciesID)?.name ?? species.name;
+      log("hatch", `¡Tu ${type.name} se ha abierto! Ha nacido ${name}${variant === "brillante" ? " (¡Brillante! ✨)" : ""}, nivel 1.`);
+    } else log("hatch", `¡Tu ${type.name} se ha abierto! ${got.text}`);
   }
   save.eggs = kept;
 }

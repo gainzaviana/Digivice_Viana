@@ -10,8 +10,9 @@ import { MapScreen } from "./ui/map";
 import { EventsScreen } from "./ui/events";
 import { SquadScreen } from "./ui/squad";
 import { TerminalScreen } from "./ui/terminal";
-import { SyncBanner, useMotionSensor } from "./ui/steps";
+import { useMotionSensor } from "./ui/steps";
 import { BattleView } from "./battle/view";
+import { Announcements } from "./ui/announce";
 
 /** Rounded line icons for the tab bar (24×24, stroke = currentColor). */
 const ICONS = {
@@ -68,7 +69,6 @@ function App() {
   return (
     <div class="app">
       <main>
-        <SyncBanner />
         {tab === 0 && <HomeScreen go={(t) => { setTab(t); scrollTo(0, 0); }} />}
         {tab === 1 && <MapScreen />}
         {tab === 2 && <EventsScreen />}
@@ -85,6 +85,7 @@ function App() {
           </button>
         ))}
       </nav>
+      <Announcements />
       <Toast />
     </div>
   );

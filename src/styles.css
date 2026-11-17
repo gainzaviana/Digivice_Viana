@@ -519,3 +519,58 @@ details[open] summary { margin-bottom: 6px; }
 
 .sync-status summary { cursor: pointer; }
 .sync-status .raw { word-break: break-all; font-size: 12px; }
+
+/* Shiny (Brillante) portraits: a slow sparkle aura */
+.eco-wrap { position: relative; display: inline-block; flex: none; line-height: 0; }
+.eco-wrap.shiny::before {
+  content: ""; position: absolute; inset: 6%; border-radius: 50%; z-index: 0; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255, 226, 140, 0.55), rgba(255, 190, 240, 0.18) 60%, transparent);
+  animation: shiny-pulse 2.4s ease-in-out infinite;
+}
+.eco-wrap.shiny > .eco-img { position: relative; z-index: 1; }
+.eco-wrap .spark {
+  position: absolute; z-index: 2; pointer-events: none; color: #fff6c8; line-height: 1;
+  text-shadow: 0 0 6px #ffd76a, 0 0 2px #fff; animation: twinkle 1.8s ease-in-out infinite;
+}
+@keyframes shiny-pulse { 50% { transform: scale(1.08); opacity: 0.7; } }
+@keyframes twinkle { 0%, 100% { transform: scale(0.4) rotate(0deg); opacity: 0; } 50% { transform: scale(1) rotate(45deg); opacity: 1; } }
+.eco-img.custom { image-rendering: auto; }
+.eco-img.custom.silhouette { filter: brightness(0) opacity(0.35); }
+.tag.stars { background: linear-gradient(135deg, #ffd56b, #ff9fc4); color: #5a2a3a; letter-spacing: 0.06em; }
+.pink { color: #d4507a; }
+@media (prefers-color-scheme: dark) { .pink { color: #ff9fc0; } }
+
+/* Big moments: Species Resonance, new Brillante */
+.announce-backdrop { z-index: 60; background: rgba(20, 12, 36, 0.62); }
+.announce {
+  position: relative; overflow: hidden; width: min(360px, 100%); padding: 22px 20px 18px; border-radius: 28px;
+  background: var(--surface-strong); box-shadow: var(--shadow-lift); text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 8px; animation: pop 0.45s var(--ease);
+}
+.announce > * { position: relative; z-index: 1; }
+.announce-rays {
+  position: absolute !important; z-index: 0 !important; inset: -40%; opacity: 0.5;
+  background: repeating-conic-gradient(from 0deg, rgba(255, 200, 110, 0.35) 0 8deg, transparent 8deg 22deg);
+  animation: rays 14s linear infinite;
+}
+.announce.awakening .announce-rays { background: repeating-conic-gradient(from 0deg, rgba(150, 120, 255, 0.32) 0 8deg, transparent 8deg 22deg); }
+.announce.shiny .announce-rays { background: repeating-conic-gradient(from 0deg, rgba(255, 215, 90, 0.45) 0 6deg, rgba(255, 160, 220, 0.25) 6deg 12deg, transparent 12deg 22deg); }
+@keyframes rays { to { transform: rotate(360deg); } }
+.announce-kicker { font-size: 12px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+.announce-title { font-size: 24px; font-weight: 900; margin: 0; }
+.announce-eco { animation: resonate 1.4s var(--ease) both; }
+@keyframes resonate {
+  0% { transform: scale(0.4); filter: brightness(3) saturate(0); opacity: 0; }
+  35% { transform: scale(1.12); filter: brightness(2.2); opacity: 1; }
+  55% { transform: scale(0.96); filter: brightness(1.2); }
+  100% { transform: scale(1); filter: none; }
+}
+.announce-stars { display: flex; gap: 4px; font-size: 26px; color: var(--text-faint); }
+.announce-stars .on { color: #ffc23d; text-shadow: 0 0 10px rgba(255, 194, 61, 0.7); animation: star-in 0.5s var(--ease) both; }
+@keyframes star-in { from { transform: scale(2.4) rotate(-40deg); opacity: 0; } }
+.announce-gains { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.announce-gains span { font-weight: 850; font-size: 14px; padding: 4px 10px; border-radius: 999px; background: var(--amber-soft); color: var(--on-accent); animation: pop 0.5s 0.9s var(--ease) both; }
+@media (prefers-reduced-motion: reduce) { .announce-rays, .announce-eco, .eco-wrap .spark, .eco-wrap.shiny::before { animation: none; } }
+
+/* Travel confirmation */
+.warn-box { border-radius: 14px; padding: 10px 12px; background: rgba(243, 140, 120, 0.16); }

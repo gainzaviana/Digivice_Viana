@@ -9,6 +9,7 @@ import type { Battle } from "./battle";
 import { Rng } from "../../core/random";
 import { newEco } from "../progression";
 import { addEgg } from "../walk";
+import { receiveEco } from "../collection";
 import { eggForArea } from "../road";
 
 /**
@@ -67,6 +68,11 @@ export function finishBattle(save: GameSave, b: Battle, data: GameData, now = ne
         }
       }
       if (levels > 0) text += ` ¡Sube al nivel ${eco.level}!`;
+      // A wild Brillante you beat joins you (or awakens and recolours the one you have).
+      if (enemy.variant === "brillante" && !b.isBoss && !b.rescue) {
+        const got = receiveEco(save, enemy.speciesID, 1, "brillante", data, "wild");
+        text += got.kind === "full" ? ` El ${enemyName} Brillante quería unirse, pero ${got.text.charAt(0).toLowerCase()}${got.text.slice(1)}` : ` ✨ ${got.text}`;
+      }
       break;
     }
     case "defeat": {

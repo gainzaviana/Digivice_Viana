@@ -2,6 +2,7 @@ import type { ComponentChildren } from "preact";
 import { useEffect, useState } from "preact/hooks";
 import { AFFINITY_NAME, ARCHETYPE_NAME, STAGE_NAME, STAGE_TIER, TIER_NAME, type Affinity, type Attack, type EcoSpecies } from "../data/models";
 import { VARIANT_NAME, type Variant } from "../core/save";
+import { customArt, SHINY_CSS_FILTER } from "../art/custom";
 import { P } from "./theme";
 import { game } from "../game";
 import { physicalName } from "../systems/moves";
@@ -30,7 +31,13 @@ export function VariantTag({ variant }: { variant?: Variant }) {
   return <Tag text={VARIANT_NAME[variant]} colour={variant === "brillante" ? P.amber3 : P.purple2} />;
 }
 
-export function SpeciesTags({ species, level, variant, archetype }: { species: EcoSpecies; level?: number; variant?: Variant; archetype?: boolean }) {
+/** Awakening stars (one per duplicate of its species). */
+export function StarsTag({ stars }: { stars?: number }) {
+  if (!stars) return null;
+  return <span class="tag stars" title={`Resonancia: ${stars} estrella${stars === 1 ? "" : "s"}`}>{"★".repeat(stars)}</span>;
+}
+
+export function SpeciesTags({ species, level, variant, archetype, stars }: { species: EcoSpecies; level?: number; variant?: Variant; archetype?: boolean; stars?: number }) {
   return (
     <div class="tags">
       <Tag text={`${TIER_NAME[STAGE_TIER[species.stage]]} · ${STAGE_NAME[species.stage]}`} colour={P.amber2} />
@@ -38,6 +45,7 @@ export function SpeciesTags({ species, level, variant, archetype }: { species: E
       {archetype && <Tag text={ARCHETYPE_NAME[species.archetype]} colour={P.slate} ink={P.white} />}
       {level !== undefined && <Tag text={`Nivel ${level}`} colour={P.slate} ink={P.white} />}
       <VariantTag variant={variant} />
+      <StarsTag stars={stars} />
     </div>
   );
 }
@@ -74,11 +82,13 @@ let loadingThumbs: Promise<Thumbs> | undefined;
 /** Three.js and the portrait renderer load on first use, so the first paint never waits for them. */
 const loadThumbs = () => (loadingThumbs ??= import("../three/thumbs").then((m) => (thumbs = m)));
 
-/** An Eco's soft 3D portrait. Silhouette for not-yet-seen ones; a shimmering placeholder while it renders. */
+/** An Eco's portrait: your own PNG if you added one (src/assets/creatures), else its soft 3D figure.
+ * Silhouette for not-yet-seen ones; a shimmering placeholder while it renders; sparkles if Brillante. */
 export function EcoImg({ id, variant = "normal", size = 96, flip, silhouette, dim }: { id: string; variant?: Variant; size?: number; flip?: boolean; silhouette?: boolean; dim?: boolean }) {
   const species = game.data.eco.get(id);
+  const custom = customArt(id, variant);
   const px = size <= 64 ? 128 : 256;
-  const cached = thumbs?.cachedThumbnail(id, variant, px, !!silhouette);
+  const cached = custom ? custom.url : thumbs?.cachedThumbnail(id, variant, px, !!silhouette);
   const [src, setSrc] = useState<string | undefined>(cached);
   useEffect(() => {
     if (cached) { setSrc(cached); return; }
@@ -89,13 +99,28 @@ export function EcoImg({ id, variant = "normal", size = 96, flip, silhouette, di
       .then((url) => { if (alive) setSrc(url); })
       .catch(() => { /* leave the placeholder */ });
     return () => { alive = false; };
-  }, [id, variant, silhouette, px]);
-  const style = { width: `${size}px`, height: `${size}px`, transform: flip ? "scaleX(-1)" : undefined, opacity: dim ? 0.4 : 1 };
-  if (!src) return <span class="eco-img eco-loading" style={style} role="img" aria-label={silhouette ? "Eco desconocido" : species?.name ?? id} />;
+  }, [id, variant, silhouette, px, cached]);
+  const style = {
+    width: `${size}px`, height: `${size}px`, transform: flip ? "scaleX(-1)" : undefined, opacity: dim ? 0.4 : 1,
+    filter: custom?.recolour && !silhouette ? SHINY_CSS_FILTER : undefined,
+  };
+  const label = silhouette ? "Eco desconocido" : `${species?.name ?? id}${variant === "brillante" ? " Brillante" : ""}`;
+  const img = !src
+    ? <span class="eco-img eco-loading" style={style} role="img" aria-label={label} />
+    : <img class={`eco-img${custom ? " custom" : ""}${custom && silhouette ? " silhouette" : ""}`} src={src} width={size} height={size} alt={label} style={style} draggable={false} />;
+  if (variant !== "brillante" || silhouette) return img;
   return (
-    <img class="eco-img" src={src} width={size} height={size} alt={silhouette ? "Eco desconocido" : species?.name ?? id} style={style} draggable={false} />
+    <span class="eco-wrap shiny" style={{ width: `${size}px`, height: `${size}px` }}>
+      {img}
+      {SPARKS.map(([x, y, s, d], i) => (
+        <span key={i} class="spark" aria-hidden="true" style={{ left: `${x}%`, top: `${y}%`, fontSize: `${Math.max(9, size * s)}px`, animationDelay: `${d}s` }}>✦</span>
+      ))}
+    </span>
   );
 }
+
+/** Sparkle positions around a Brillante portrait: left %, top %, size (share of the portrait), delay. */
+const SPARKS: [number, number, number, number][] = [[8, 18, 0.12, 0], [80, 10, 0.1, 0.6], [86, 62, 0.13, 1.1], [4, 70, 0.09, 0.35], [46, 2, 0.08, 1.4]];
 
 /** One of the three D-Ark moves, with this species' name for it. */
 export function AttackRow({ attack, kind, species }: { attack?: Attack; kind: "basic" | "physical" | "strong"; species?: EcoSpecies }) {

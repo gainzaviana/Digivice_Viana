@@ -3,7 +3,7 @@ import type { CardRarity, Item } from "../data/models";
 import { addToDeck, makePartner, removeFromDeck, useItem } from "../systems/actions";
 import { useGame } from "../game";
 import { P, T } from "./theme";
-import { EcoImg, Panel, PixelButton, SectionTitle, StatBar, Tag, VariantTag, fmt } from "./common";
+import { EcoImg, Panel, PixelButton, SectionTitle, StatBar, Tag, VariantTag, StarsTag, fmt } from "./common";
 import { STAGE_NAME } from "../data/models";
 
 type Section = "Ecos" | "Huevos" | "Objetos" | "Parches";
@@ -32,6 +32,7 @@ function EcosList() {
   return (
     <>
       <SectionTitle text={`Equipo (${save.squad.length}/${data.rules.squadCap})`} />
+      <div class="muted tiny">Solo puedes tener un Eco de cada especie. Si un huevo trae uno que ya tienes, o vences a un Brillante de su especie, el tuyo despierta: ★ y más Vida, AP y SP para siempre.</div>
       {save.squad.map((eco) => {
         const sp = data.eco.get(eco.speciesID);
         if (!sp) return null;
@@ -45,6 +46,7 @@ function EcosList() {
                   <Tag text={STAGE_NAME[sp.stage]} colour={P.amber2} />
                   <Tag text={`Nv. ${eco.level}`} colour={P.slate} ink={P.white} />
                   <VariantTag variant={eco.variant} />
+                  <StarsTag stars={eco.awakening} />
                 </div>
               </div>
               {eco.id === save.partnerID

@@ -43,7 +43,8 @@ describe("3D Ecos", () => {
         rig.dispose();
       }
     }
-    expect(max, `most triangles: ${maxID}`).toBeLessThan(5000);
+    // The ink outline is a second, slightly larger copy of the body: about twice the body alone.
+    expect(max, `most triangles: ${maxID}`).toBeLessThan(10000);
   });
 
   it("builds silhouettes without eyes or seams", () => {

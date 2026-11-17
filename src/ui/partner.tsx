@@ -28,7 +28,7 @@ export function PartnerScreen() {
           <div class="center">
             <div class="sprite-frame"><EcoImg id={partner.speciesID} variant={partner.variant} size={176} /></div>
             <h1 class="name">{partner.nickname ?? species.name}</h1>
-            <SpeciesTags species={species} level={partner.level} variant={partner.variant} archetype />
+            <SpeciesTags species={species} level={partner.level} variant={partner.variant} archetype stars={partner.awakening} />
             <p class="muted small">{species.description}</p>
           </div>
           <PartnerStats eco={partner} />
@@ -68,6 +68,11 @@ export function PartnerStats({ eco }: { eco: EcoInstance }) {
       <hr />
       <StatBar label="Ataque (AP)" value={s.ap} max={Math.max(10, Math.max(s.ap, s.sp) * 1.3)} colour={P.red2} text={statText(s.ap)} />
       <StatBar label="Velocidad (SP)" value={s.sp} max={Math.max(10, Math.max(s.ap, s.sp) * 1.3)} colour={P.teal2} text={statText(s.sp)} />
+      {!!eco.awakening && (
+        <div class="small pink">
+          Resonancia {"★".repeat(eco.awakening)}: Vida +{fmt(eco.awakening * data.rules.awakening.hp)}, AP +{statText(eco.awakening * data.rules.awakening.ap)}, SP +{statText(eco.awakening * data.rules.awakening.sp)} ya incluidos.
+        </div>
+      )}
       <div class="muted tiny">{eco.wins} victorias · {eco.losses} derrotas{eco.lossStreak >= 2 ? ` · ${eco.lossStreak} derrotas seguidas` : ""}</div>
     </Panel>
   );

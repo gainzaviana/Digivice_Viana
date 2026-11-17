@@ -3,6 +3,7 @@ import type { Rng } from "../core/random";
 import { addLog, newID, newSave, partnerOf, type GameSave, type LogKind, type PendingEvent } from "../core/save";
 import { maxStats, newEco } from "./progression";
 import { record, refreshDaily } from "./challenges";
+import { receiveEco } from "./collection";
 import { done, refused, type ActionResult } from "./result";
 
 const logged = (save: GameSave, kind: LogKind, result: ActionResult) => {
@@ -58,12 +59,11 @@ export function acceptRecruit(save: GameSave, id: string, data: GameData): Actio
   const e = save.pending.find((x) => x.id === id);
   const species = e?.kind === "recruit" && e.species ? data.eco.get(e.species) : undefined;
   if (!e || !species) return refused("Ese suceso ya no está.");
-  if (save.squad.length >= data.rules.squadCap) return refused(`Tu equipo está lleno (${data.rules.squadCap} Ecos).`);
+  const got = receiveEco(save, species.id, e.level ?? 1, e.variant ?? "normal", data, "recruit");
+  if (got.kind === "full") return refused(got.text);
   take(save, id);
-  save.squad.push(newEco(species.id, e.level ?? 1, data, e.variant ?? "normal"));
-  addOnce(save.guide.owned, species.id);
   record(save, "recruits");
-  return logged(save, "recruit", done(`¡${species.name} se ha unido a tu equipo!`));
+  return logged(save, "recruit", done(got.text));
 }
 
 export function declineRecruit(save: GameSave, id: string, data: GameData): ActionResult {

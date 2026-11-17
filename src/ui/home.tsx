@@ -6,10 +6,8 @@ import { useGame, game } from "../game";
 import { sound } from "../audio/sound";
 import type { HomeScene, HomeState } from "../three/home";
 import { P } from "./theme";
-import { AttackRow, Panel, PixelButton, SectionTitle, SpeciesTags, StatBar, fmt } from "./common";
+import { AttackRow, Panel, PixelButton, SectionTitle, SpeciesTags, StatBar } from "./common";
 import { PartnerStats, EvolutionTree } from "./partner";
-import { CurrentCity } from "./map";
-import { StepsPanel } from "./steps";
 
 /** The partner's mood line, from its bond and state. */
 function mood(bond: number, injured: boolean): string {
@@ -96,7 +94,6 @@ export function HomeScreen({ go }: { go: (tab: number) => void }) {
         <canvas ref={canvas} aria-label={`${species?.name ?? "Tu compañero"} caminando por ${region?.name ?? "el camino"}`} />
         {!ready && <div class="home-loading" aria-hidden="true" />}
         <div class="home-hud">
-          <span class="hud-pill">{fmt(save.map.stepsLeft)} pasos a {region?.name ?? "la ciudad"}</span>
           {roadEvents > 0 && <button class="hud-pill alert" onClick={() => go(2)}>¡BIP! {roadEvents}</button>}
         </div>
       </div>
@@ -104,7 +101,7 @@ export function HomeScreen({ go }: { go: (tab: number) => void }) {
         <div class="row">
           <div class="grow">
             <div class="title">{partner.nickname ?? species?.name}</div>
-            {species && <SpeciesTags species={species} level={partner.level} variant={partner.variant} />}
+            {species && <SpeciesTags species={species} level={partner.level} variant={partner.variant} stars={partner.awakening} />}
           </div>
           {partner.injured && <PixelButton small title="Curar" colour={P.green2} onClick={() => go(3)} />}
         </div>
@@ -112,17 +109,6 @@ export function HomeScreen({ go }: { go: (tab: number) => void }) {
         <StatBar label="DP" value={partner.dp} max={data.rules.maxDP} colour={P.amber2} text={`${partner.dp}/${data.rules.maxDP}`} />
         <div class="muted small">{mood(partner.bond, !!partner.injured)}</div>
       </Panel>
-      {region && <CurrentCity region={region} compact />}
-      <StepsPanel />
-      {save.eggs.length > 0 && (
-        <Panel>
-          <SectionTitle text={`Incubadora (${save.eggs.length}/${data.rules.maxEggs})`} />
-          {save.eggs.map((egg) => {
-            const type = data.egg.get(egg.typeID);
-            return type ? <StatBar key={egg.id} label={type.name} value={type.steps - egg.stepsLeft} max={type.steps} colour={P.pink} text={egg.stepsLeft ? `faltan ${fmt(egg.stepsLeft)}` : "¡Listo!"} /> : null;
-          })}
-        </Panel>
-      )}
       <PartnerStats eco={partner} />
       {species && (
         <Panel>

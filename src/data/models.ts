@@ -125,6 +125,8 @@ export interface GameRules {
   /** Road events every encounterEveryMin…MaxSteps: wild battle, data cache, SOS rescue, data hazard. */
   events: { battle: number; cache: number; sos: number; hazard: number };
   brillanteChance: number; infectadoChance: number;
+  /** A duplicate of an owned species (egg or wild Brillante) awakens the one you have: +stats and a star, up to maxStars (then bits). */
+  awakening: { hp: number; ap: number; sp: number; maxStars: number; overflowBits: number };
   /** A defeat pushes the player back on the city's road, leaves the Eco injured (1 HP) and lowers bond. */
   defeat: { pushbackMin: number; pushbackMax: number; bondLoss: number; recoverySteps: number; recoveryHours: number };
   cache: { dpMin: number; dpMax: number; weights: { dp: number; item: number; card: number; egg: number } };

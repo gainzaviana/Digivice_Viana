@@ -10,7 +10,14 @@
     "sos": 10,
     "hazard": 10
   },
-  "brillanteChance": 1.0,
+  "brillanteChance": 4.0,
+  "awakening": {
+    "hp": 5,
+    "ap": 2,
+    "sp": 1.5,
+    "maxStars": 5,
+    "overflowBits": 150
+  },
   "infectadoChance": 4.0,
   "deckSize": 6,
   "startingLevel": 1,

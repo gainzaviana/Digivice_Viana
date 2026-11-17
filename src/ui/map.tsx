@@ -3,9 +3,10 @@ import type { Region } from "../data/models";
 import { travel, unlockedRegions } from "../systems/actions";
 import { cityHeal, healCost, shopBuy, shopOffers, shrineBless, shrineOffer, shrineOffering } from "../systems/city";
 import { useGame } from "../game";
+import { partnerOf } from "../core/save";
 import { P, T } from "./theme";
-import { EcoImg, Panel, PixelButton, SectionTitle, Tag, fmt } from "./common";
-import { StepsPanel } from "./steps";
+import { EcoImg, Panel, PixelButton, SectionTitle, StatBar, Tag, fmt } from "./common";
+import { StepsPanel, SyncBanner } from "./steps";
 import { cantFight } from "./events";
 
 type RowState = "current" | "cleared" | "open" | "locked";
@@ -18,6 +19,7 @@ export const LANDMARKS = ["🔥", "⛩", "◇", "⚑", "✦", "⌂"];
 export function MapScreen() {
   const g = useGame();
   const { save, data } = g;
+  const [going, setGoing] = useState<Region>();
   const unlocked = new Set(unlockedRegions(save, data).map((r) => r.id));
   const region = save.map.regionID ? data.region.get(save.map.regionID) : undefined;
   const state = (r: Region): RowState =>
@@ -35,15 +37,23 @@ export function MapScreen() {
           <div class="strong" style={{ color: st === "locked" ? T.faint : T.text }}>{st === "locked" ? "???" : r.name}</div>
           <div class="muted small">{subtitle}</div>
         </div>
-        {(st === "cleared" || st === "open") && <PixelButton small title="Ir" colour={P.mist} onClick={() => g.perform((s, d) => travel(s, r.id, d))} />}
+        {(st === "cleared" || st === "open") && <PixelButton small title="Ir" colour={P.mist} onClick={() => setGoing(r)} />}
       </div>
     );
   };
   return (
     <div class="screen">
-      {region && <CurrentCity region={region} />}
-      {region && <CityServices />}
+      <SyncBanner />
       <StepsPanel />
+      {region && <CurrentCity region={region} />}
+      <Incubator />
+      {region && <CityServices />}
+      {save.map.clearedRegions.length > 0 && (
+        <Panel pad={12}>
+          <div class="strong">Volver a entrenar</div>
+          <div class="muted small">Pulsa «Ir» en cualquier ciudad ya superada para recorrer su camino otra vez. Ideal para subir de nivel a un Eco recién nacido o rescatado con rivales flojos antes de llevarlo a las áreas difíciles.</div>
+        </Panel>
+      )}
       {data.rules.areas.map((area) => {
         const cities = data.regions.filter((r) => r.area === area.order && !r.requiresItem);
         const open = cities.some((c) => state(c) !== "locked");
@@ -61,6 +71,38 @@ export function MapScreen() {
           {secret.map((r) => row(r, false))}
         </Panel>
       )}
+      {going && <TravelDialog to={going} onClose={() => setGoing(undefined)} onGo={() => { setGoing(undefined); g.perform((s, d) => travel(s, going.id, d)); scrollTo(0, 0); }} />}
+    </div>
+  );
+}
+
+/** Confirms a trip: the road walked toward the current city is lost and the new one starts at 0. */
+function TravelDialog({ to, onGo, onClose }: { to: Region; onGo: () => void; onClose: () => void }) {
+  const { save, data } = useGame();
+  const here = save.map.regionID ? data.region.get(save.map.regionID) : undefined;
+  const walked = here ? here.steps - save.map.stepsLeft : 0;
+  const boss = data.eco.get(to.boss.species);
+  const levels = to.encounters.map((e) => [e.minLevel, e.maxLevel]).flat();
+  const cleared = save.map.clearedRegions.includes(to.id);
+  const partner = partnerOf(save);
+  return (
+    <div class="modal-backdrop" onClick={onClose}>
+      <div class="modal panel stack" role="dialog" aria-label={`Viajar a ${to.name}`} onClick={(e) => e.stopPropagation()}>
+        <h3 class="modal-title">¿Viajar a {to.name}?</h3>
+        {here && (walked > 0 || save.map.bossReady) && (
+          <div class="warn-box small">
+            <strong>Perderás tu avance hacia {here.name}:</strong> {fmt(walked)} de {fmt(here.steps)} pasos{save.map.bossReady ? " y el jefe que ya te esperaba" : ""}. Al volver tendrás que recorrer el camino entero.
+          </div>
+        )}
+        <div class="small">
+          El camino a {to.name} empieza en 0: {fmt(to.steps)} pasos hasta {boss ? `${boss.name} (nivel ${to.boss.level})` : "su jefe"}.
+          {levels.length > 0 && ` Ecos salvajes de nivel ${Math.min(...levels)}–${Math.max(...levels)}.`}
+        </div>
+        {cleared && partner && <div class="muted small">Ya superaste esta ciudad: buen sitio para entrenar a {partner.nickname ?? data.eco.get(partner.speciesID)?.name} (nivel {partner.level}). Cambia de compañero en Equipo.</div>}
+        <div class="muted tiny">Tus pasos totales, huevos y sucesos pendientes no se pierden.</div>
+        <PixelButton title="Viajar" colour={P.amber2} onClick={onGo} />
+        <PixelButton small title="Cancelar" colour={P.mist} onClick={onClose} />
+      </div>
     </div>
   );
 }
@@ -167,6 +209,21 @@ function CityServices() {
           <PixelButton small title={`${o.price}`} colour={save.bits >= o.price ? P.amber2 : P.slate} onClick={() => g.perform((s, d) => shopBuy(s, o.id, d))} />
         </div>
       ))}
+    </Panel>
+  );
+}
+
+/** Eggs hatch with steps: their progress lives here, next to the road. */
+function Incubator() {
+  const { save, data } = useGame();
+  if (!save.eggs.length) return null;
+  return (
+    <Panel>
+      <SectionTitle text={`Incubadora (${save.eggs.length}/${data.rules.maxEggs})`} />
+      {save.eggs.map((egg) => {
+        const type = data.egg.get(egg.typeID);
+        return type ? <StatBar key={egg.id} label={type.name} value={type.steps - egg.stepsLeft} max={type.steps} colour={P.pink} text={egg.stepsLeft ? `faltan ${fmt(egg.stepsLeft)}` : "¡Listo!"} /> : null;
+      })}
     </Panel>
   );
 }
