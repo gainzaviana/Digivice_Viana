@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import type { GameData } from "../data/models";
 import type { Variant } from "../core/save";
-import { buildCreature } from "./creature";
+import { buildCreature, preloadCreature } from "./creature";
 
 /**
  * Portraits of the 3D Ecos for the interface (lists, guide, cards): a lit 3/4 view on a
@@ -32,10 +32,11 @@ export function creatureThumbnail(speciesID: string, variant: Variant, data: Gam
   if (hit) return Promise.resolve(hit);
   const waiting = pending.get(key);
   if (waiting) return waiting;
-  const promise = new Promise<string>((done) => {
+  // Sprite figures need their pixels decoded first.
+  const promise = preloadCreature(speciesID, variant).then(() => new Promise<string>((done) => {
     queue.push({ key, done, run: () => render(speciesID, variant, data, size, silhouette) });
     schedule();
-  });
+  }));
   pending.set(key, promise);
   return promise;
 }

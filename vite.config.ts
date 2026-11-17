@@ -23,7 +23,6 @@ function creatureArt(): Plugin {
         const m = /^(.+?)(_idle|_normal|_brillante|_shiny|_infectado)?\.(png|webp)$/i.exec(f);
         return !!m && ids.has(m[1].toLowerCase());
       });
-      this.addWatchFile(dir);
       return keep.map((f, i) => `import u${i} from ${JSON.stringify(resolve(dir, f) + "?url")};`).join("\n")
         + `\nexport default {${keep.map((f, i) => `${JSON.stringify(f)}: u${i}`).join(",")}};\n`;
     },

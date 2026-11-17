@@ -70,7 +70,9 @@ exactly where counting starts or stops.
 
 ## Creature art
 
-Every creature is an original 64×64 pixel-art sprite, drawn by code in `tools/sprites/`:
+In the game every creature is a 3D voxel figure built from its 64×64 pixel-art sprite
+(`src/three/voxel.ts`: each pixel becomes a column of cubes, thick in the body and thin at the edges).
+The sprites are original designs drawn by code in `tools/sprites/`:
 `style.ts` paints them (tinted outlines, cel shading, eyes) and `designs/*.ts` holds one design per
 species. Edit a design, preview it and regenerate the PNGs:
 

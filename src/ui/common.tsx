@@ -86,9 +86,10 @@ const loadThumbs = () => (loadingThumbs ??= import("../three/thumbs").then((m) =
  * Silhouette for not-yet-seen ones; a shimmering placeholder while it renders; sparkles if Brillante. */
 export function EcoImg({ id, variant = "normal", size = 96, flip, silhouette, dim }: { id: string; variant?: Variant; size?: number; flip?: boolean; silhouette?: boolean; dim?: boolean }) {
   const species = game.data.eco.get(id);
-  const custom = customArt(id, variant);
+  // While the 3D portrait renders, the flat sprite stands in (when there is one).
+  const flat = silhouette ? undefined : customArt(id, variant);
   const px = size <= 64 ? 128 : 256;
-  const cached = custom ? custom.url : thumbs?.cachedThumbnail(id, variant, px, !!silhouette);
+  const cached = thumbs?.cachedThumbnail(id, variant, px, !!silhouette);
   const [src, setSrc] = useState<string | undefined>(cached);
   useEffect(() => {
     if (cached) { setSrc(cached); return; }
@@ -99,15 +100,14 @@ export function EcoImg({ id, variant = "normal", size = 96, flip, silhouette, di
       .then((url) => { if (alive) setSrc(url); })
       .catch(() => { /* leave the placeholder */ });
     return () => { alive = false; };
-  }, [id, variant, silhouette, px, cached]);
-  const style = {
-    width: `${size}px`, height: `${size}px`, transform: flip ? "scaleX(-1)" : undefined, opacity: dim ? 0.4 : 1,
-    filter: custom?.recolour && !silhouette ? SHINY_CSS_FILTER : undefined,
-  };
+  }, [id, variant, silhouette, px]);
+  const style = { width: `${size}px`, height: `${size}px`, transform: flip ? "scaleX(-1)" : undefined, opacity: dim ? 0.4 : 1 };
   const label = silhouette ? "Eco desconocido" : `${species?.name ?? id}${variant === "brillante" ? " Brillante" : ""}`;
-  const img = !src
-    ? <span class="eco-img eco-loading" style={style} role="img" aria-label={label} />
-    : <img class={`eco-img${custom ? " custom" : ""}${custom && silhouette ? " silhouette" : ""}`} src={src} width={size} height={size} alt={label} style={style} draggable={false} />;
+  const img = src
+    ? <img class="eco-img" src={src} width={size} height={size} alt={label} style={style} draggable={false} />
+    : flat
+      ? <img class="eco-img custom" src={flat.url} width={size} height={size} alt={label} style={{ ...style, filter: flat.recolour ? SHINY_CSS_FILTER : undefined }} draggable={false} />
+      : <span class="eco-img eco-loading" style={style} role="img" aria-label={label} />;
   if (variant !== "brillante" || silhouette) return img;
   return (
     <span class="eco-wrap shiny" style={{ width: `${size}px`, height: `${size}px` }}>

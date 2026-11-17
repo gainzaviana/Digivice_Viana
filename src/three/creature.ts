@@ -6,7 +6,8 @@ import { Material as M, SpriteForge, type Look, type Point } from "../art/forge"
 import { drawBody, lookFor } from "../art/bodies";
 import { PALETTE } from "../art/palette";
 import { glowMaterial, softDotTexture, softMaterial } from "./materials";
-import { customArt, hueRotatePixels, type CustomArt } from "../art/custom";
+import { customArt, type CustomArt } from "../art/custom";
+import { cachedSpritePixels, loadSpritePixels, voxelGeometry, type SpritePixels } from "./voxel";
 
 /**
  * Full 3D Ecos, built from the same body plans as the pixel sprites so every design keeps its
@@ -619,52 +620,45 @@ function addSparkles(body: THREE.Group, width: number, height: number, materials
 }
 
 /**
- * An Eco drawn from your own PNG: a standing card (square image, facing right, feet on the
- * bottom edge) that breathes, hops and flashes like the 3D figures.
+ * An Eco from its pixel-art sprite (src/assets/creatures), built as a 3D voxel figure: thick in
+ * the body, thin at the edges, lit and casting shadows. It breathes, hops and flashes like any
+ * other figure. If the sprite isn't decoded yet the figure appears as soon as it is.
  */
 function buildSpriteCreature(speciesID: string, variant: Variant, art: CustomArt, stageHeight: number, silhouette: boolean): CreatureRig {
-  const tex = new THREE.Texture();
-  tex.colorSpace = THREE.SRGBColorSpace;
-  // Pixel art: keep every pixel crisp when scaled.
-  tex.magFilter = THREE.NearestFilter;
-  tex.minFilter = THREE.NearestFilter;
-  tex.generateMipmaps = false;
-  const img = new Image();
-  img.onload = () => {
-    if (art.recolour) {
-      const c = document.createElement("canvas");
-      c.width = img.naturalWidth; c.height = img.naturalHeight;
-      const g = c.getContext("2d")!;
-      g.drawImage(img, 0, 0);
-      const d = g.getImageData(0, 0, c.width, c.height);
-      hueRotatePixels(d.data);
-      g.putImageData(d, 0, 0);
-      tex.image = c;
-    } else tex.image = img;
-    tex.needsUpdate = true;
-  };
-  img.src = art.url;
-  const size = stageHeight * 1.2;
-  // Silhouette: black (the texture times black) keeping the image's outline through its alpha.
   const mat = silhouette
-    ? new THREE.MeshBasicMaterial({ color: "#000000", map: tex, alphaTest: 0.5, side: THREE.DoubleSide, transparent: true, opacity: 0.7 })
-    : new THREE.MeshStandardMaterial({ map: tex, emissiveMap: tex, alphaTest: 0.5, roughness: 0.9, side: THREE.DoubleSide });
-  const geo = new THREE.PlaneGeometry(size, size);
-  geo.translate(0, size / 2, 0);
-  const mesh = new THREE.Mesh(geo, mat);
+    ? new THREE.MeshBasicMaterial({ color: "#5a5478" })
+    : cloneSoft(softMaterial("#ffffff", { vertexColors: true, roughness: 0.62, wrap: 0.3, rim: 0.28 }));
+  const mesh = new THREE.Mesh(new THREE.BufferGeometry(), mat);
   mesh.castShadow = true;
   const model = new THREE.Group();
   model.add(mesh);
   const body = new THREE.Group();
   body.add(model);
-  const extra: THREE.Material[] = [];
-  const sparkles = variant === "brillante" && !silhouette ? addSparkles(body, size * 0.8, size, extra) : undefined;
-  const root = new THREE.Group();
-  root.add(body);
-  root.name = `eco:${speciesID}`;
-  return {
-    root, body, height: size, width: size * 0.8, eyes: [], seams: [], sparkles,
+  const rig: CreatureRig = {
+    root: new THREE.Group(), body, height: stageHeight, width: stageHeight * 0.9, eyes: [], seams: [],
     colors: { main: "#ffffff", second: "#ffffff", accent: "#ffd76a", seam: "#ffd76a" },
-    dispose() { geo.dispose(); mat.dispose(); tex.dispose(); for (const m of extra) m.dispose(); },
+    dispose() { mesh.geometry.dispose(); mat.dispose(); for (const m of extra) m.dispose(); },
   };
+  const extra: THREE.Material[] = [];
+  const place = (px: SpritePixels) => {
+    const v = voxelGeometry(px);
+    const k = stageHeight / v.height;
+    mesh.geometry.dispose();
+    mesh.geometry = v.geo;
+    mesh.scale.setScalar(k);
+    rig.width = v.width * k;
+  };
+  const ready = cachedSpritePixels(art.url, art.recolour);
+  if (ready) place(ready);
+  else void loadSpritePixels(art.url, art.recolour).then(place).catch(() => { /* stays empty */ });
+  rig.sparkles = variant === "brillante" && !silhouette ? addSparkles(body, stageHeight * 0.8, stageHeight, extra) : undefined;
+  rig.root.add(body);
+  rig.root.name = `eco:${speciesID}`;
+  return rig;
+}
+
+/** Decodes a species' sprite ahead of time, so its voxel figure is ready when built. */
+export function preloadCreature(speciesID: string, variant: Variant): Promise<void> {
+  const art = typeof document !== "undefined" ? customArt(speciesID, variant) : undefined;
+  return art ? loadSpritePixels(art.url, art.recolour).then(() => undefined, () => undefined) : Promise.resolve();
 }
