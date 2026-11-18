@@ -125,7 +125,9 @@ export class BattleStage {
 
   private place(side: Side) {
     const old = this.fighters.get(side);
-    if (old) old.rig.dispose();
+    // Take the old form out of the scene, not just free its GPU data: three.js keeps drawing
+    // anything still parented, so a disposed rig would linger behind the new one.
+    if (old) { old.rig.root.removeFromParent(); old.rig.dispose(); }
     const c = this.battle.combatant(side);
     const rig = buildCreature(c.speciesID, c.variant, this.battle.data);
     const slot = side === "partner" ? this.arena.slots.partner : this.arena.slots.enemy;
